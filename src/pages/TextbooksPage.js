@@ -167,24 +167,6 @@ const TextbooksPage = () => {
         </section>
       )}
 
-      {/* Language Filter Info */}
-      {selectedLanguage !== 'all' && (
-        <section className="py-2 bg-info bg-opacity-10">
-          <div className="container">
-            <div className="text-center">
-              <small className="text-info">
-                <i className="bi bi-filter me-1"></i>
-                Showing textbooks in: <strong>
-                  {selectedLanguage === 'sinhala' && 'සිංහල (Sinhala)'}
-                  {selectedLanguage === 'tamil' && 'தமிழ் (Tamil)'}
-                  {selectedLanguage === 'english' && 'English'}
-                </strong>
-              </small>
-            </div>
-          </div>
-        </section>
-      )}
-
       {/* Textbooks Content */}
       <section className="py-5">
         <div className="container">
@@ -219,7 +201,7 @@ const TextbooksPage = () => {
                         <div className="card h-100">
                           <div className="card-header bg-danger text-white text-center">
                             <h5 className="mb-0">
-                              <i className="bi bi-download me-2"></i>සිංහල (Sinhala)
+                              <i className="bi bi-download me-2"></i>සිංහල
                             </h5>
                           </div>
                           <div className="card-body">
@@ -254,7 +236,7 @@ const TextbooksPage = () => {
                         <div className="card h-100">
                           <div className="card-header bg-purple text-white text-center" style={{ backgroundColor: 'var(--tamil)' }}>
                             <h5 className="mb-0">
-                              <i className="bi bi-download me-2"></i>தமிழ் (Tamil)
+                              <i className="bi bi-download me-2"></i>தமிழ்
                             </h5>
                           </div>
                           <div className="card-body">
@@ -289,7 +271,7 @@ const TextbooksPage = () => {
                         <div className="card h-100">
                           <div className="card-header bg-primary text-white text-center">
                             <h5 className="mb-0">
-                              <i className="bi bi-download me-2"></i>English
+                              <i className="bi bi-download me-2"></i>
                             </h5>
                           </div>
                           <div className="card-body">
