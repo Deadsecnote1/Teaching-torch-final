@@ -1,18 +1,30 @@
 /* Teaching Torch - Global Styles with Better Theme Support */
 :root {
   /* Light Mode Colors - Modern Educational Theme */
-  --primary: #2563EB; /* Vibrant Blue - Trust & Education */
-  --secondary: #10B981; /* Emerald Green - Growth & Success */
-  --success: #059669; /* Success Green */
-  --info: #0EA5E9; /* Sky Blue - Information */
-  --warning: #F59E0B; /* Amber - Warnings */
-  --danger: #EF4444; /* Red - Errors */
-  --dark: #1F2937; /* Dark Gray */
-  --light: #F9FAFB; /* Light Gray */
-  --sinhala: #DC2626; /* Rich Red for Sinhala */
-  --tamil: #7C3AED; /* Purple for Tamil */
-  --english: #2563EB; /* Blue for English */
-  
+  --primary: #006764;
+  --primary-gradient: linear-gradient(135deg, var(--primary) 0%, #004D4A 100%);
+  /* Deep Teal - US Dept of Education Style */
+  --secondary: #10B981;
+  /* Emerald Green - Growth & Success */
+  --success: #059669;
+  /* Success Green */
+  --info: #0EA5E9;
+  /* Sky Blue - Information */
+  --warning: #F59E0B;
+  /* Amber - Warnings */
+  --danger: #EF4444;
+  /* Red - Errors */
+  --dark: #1F2937;
+  /* Dark Gray */
+  --light: #F9FAFB;
+  /* Light Gray */
+  --sinhala: #DC2626;
+  /* Rich Red for Sinhala */
+  --tamil: #7C3AED;
+  /* Purple for Tamil */
+  --english: #2563EB;
+  /* Blue for English */
+
   /* Theme Variables */
   --bg-primary: #ffffff;
   --bg-secondary: #f8f9fa;
@@ -20,11 +32,12 @@
   --text-primary: #212529;
   --text-secondary: #6c757d;
   --text-muted: #6c757d;
+  --text-dark: #212529;
   --border-color: #dee2e6;
-  --navbar-bg: var(--primary);
+  --navbar-bg: var(--primary-gradient);
   --card-bg: #ffffff;
   --card-shadow: rgba(0, 0, 0, 0.1);
-  --hero-gradient: linear-gradient(135deg, var(--primary) 0%, #1E40AF 100%);
+  --hero-gradient: linear-gradient(135deg, rgba(0, 54, 64, 0.85) 0%, rgba(0, 54, 64, 0.95) 100%);
 }
 
 /* Dark Mode Colors */
@@ -34,14 +47,18 @@
   --bg-tertiary: #2d2d2d;
   --text-primary: #e0e0e0;
   --text-secondary: #b0b0b0;
-  --text-muted: #9e9e9e;
+  --text-muted: #a1a1aa;
+  /* Lighter grey for dark mode visibility */
+  --text-dark: #f8fafc;
+  /* Overwrite for bootstrap utilities */
   --border-color: #404040;
   --navbar-bg: #1E40AF;
   --card-bg: #1e1e1e;
   --card-shadow: rgba(0, 0, 0, 0.3);
-  --hero-gradient: linear-gradient(135deg, #1E40AF 0%, #1E3A8A 100%);
-  
-  --primary: #3B82F6;
+  --hero-gradient: linear-gradient(135deg, rgba(0, 54, 64, 0.9) 0%, rgba(0, 30, 40, 0.95) 100%);
+
+  --primary: #008C87;
+  /* Lighter teal for dark mode contrast */
   --secondary: #10B981;
   --light: #2d2d2d;
   --dark: #e0e0e0;
@@ -74,7 +91,7 @@ body {
 
 /* Navbar Fixes */
 .navbar {
-  background-color: var(--primary) !important;
+  background: var(--navbar-bg) !important;
   box-shadow: 0 2px 10px var(--card-shadow);
   position: fixed !important;
   top: 0;
@@ -91,24 +108,56 @@ body {
 .nav-link {
   font-weight: 500;
   transition: color 0.3s ease;
-  color: rgba(255,255,255,0.9) !important;
+  color: rgba(255, 255, 255, 0.9) !important;
   text-decoration: none !important;
 }
 
 .nav-link:hover {
   color: white !important;
-  background-color: rgba(255,255,255,0.1) !important;
+  background-color: rgba(255, 255, 255, 0.1) !important;
   text-decoration: none !important;
 }
 
 .nav-link.active {
   color: white !important;
   font-weight: 600;
-  background-color: rgba(255,255,255,0.2) !important;
+  background-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Tab Navigation Fixes (Admin Dashboard & Modals) */
+.nav-tabs .nav-link {
+  color: var(--text-secondary) !important;
+  border-color: transparent !important;
+  background-color: transparent !important;
+}
+
+.nav-tabs .nav-link:hover {
+  color: var(--primary) !important;
+  background-color: rgba(0, 0, 0, 0.05) !important;
+  border-color: transparent !important;
+}
+
+[data-theme='dark'] .nav-tabs .nav-link {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+[data-theme='dark'] .nav-tabs .nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  color: white !important;
+}
+
+.nav-tabs .nav-link.active {
+  color: var(--primary) !important;
+  background-color: var(--card-bg) !important;
+  border-color: var(--border-color) var(--border-color) var(--card-bg) !important;
+  font-weight: bold;
 }
 
 /* Remove underlines from all links */
-a, a:hover, a:focus, a:active {
+a,
+a:hover,
+a:focus,
+a:active {
   text-decoration: none !important;
 }
 
@@ -126,7 +175,8 @@ a, a:hover, a:focus, a:active {
   text-decoration: none !important;
 }
 
-.dropdown-item:hover, .dropdown-item:focus {
+.dropdown-item:hover,
+.dropdown-item:focus {
   background-color: var(--primary);
   color: white !important;
   text-decoration: none !important;
@@ -140,14 +190,14 @@ a, a:hover, a:focus, a:active {
 #themeToggle {
   background: none !important;
   border: none !important;
-  color: rgba(255,255,255,0.9) !important;
+  color: rgba(255, 255, 255, 0.9) !important;
   padding: 0.5rem !important;
   border-radius: 4px;
 }
 
 #themeToggle:hover {
   color: white !important;
-  background: rgba(255,255,255,0.1) !important;
+  background: rgba(255, 255, 255, 0.1) !important;
 }
 
 /* Language Filter */
@@ -344,7 +394,8 @@ a, a:hover, a:focus, a:active {
 }
 
 /* Form Elements */
-.form-control, .form-select {
+.form-control,
+.form-select {
   background-color: var(--card-bg);
   border: 2px solid var(--border-color);
   color: var(--text-primary);
@@ -353,7 +404,8 @@ a, a:hover, a:focus, a:active {
   transition: border-color 0.3s ease, background-color 0.3s ease;
 }
 
-.form-control:focus, .form-select:focus {
+.form-control:focus,
+.form-select:focus {
   background-color: var(--card-bg);
   border-color: var(--primary);
   color: var(--text-primary);
@@ -377,12 +429,21 @@ a, a:hover, a:focus, a:active {
   color: var(--text-muted) !important;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   color: var(--text-primary);
 }
 
+.text-dark {
+  color: var(--text-dark) !important;
+}
+
 p {
-  color: var(--text-primary);
+  color: var(--text-secondary);
 }
 
 small {
@@ -439,18 +500,21 @@ small {
 }
 
 /* Page Headers */
-.page-header, .grade-header {
+.page-header,
+.grade-header {
   background: var(--hero-gradient);
   color: white;
-  padding: 4rem 0;
+  padding: 130px 0 4rem 0;
   text-align: center;
 }
 
-.page-header h1, .grade-header h1 {
+.page-header h1,
+.grade-header h1 {
   color: white;
 }
 
-.page-header p, .grade-header p {
+.page-header p,
+.grade-header p {
   color: rgba(255, 255, 255, 0.9);
 }
 
@@ -591,29 +655,29 @@ small {
   .main-content {
     padding-top: 70px;
   }
-  
+
   .hero-section {
     min-height: 50vh;
     padding: 2rem 0;
   }
-  
+
   .display-4 {
     font-size: 2rem;
   }
-  
+
   .grade-card {
     padding: 1.5rem;
     margin-bottom: 2rem;
   }
-  
+
   .grade-icon {
     width: 60px;
     height: 60px;
     font-size: 1.5rem;
   }
-  
+
   .navbar-nav {
-    background-color: rgba(0,0,0,0.1);
+    background-color: rgba(0, 0, 0, 0.1);
     border-radius: 8px;
     margin-top: 1rem;
     padding: 1rem;

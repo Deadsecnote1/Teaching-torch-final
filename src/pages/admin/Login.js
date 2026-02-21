@@ -1,20 +1,28 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 const AdminLogin = () => {
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    
-    // Simple password check (in production, use proper authentication)
-    if (password === 'admin123') {
-      localStorage.setItem('adminLoggedIn', 'true');
+
+    try {
+      setError('');
+      setLoading(true);
+      await login(email, password);
       navigate('/admin');
-    } else {
-      setError('Invalid password. Try: admin123');
+    } catch (err) {
+      console.error(err);
+      setError('Failed to log in. Please check your email and password.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -49,6 +57,19 @@ const AdminLogin = () => {
 
                   <form onSubmit={handleLogin}>
                     <div className="mb-3">
+                      <label htmlFor="email" className="form-label">Email Address</label>
+                      <input
+                        type="email"
+                        className="form-control"
+                        id="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="Enter admin email"
+                        required
+                      />
+                    </div>
+
+                    <div className="mb-3">
                       <label htmlFor="password" className="form-label">Password</label>
                       <input
                         type="password"
@@ -59,14 +80,11 @@ const AdminLogin = () => {
                         placeholder="Enter admin password"
                         required
                       />
-                      <div className="form-text">
-                        <small className="text-muted">Default: admin123</small>
-                      </div>
                     </div>
 
-                    <button type="submit" className="btn btn-primary w-100">
+                    <button disabled={loading} type="submit" className="btn btn-primary w-100">
                       <i className="bi bi-box-arrow-in-right me-2"></i>
-                      Login
+                      {loading ? 'Logging in...' : 'Login'}
                     </button>
                   </form>
 

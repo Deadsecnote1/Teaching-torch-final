@@ -1,96 +1,98 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useData } from '../../context/DataContext';
+import { useAuth } from '../../context/AuthContext';
 import { isGoogleDriveLink, extractFileId } from '../../utils/googleDrive';
 import { isYouTubeLink, extractYouTubeId } from '../../utils/youtube';
+import toast from 'react-hot-toast';
+import LoadingSpinner from '../../components/common/LoadingSpinner';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
-  const { getStats, exportData } = useData();
-  const [activeTab, setActiveTab] = useState('overview');
+  const {
+    getStats,
+    exportData,
+    allResources,
+    addTextbook,
+    addPaper,
+    addVideo,
+    addNote,
+    addGrade,
+    getSubjectsForGrade,
+    addSubject,
+    deleteResource,
+    deleteGrade,
+    deleteSubject,
+    grades,
+    subjects
+  } = useData();
+  const { currentUser, logout } = useAuth();
+  const [activeTab, setActiveTab] = useState('overview'); // overview, resources, grades, subjects
   const [selectedGrade, setSelectedGrade] = useState('grade6');
   const [selectedSubject, setSelectedSubject] = useState('mathematics');
   const [selectedResourceType, setSelectedResourceType] = useState('textbook');
   const [selectedPaperType, setSelectedPaperType] = useState('term'); // 'term' or 'chapter'
   const [selectedPaperCategory, setSelectedPaperCategory] = useState('term1'); // For term papers: term1, term2, term3. For chapter papers: chapter name
   const [selectedLanguages, setSelectedLanguages] = useState(['english']);
-  const [fileList, setFileList] = useState([]);
-  const [uploadProgress, setUploadProgress] = useState(0);
+  // const [fileList, setFileList] = useState([]); // Removed file upload state as we use links
+  // const [uploadProgress, setUploadProgress] = useState(0); 
   const [uploadedFiles, setUploadedFiles] = useState([]);
-  const [recentUploads, setRecentUploads] = useState([]);
   const [driveLink, setDriveLink] = useState('');
   const [resourceTitle, setResourceTitle] = useState('');
   const [resourceDescription, setResourceDescription] = useState('');
   const [schoolName, setSchoolName] = useState('');
-  
+
+  // Add Grade State
+  const [newGradeName, setNewGradeName] = useState('');
+  const [newGradeCode, setNewGradeCode] = useState('');
+
+  // Add Subject State
+  const [newSubjectName, setNewSubjectName] = useState('');
+  const [newSubjectNameSinhala, setNewSubjectNameSinhala] = useState('');
+  const [newSubjectNameTamil, setNewSubjectNameTamil] = useState('');
+  const [newSubjectCode, setNewSubjectCode] = useState('');
+  const [newSubjectIcon, setNewSubjectIcon] = useState('bi-book');
+  const [newSubjectGrades, setNewSubjectGrades] = useState([]);
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
   const stats = getStats();
 
-  // Load uploaded files from localStorage on component mount
+  // Sync uploadedFiles with allResources from Context
   useEffect(() => {
-    const savedFiles = localStorage.getItem('teachingTorch_uploadedFiles');
-    if (savedFiles) {
-      setUploadedFiles(JSON.parse(savedFiles));
+    if (allResources) {
+      setUploadedFiles(allResources);
     }
-    
-    const savedRecent = localStorage.getItem('teachingTorch_recentUploads');
-    if (savedRecent) {
-      setRecentUploads(JSON.parse(savedRecent));
-    }
-  }, []);
+  }, [allResources]);
 
   // Check if admin is logged in
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem('adminLoggedIn');
-    if (!isLoggedIn) {
+    if (!currentUser) {
       navigate('/admin/login');
     }
-  }, [navigate]);
+  }, [currentUser, navigate]);
 
-  const handleLogout = () => {
-    localStorage.removeItem('adminLoggedIn');
-    navigate('/');
-  };
-
-  const handleFileSelect = (event) => {
-    const files = Array.from(event.target.files);
-    setFileList(files);
-  };
-
-  const handleDrop = (event) => {
-    event.preventDefault();
-    const files = Array.from(event.dataTransfer.files);
-    setFileList(files);
-  };
-
-  const handleDragOver = (event) => {
-    event.preventDefault();
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/');
+    } catch (error) {
+      console.error("Failed to log out", error);
+    }
   };
 
   const handleLanguageToggle = (language) => {
-    setSelectedLanguages(prev => 
-      prev.includes(language) 
+    setSelectedLanguages(prev =>
+      prev.includes(language)
         ? prev.filter(lang => lang !== language)
         : [...prev, language]
     );
   };
 
-  const saveToLocalStorage = (files) => {
-    const currentFiles = JSON.parse(localStorage.getItem('teachingTorch_uploadedFiles') || '[]');
-    const updatedFiles = [...currentFiles, ...files];
-    localStorage.setItem('teachingTorch_uploadedFiles', JSON.stringify(updatedFiles));
-    setUploadedFiles(updatedFiles);
-
-    // Update recent uploads (keep last 10)
-    const recentFiles = files.slice(0, 10);
-    const currentRecent = JSON.parse(localStorage.getItem('teachingTorch_recentUploads') || '[]');
-    const updatedRecent = [...recentFiles, ...currentRecent].slice(0, 10);
-    localStorage.setItem('teachingTorch_recentUploads', JSON.stringify(updatedRecent));
-    setRecentUploads(updatedRecent);
-  };
-
-  const handleAddDriveLink = () => {
+  const handleAddDriveLink = async () => {
     if (!driveLink.trim()) {
-      alert('Please enter a Google Drive link or YouTube URL');
+      toast.error('Please enter a Google Drive link or YouTube URL');
       return;
     }
 
@@ -98,130 +100,123 @@ const AdminDashboard = () => {
     if (selectedResourceType === 'videos') {
       // Allow YouTube links for videos
       if (!isYouTubeLink(driveLink) && !isGoogleDriveLink(driveLink)) {
-        alert('Please enter a valid YouTube URL or Google Drive link.\n\nYouTube: https://www.youtube.com/watch?v=VIDEO_ID\nGoogle Drive: https://drive.google.com/file/d/FILE_ID/view');
+        toast.error('Please enter a valid YouTube URL or Google Drive link.\n\nYouTube: https://www.youtube.com/watch?v=VIDEO_ID\nGoogle Drive: https://drive.google.com/file/d/FILE_ID/view');
         return;
       }
     } else {
       // For other resources, only Google Drive
       if (!isGoogleDriveLink(driveLink)) {
-        alert('Please enter a valid Google Drive link.\n\nExample: https://drive.google.com/file/d/FILE_ID/view');
+        toast.error('Please enter a valid Google Drive link.\n\nExample: https://drive.google.com/file/d/FILE_ID/view');
         return;
       }
     }
 
     if (selectedLanguages.length === 0) {
-      alert('Please select at least one language');
+      toast.error('Please select at least one language');
       return;
     }
 
     if (!resourceTitle.trim()) {
-      alert('Please enter a title for this resource');
+      toast.error('Please enter a title for this resource');
       return;
     }
 
-    // Extract file/video ID to verify
-    let fileId = null;
-    if (selectedResourceType === 'videos' && isYouTubeLink(driveLink)) {
-      fileId = extractYouTubeId(driveLink);
-      if (!fileId) {
-        alert('Could not extract video ID from the YouTube URL. Please check the link format.');
+    setIsSubmitting(true);
+
+    try {
+      // Common file data
+      const fileData = {
+        title: resourceTitle.trim(),
+        description: resourceDescription.trim() || '',
+        name: resourceTitle.trim(),
+        url: driveLink.trim(),
+        addedBy: currentUser ? currentUser.email : 'admin'
+      };
+
+      // Specific handling based on link type
+      if (selectedResourceType === 'videos' && isYouTubeLink(driveLink)) {
+        fileData.youtubeUrl = driveLink.trim();
+        fileData.fileId = extractYouTubeId(driveLink);
+      } else {
+        fileData.driveLink = driveLink.trim();
+        fileData.fileId = extractFileId(driveLink);
+      }
+
+      // Call DataContext actions based on type
+      if (selectedResourceType === 'textbook') {
+        // Add for each selected language (though usually one)
+        for (const lang of selectedLanguages) {
+          await addTextbook(selectedGrade, selectedSubject, lang, fileData);
+        }
+      } else if (selectedResourceType === 'papers') {
+        // Default to first language if multiple selected (papers usually one lang per PDF)
+        const lang = selectedLanguages[0];
+        await addPaper(selectedGrade, selectedSubject, selectedPaperType, selectedPaperCategory, fileData, schoolName, lang);
+      } else if (selectedResourceType === 'videos') {
+        const lang = selectedLanguages[0];
+        await addVideo(selectedGrade, selectedSubject, { ...fileData, language: lang });
+      } else if (selectedResourceType === 'notes') {
+        const lang = selectedLanguages[0];
+        await addNote(selectedGrade, selectedSubject, fileData, lang);
+      } else {
+        toast.error('Unsupported resource type.');
+        setIsSubmitting(false);
         return;
       }
-    } else {
-      fileId = extractFileId(driveLink);
-      if (!fileId) {
-        alert('Could not extract file ID from the Google Drive link. Please check the link format.');
-        return;
+
+      // Success notification
+      toast.success(`Successfully added resource!`);
+
+      // Reset form
+      setDriveLink('');
+      setResourceTitle('');
+      setResourceDescription('');
+      setSelectedLanguages(['english']);
+      setSchoolName('');
+      if (selectedResourceType === 'papers') {
+        setSelectedPaperType('term');
+        setSelectedPaperCategory('term1');
       }
-    }
 
-    // Process the resource
-    const processedResource = {
-      id: Date.now().toString() + Math.random(),
-      driveLink: selectedResourceType === 'videos' && isYouTubeLink(driveLink) ? null : driveLink.trim(),
-      youtubeUrl: selectedResourceType === 'videos' && isYouTubeLink(driveLink) ? driveLink.trim() : null,
-      url: driveLink.trim(), // General URL field
-      fileId: fileId,
-      title: resourceTitle.trim(),
-      description: resourceDescription.trim() || '',
-      name: resourceTitle.trim(),
-      grade: selectedGrade,
-      subject: selectedSubject,
-      resourceType: selectedResourceType,
-      languages: selectedLanguages,
-      uploadDate: new Date().toISOString(),
-      addedBy: 'admin',
-      // For papers, add paper type and category
-      ...(selectedResourceType === 'papers' && {
-        paperType: selectedPaperType,
-        paperCategory: selectedPaperCategory,
-        school: schoolName.trim() || 'Unknown School'
-      })
-    };
-
-    // Save to localStorage
-    saveToLocalStorage([processedResource]);
-    
-    // Success notification
-    alert(`✅ Successfully added resource!\n\n` +
-          `Title: ${resourceTitle}\n` +
-          `Grade: ${selectedGrade}\n` +
-          `Subject: ${selectedSubject}\n` +
-          `Type: ${selectedResourceType}\n` +
-          `Languages: ${selectedLanguages.join(', ')}\n\n` +
-          `Make sure the Google Drive file is set to "Anyone with the link can view"`);
-    
-    // Reset form
-    setDriveLink('');
-    setResourceTitle('');
-    setResourceDescription('');
-    setSelectedLanguages(['english']);
-    setSchoolName('');
-    if (selectedResourceType === 'papers') {
-      setSelectedPaperType('term');
-      setSelectedPaperCategory('term1');
+    } catch (error) {
+      console.error("Error adding document: ", error);
+      toast.error("Error adding document: " + error.message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleDeleteSelected = () => {
-    if (window.confirm('Are you sure you want to delete all uploaded files? This action cannot be undone.')) {
-      localStorage.removeItem('teachingTorch_uploadedFiles');
-      localStorage.removeItem('teachingTorch_recentUploads');
-      setUploadedFiles([]);
-      setRecentUploads([]);
-      alert('✅ All files deleted successfully!');
-    }
+    toast.error("Bulk delete is disabled in Firestore mode for safety.");
   };
 
-  const handleDeleteResource = (resourceId) => {
+  const handleDeleteResource = async (resourceId) => {
     if (window.confirm('Are you sure you want to delete this resource? This action cannot be undone.')) {
-      const updatedFiles = uploadedFiles.filter(file => file.id !== resourceId);
-      localStorage.setItem('teachingTorch_uploadedFiles', JSON.stringify(updatedFiles));
-      setUploadedFiles(updatedFiles);
-      
-      // Update recent uploads
-      const updatedRecent = recentUploads.filter(file => file.id !== resourceId);
-      localStorage.setItem('teachingTorch_recentUploads', JSON.stringify(updatedRecent));
-      setRecentUploads(updatedRecent);
-      
-      alert('✅ Resource deleted successfully!');
+      try {
+        await deleteResource(resourceId);
+        // UI updates automatically via onSnapshot in DataContext
+        toast.success('Resource deleted successfully!');
+      } catch (error) {
+        console.error("Error deleting resource: ", error);
+        toast.error("Failed to delete resource: " + error.message);
+      }
     }
   };
 
   const handleRefresh = () => {
-    // Reload from localStorage
-    const savedFiles = localStorage.getItem('teachingTorch_uploadedFiles');
-    if (savedFiles) {
-      setUploadedFiles(JSON.parse(savedFiles));
-    }
-    
-    const savedRecent = localStorage.getItem('teachingTorch_recentUploads');
-    if (savedRecent) {
-      setRecentUploads(JSON.parse(savedRecent));
-    }
-    
-    alert('📁 File manager refreshed!');
+    // No op - Firestore listens in real-time
+    toast.success('Data is automatically synced with Firestore!');
   };
+
+  // Filter files based on search query
+  const filteredFiles = uploadedFiles.filter(file => {
+    const searchLower = searchQuery.toLowerCase();
+    return (
+      (file.title || file.name || '').toLowerCase().includes(searchLower) ||
+      (file.grade || '').toLowerCase().includes(searchLower) ||
+      (file.subject || '').toLowerCase().includes(searchLower)
+    );
+  });
 
   // Group uploaded files by grade/subject/type
   const getFileGroups = () => {
@@ -237,6 +232,84 @@ const AdminDashboard = () => {
   };
 
   const fileGroups = getFileGroups();
+
+  // Handlers for dynamic grades and subjects
+  const handleAddGrade = async () => {
+    if (!newGradeName.trim() || !newGradeCode.trim()) {
+      toast.error('Please enter both grade code and display name');
+      return;
+    }
+    try {
+      setIsSubmitting(true);
+      await addGrade(newGradeCode.trim().toLowerCase(), {
+        name: newGradeName.trim(),
+        display: newGradeName.trim(),
+        active: true
+      });
+      toast.success('Grade created successfully!');
+      setNewGradeName('');
+      setNewGradeCode('');
+    } catch (e) {
+      toast.error('Failed to create grade');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleAddSubject = async () => {
+    if (!newSubjectName.trim() || !newSubjectCode.trim()) {
+      toast.error('Please enter both subject code and display name');
+      return;
+    }
+    if (newSubjectGrades.length === 0) {
+      toast.error('Please select at least one grade for this subject');
+      return;
+    }
+    try {
+      setIsSubmitting(true);
+      await addSubject(newSubjectCode.trim().toLowerCase(), {
+        name: newSubjectName.trim(),
+        nameSinhala: newSubjectNameSinhala.trim(),
+        nameTamil: newSubjectNameTamil.trim(),
+        icon: newSubjectIcon.trim(),
+        grades: newSubjectGrades
+      });
+      toast.success('Subject created successfully!');
+      setNewSubjectName('');
+      setNewSubjectNameSinhala('');
+      setNewSubjectNameTamil('');
+      setNewSubjectCode('');
+      setNewSubjectGrades([]);
+    } catch (e) {
+      toast.error('Failed to create subject');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDeleteGrade = async (gradeId) => {
+    if (window.confirm(`Are you sure you want to delete this grade? This action cannot be undone.`)) {
+      try {
+        await deleteGrade(gradeId);
+        toast.success('Grade deleted successfully!');
+      } catch (error) {
+        console.error("Error deleting grade: ", error);
+        toast.error("Failed to delete grade: " + error.message);
+      }
+    }
+  };
+
+  const handleDeleteSubject = async (subjectId) => {
+    if (window.confirm(`Are you sure you want to delete this subject? This action cannot be undone.`)) {
+      try {
+        await deleteSubject(subjectId);
+        toast.success('Subject deleted successfully!');
+      } catch (error) {
+        console.error("Error deleting subject: ", error);
+        toast.error("Failed to delete subject: " + error.message);
+      }
+    }
+  };
 
   return (
     <div className="admin-dashboard">
@@ -257,11 +330,11 @@ const AdminDashboard = () => {
       </header>
 
       {/* Navigation Tabs */}
-      <section className="py-3 bg-light">
+      <section className="py-3">
         <div className="container">
           <ul className="nav nav-tabs">
             <li className="nav-item">
-              <button 
+              <button
                 className={`nav-link ${activeTab === 'overview' ? 'active' : ''}`}
                 onClick={() => setActiveTab('overview')}
               >
@@ -270,12 +343,21 @@ const AdminDashboard = () => {
               </button>
             </li>
             <li className="nav-item">
-              <button 
+              <button
                 className={`nav-link ${activeTab === 'resources' ? 'active' : ''}`}
                 onClick={() => setActiveTab('resources')}
               >
                 <i className="bi bi-folder me-2"></i>
                 Manage Resources
+              </button>
+            </li>
+            <li className="nav-item">
+              <button
+                className={`nav-link ${activeTab === 'grades' ? 'active' : ''}`}
+                onClick={() => setActiveTab('grades')}
+              >
+                <i className="bi bi-mortarboard me-2"></i>
+                Grades & Subjects
               </button>
             </li>
           </ul>
@@ -339,7 +421,7 @@ const AdminDashboard = () => {
                     </div>
                     <div className="card-body">
                       <div className="d-grid gap-2">
-                        <button 
+                        <button
                           onClick={exportData}
                           className="btn btn-primary"
                         >
@@ -350,7 +432,7 @@ const AdminDashboard = () => {
                           <i className="bi bi-house me-2"></i>
                           View Website
                         </Link>
-                        <button 
+                        <button
                           className="btn btn-success"
                           onClick={() => setActiveTab('resources')}
                         >
@@ -372,7 +454,6 @@ const AdminDashboard = () => {
                         <div>
                           <p>Total files uploaded: <strong>{uploadedFiles.length}</strong></p>
                           <p>Storage locations: <strong>{Object.keys(fileGroups).length}</strong></p>
-                          <p>Recent uploads: <strong>{recentUploads.length}</strong></p>
                         </div>
                       ) : (
                         <p className="text-muted">No files uploaded yet. Use the Manage Resources tab to upload files.</p>
@@ -400,36 +481,46 @@ const AdminDashboard = () => {
                     <div className="row g-3 mb-4">
                       <div className="col-md-4">
                         <label className="form-label">Select Grade</label>
-                        <select 
+                        <select
                           className="form-select"
                           value={selectedGrade}
-                          onChange={(e) => setSelectedGrade(e.target.value)}
+                          onChange={(e) => {
+                            setSelectedGrade(e.target.value);
+                            // When grade changes, potentially reset subject if old subject isn't in new grade
+                            const availableSubjects = getSubjectsForGrade(e.target.value);
+                            const availableKeys = Object.keys(availableSubjects);
+                            if (availableKeys.length > 0 && !availableKeys.includes(selectedSubject)) {
+                              setSelectedSubject(availableKeys[0]);
+                            } else if (availableKeys.length === 0) {
+                              setSelectedSubject('');
+                            }
+                          }}
                         >
-                          <option value="grade6">Grade 6</option>
-                          <option value="grade7">Grade 7</option>
-                          <option value="grade8">Grade 8</option>
-                          <option value="grade9">Grade 9</option>
-                          <option value="grade10">Grade 10</option>
-                          <option value="grade11">Grade 11</option>
-                          <option value="al">Advanced Level</option>
+                          {Object.entries(grades).map(([key, g]) => (
+                            <option key={key} value={key}>{g.display}</option>
+                          ))}
                         </select>
                       </div>
                       <div className="col-md-4">
                         <label className="form-label">Select Subject</label>
-                        <select 
+                        <select
                           className="form-select"
                           value={selectedSubject}
                           onChange={(e) => setSelectedSubject(e.target.value)}
+                          disabled={Object.keys(getSubjectsForGrade(selectedGrade)).length === 0}
                         >
-                          <option value="mathematics">Mathematics</option>
-                          <option value="science">Science</option>
-                          <option value="english">English</option>
-                          <option value="history">History</option>
+                          {Object.entries(getSubjectsForGrade(selectedGrade)).length > 0 ? (
+                            Object.entries(getSubjectsForGrade(selectedGrade)).map(([key, s]) => (
+                              <option key={key} value={key}>{s.name}</option>
+                            ))
+                          ) : (
+                            <option value="">No subjects available</option>
+                          )}
                         </select>
                       </div>
                       <div className="col-md-4">
                         <label className="form-label">Resource Type</label>
-                        <select 
+                        <select
                           className="form-select"
                           value={selectedResourceType}
                           onChange={(e) => {
@@ -455,7 +546,7 @@ const AdminDashboard = () => {
                       <div className="row g-3 mb-4">
                         <div className="col-md-6">
                           <label className="form-label">Paper Type</label>
-                          <select 
+                          <select
                             className="form-select"
                             value={selectedPaperType}
                             onChange={(e) => {
@@ -477,7 +568,7 @@ const AdminDashboard = () => {
                             {selectedPaperType === 'term' ? 'Term' : 'Chapter'}
                           </label>
                           {selectedPaperType === 'term' ? (
-                            <select 
+                            <select
                               className="form-select"
                               value={selectedPaperCategory}
                               onChange={(e) => setSelectedPaperCategory(e.target.value)}
@@ -546,7 +637,7 @@ const AdminDashboard = () => {
                       <input
                         type="text"
                         className="form-control"
-                        placeholder={selectedResourceType === 'videos' 
+                        placeholder={selectedResourceType === 'videos'
                           ? "https://www.youtube.com/watch?v=VIDEO_ID or Google Drive link"
                           : "https://drive.google.com/file/d/FILE_ID/view"}
                         value={driveLink}
@@ -555,7 +646,7 @@ const AdminDashboard = () => {
                       <div className="form-text">
                         <small>
                           <i className="bi bi-info-circle me-1"></i>
-                          {selectedResourceType === 'videos' 
+                          {selectedResourceType === 'videos'
                             ? 'Paste YouTube URL or Google Drive link. For YouTube: Use the full watch URL.'
                             : 'Paste the Google Drive share link here. Make sure the file is set to "Anyone with the link can view"'}
                         </small>
@@ -626,15 +717,26 @@ const AdminDashboard = () => {
 
                     {/* Add Resource Button */}
                     <div className="d-flex gap-2">
-                      <button 
+                      <button
                         className="btn btn-primary"
                         onClick={handleAddDriveLink}
-                        disabled={!driveLink.trim() || !resourceTitle.trim() || selectedLanguages.length === 0}
+                        disabled={!driveLink.trim() || !resourceTitle.trim() || selectedLanguages.length === 0 || isSubmitting}
                       >
-                        <i className="bi bi-plus-circle me-2"></i>
-                        Add Resource
+                        {isSubmitting ? (
+                          <>
+                            <div className="me-2" style={{ display: 'inline-block' }}>
+                              <LoadingSpinner size="small" color="light" />
+                            </div>
+                            Adding...
+                          </>
+                        ) : (
+                          <>
+                            <i className="bi bi-plus-circle me-2"></i>
+                            Add Resource
+                          </>
+                        )}
                       </button>
-                      <button 
+                      <button
                         className="btn btn-outline-secondary"
                         onClick={() => {
                           setDriveLink('');
@@ -690,24 +792,34 @@ const AdminDashboard = () => {
                       <i className="bi bi-folder me-2"></i>
                       File Manager
                     </h5>
-                    <button className="btn btn-outline-primary btn-sm" onClick={handleRefresh}>
-                      <i className="bi bi-arrow-clockwise"></i>
-                    </button>
                   </div>
                   <div className="card-body">
+                    {/* Search Bar */}
+                    <div className="input-group mb-3">
+                      <span className="input-group-text bg-white border-end-0">
+                        <i className="bi bi-search text-muted"></i>
+                      </span>
+                      <input
+                        type="text"
+                        className="form-control border-start-0 ps-0"
+                        placeholder="Search resources..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                      />
+                    </div>
+
                     <div className="file-list" style={{ maxHeight: '350px', overflowY: 'auto' }}>
-                      {uploadedFiles.length > 0 ? (
+                      {filteredFiles.length > 0 ? (
                         <div>
-                          {uploadedFiles.slice().reverse().map((file) => (
+                          {filteredFiles.slice().reverse().map((file) => (
                             <div key={file.id} className="d-flex justify-content-between align-items-center p-2 border-bottom">
                               <div className="flex-grow-1" style={{ minWidth: 0 }}>
                                 <div className="d-flex align-items-center">
-                                  <i className={`bi ${
-                                    file.resourceType === 'textbook' ? 'bi-book' :
+                                  <i className={`bi ${file.resourceType === 'textbook' ? 'bi-book' :
                                     file.resourceType === 'papers' ? 'bi-file-text' :
-                                    file.resourceType === 'notes' ? 'bi-sticky' :
-                                    'bi-play-circle'
-                                  } me-2 text-primary`}></i>
+                                      file.resourceType === 'notes' ? 'bi-sticky' :
+                                        'bi-play-circle'
+                                    } me-2 text-primary`}></i>
                                   <small className="text-truncate" style={{ maxWidth: '150px' }} title={file.title || file.name}>
                                     {file.title || file.name}
                                   </small>
@@ -733,10 +845,10 @@ const AdminDashboard = () => {
                         </div>
                       )}
                     </div>
-                    
+
                     <div className="mt-3 d-grid gap-2">
-                      <button 
-                        className="btn btn-outline-danger btn-sm" 
+                      <button
+                        className="btn btn-outline-danger btn-sm"
                         onClick={handleDeleteSelected}
                         disabled={uploadedFiles.length === 0}
                       >
@@ -750,9 +862,131 @@ const AdminDashboard = () => {
                     </div>
                   </div>
                 </div>
-
-                {/* Recent Uploads - Removed to fix overlapping, info is in File Manager */}
               </div>
+            </div>
+          )}
+
+          {activeTab === 'grades' && (
+            <div className="row g-4">
+              {/* Create Grade */}
+              <div className="col-md-6">
+                <div className="card h-100">
+                  <div className="card-header">
+                    <h5><i className="bi bi-plus-circle me-2"></i>Create New Grade</h5>
+                  </div>
+                  <div className="card-body">
+                    <div className="mb-3">
+                      <label className="form-label">Grade URL Code (e.g. 'law', 'university')</label>
+                      <input type="text" className="form-control" value={newGradeCode} onChange={e => setNewGradeCode(e.target.value)} />
+                    </div>
+                    <div className="mb-3">
+                      <label className="form-label">Display Name (e.g. 'Law Degree')</label>
+                      <input type="text" className="form-control" value={newGradeName} onChange={e => setNewGradeName(e.target.value)} />
+                    </div>
+                    <button className="btn btn-primary" onClick={handleAddGrade} disabled={isSubmitting}>
+                      Create Grade
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Create Subject */}
+              <div className="col-md-6">
+                <div className="card h-100">
+                  <div className="card-header">
+                    <h5><i className="bi bi-book me-2"></i>Create New Subject</h5>
+                  </div>
+                  <div className="card-body">
+                    <div className="mb-3">
+                      <label className="form-label">Subject Code (e.g. 'civil-law')</label>
+                      <input type="text" className="form-control" value={newSubjectCode} onChange={e => setNewSubjectCode(e.target.value)} />
+                    </div>
+                    <div className="mb-3">
+                      <label className="form-label">Display Name (English) (e.g. 'Civil Law')</label>
+                      <input type="text" className="form-control" value={newSubjectName} onChange={e => setNewSubjectName(e.target.value)} />
+                    </div>
+                    <div className="mb-3">
+                      <label className="form-label">Display Name (Sinhala) (Optional)</label>
+                      <input type="text" className="form-control" value={newSubjectNameSinhala} onChange={e => setNewSubjectNameSinhala(e.target.value)} />
+                    </div>
+                    <div className="mb-3">
+                      <label className="form-label">Display Name (Tamil) (Optional)</label>
+                      <input type="text" className="form-control" value={newSubjectNameTamil} onChange={e => setNewSubjectNameTamil(e.target.value)} />
+                    </div>
+                    <div className="mb-3">
+                      <label className="form-label">Bootstrap Icon Class (e.g. 'bi-book')</label>
+                      <input type="text" className="form-control" value={newSubjectIcon} onChange={e => setNewSubjectIcon(e.target.value)} />
+                    </div>
+                    <div className="mb-3">
+                      <label className="form-label">Available for Grades:</label>
+                      <select multiple className="form-select" value={newSubjectGrades} onChange={e => setNewSubjectGrades(Array.from(e.target.selectedOptions, option => option.value))}>
+                        {Object.entries(grades).map(([key, g]) => (
+                          <option key={key} value={key}>{g.display}</option>
+                        ))}
+                      </select>
+                      <small className="text-muted">Hold CTRL or CMD to select multiple grades.</small>
+                    </div>
+                    <button className="btn btn-primary" onClick={handleAddSubject} disabled={isSubmitting}>
+                      Create Subject
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Manage Existing Grades & Subjects */}
+              <div className="col-12 mt-4">
+                <div className="card">
+                  <div className="card-header">
+                    <h5><i className="bi bi-gear me-2"></i>Manage Existing Categories</h5>
+                  </div>
+                  <div className="card-body">
+                    <div className="row">
+                      <div className="col-md-6 border-end">
+                        <h6 className="mb-3">Grades</h6>
+                        <ul className="list-group list-group-flush">
+                          {Object.entries(grades).map(([key, g]) => (
+                            <li key={key} className="list-group-item d-flex justify-content-between align-items-center">
+                              <div>
+                                <strong>{g.display}</strong> ({key})
+                              </div>
+                              <button
+                                className="btn btn-sm btn-outline-danger"
+                                onClick={() => handleDeleteGrade(key)}
+                                title="Delete Grade"
+                              >
+                                <i className="bi bi-trash"></i>
+                              </button>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div className="col-md-6">
+                        <h6 className="mb-3">Subjects</h6>
+                        <ul className="list-group list-group-flush">
+                          {Object.entries(subjects).map(([key, s]) => (
+                            <li key={key} className="list-group-item d-flex justify-content-between align-items-center">
+                              <div>
+                                <strong>{s.name}</strong> ({key})
+                                <div className="small text-muted">
+                                  In: {s.grades?.join(', ') || 'None'}
+                                </div>
+                              </div>
+                              <button
+                                className="btn btn-sm btn-outline-danger"
+                                onClick={() => handleDeleteSubject(key)}
+                                title="Delete Subject"
+                              >
+                                <i className="bi bi-trash"></i>
+                              </button>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
             </div>
           )}
 
@@ -760,7 +994,7 @@ const AdminDashboard = () => {
           <div className="alert alert-info mt-4">
             <h5><i className="bi bi-info-circle me-2"></i>Google Drive Integration</h5>
             <p className="mb-0">
-              {activeTab === 'overview' ? 
+              {activeTab === 'overview' ?
                 'This dashboard provides an overview of resources and platform statistics. Resources are stored as Google Drive links.' :
                 '🔹 Resources are stored as Google Drive share links in localStorage.\n🔹 Users can view PDFs directly in the browser or download them.\n🔹 Make sure all Google Drive files are set to "Anyone with the link can view" for public access.\n🔹 No backend server needed - everything works client-side!'
               }
@@ -769,7 +1003,7 @@ const AdminDashboard = () => {
         </div>
       </section>
 
-      <style jsx>{`
+      <style>{`
         .upload-area {
           transition: all 0.3s ease;
           cursor: pointer;
@@ -798,10 +1032,7 @@ const AdminDashboard = () => {
           background-color: rgba(59, 130, 246, 0.08);
         }
 
-        .recent-uploads {
-          max-height: 200px;
-          overflow-y: auto;
-        }
+
       `}</style>
     </div>
   );

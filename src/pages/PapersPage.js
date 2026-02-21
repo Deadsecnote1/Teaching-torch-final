@@ -1,28 +1,17 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import { useParams, Link, useSearchParams } from 'react-router-dom';
 import { useData } from '../context/DataContext';
 import { useLanguage } from '../context/LanguageContext';
 import ResourceCard from '../components/common/ResourceCard';
+import { subjectTranslations } from '../utils/subjectTranslations';
 
 const PapersPage = () => {
   const { gradeId } = useParams();
   const [searchParams] = useSearchParams();
   const selectedSubjectId = searchParams.get('subject');
   const { generateGradePageData } = useData();
-  const { selectedLanguage, shouldShowResource, getLanguageIndicator } = useLanguage();
-  const [uploadedFiles, setUploadedFiles] = useState([]);
+  const { selectedLanguage, shouldShowResource } = useLanguage();
 
-  // Load uploaded files from localStorage
-  useEffect(() => {
-    const savedFiles = localStorage.getItem('teachingTorch_uploadedFiles');
-    if (savedFiles) {
-      const allFiles = JSON.parse(savedFiles);
-      const papers = allFiles.filter(file => 
-        file.grade === gradeId && file.resourceType === 'papers'
-      );
-      setUploadedFiles(papers);
-    }
-  }, [gradeId]);
 
   // Generate page data
   const pageData = useMemo(() => {
@@ -43,52 +32,13 @@ const PapersPage = () => {
 
   const { grade, subjects } = pageData;
 
-  // Group uploaded papers by subject
-  const getPapersBySubject = () => {
-    const grouped = {};
-    uploadedFiles.forEach(file => {
-      if (!grouped[file.subject]) {
-        grouped[file.subject] = { terms: { term1: [], term2: [], term3: [] }, chapters: {} };
-      }
-      
-      const paperData = {
-        ...file,
-        filename: file.title || file.name,
-        language: file.languages?.[0] || 'english',
-        school: file.school || 'Unknown School'
-      };
-      
-      // Use paperType and paperCategory if available (from admin upload)
-      if (file.paperType === 'term' && file.paperCategory) {
-        const termKey = file.paperCategory; // term1, term2, or term3
-        if (!grouped[file.subject].terms[termKey]) {
-          grouped[file.subject].terms[termKey] = [];
-        }
-        grouped[file.subject].terms[termKey].push(paperData);
-      } else if (file.paperType === 'chapter' && file.paperCategory) {
-        const chapterKey = file.paperCategory;
-        if (!grouped[file.subject].chapters[chapterKey]) {
-          grouped[file.subject].chapters[chapterKey] = [];
-        }
-        grouped[file.subject].chapters[chapterKey].push(paperData);
-      } else {
-        // Fallback: add to term1 if no paperType specified (for backward compatibility)
-        if (!grouped[file.subject].terms.term1) {
-          grouped[file.subject].terms.term1 = [];
-        }
-        grouped[file.subject].terms.term1.push(paperData);
-      }
-    });
-    return grouped;
-  };
 
-  const uploadedPapersBySubject = getPapersBySubject();
 
   // Helper function to format term names
   const formatTermName = (termKey) => {
     const termNames = {
       'term1': '1st Term',
-      'term2': '2nd Term', 
+      'term2': '2nd Term',
       'term3': '3rd Term'
     };
     return termNames[termKey] || termKey.charAt(0).toUpperCase() + termKey.slice(1);
@@ -121,7 +71,7 @@ const PapersPage = () => {
 
           // Filter papers by language
           const filteredPapers = papers.filter(paper => shouldShowResource(paper.language));
-          
+
           if (filteredPapers.length === 0) return null;
 
           return (
@@ -170,7 +120,7 @@ const PapersPage = () => {
 
           // Filter papers by language
           const filteredPapers = papers.filter(paper => shouldShowResource(paper.language));
-          
+
           if (filteredPapers.length === 0) return null;
 
           return (
@@ -254,23 +204,22 @@ const PapersPage = () => {
           {Object.keys(subjects).map(subjectId => {
             const subject = subjects[subjectId];
             const papers = subject.resources.papers || {};
-            const uploadedPapers = uploadedPapersBySubject[subjectId] || { terms: { term1: [], term2: [], term3: [] }, chapters: {} };
-            
-            // Merge uploaded papers with existing papers
+
+            // Merge uploaded papers with existing papers (now fully handled by Firestore)
             const mergedPapers = {
               terms: {
-                term1: [...(papers.terms?.term1 || []), ...(uploadedPapers.terms?.term1 || [])],
-                term2: [...(papers.terms?.term2 || []), ...(uploadedPapers.terms?.term2 || [])],
-                term3: [...(papers.terms?.term3 || []), ...(uploadedPapers.terms?.term3 || [])]
+                term1: papers.terms?.term1 || [],
+                term2: papers.terms?.term2 || [],
+                term3: papers.terms?.term3 || []
               },
-              chapters: { ...(papers.chapters || {}), ...(uploadedPapers.chapters || {}) }
+              chapters: papers.chapters || {}
             };
 
             // Check if any papers match the filter
-            const hasTermPapers = mergedPapers.terms && Object.values(mergedPapers.terms).some(termPapers => 
+            const hasTermPapers = mergedPapers.terms && Object.values(mergedPapers.terms).some(termPapers =>
               Array.isArray(termPapers) && termPapers.some(paper => shouldShowResource(paper.language))
             );
-            const hasChapterPapers = mergedPapers.chapters && Object.values(mergedPapers.chapters).some(chapterPapers => 
+            const hasChapterPapers = mergedPapers.chapters && Object.values(mergedPapers.chapters).some(chapterPapers =>
               Array.isArray(chapterPapers) && chapterPapers.some(paper => shouldShowResource(paper.language))
             );
 
@@ -292,7 +241,9 @@ const PapersPage = () => {
                       <i className={subject.icon} style={{ fontSize: '2.5rem', color: 'var(--primary)' }}></i>
                     </div>
                     <div>
-                      <h3 className="mb-0">{subject.name}</h3>
+                      <h3 className="mb-0">
+                        {subjectTranslations.getTranslatedName(subjectId, subject, selectedLanguage)}
+                      </h3>
                       <small className="text-muted">Past examination papers</small>
                     </div>
                   </div>

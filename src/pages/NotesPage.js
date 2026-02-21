@@ -1,8 +1,9 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import { useParams, Link, useSearchParams } from 'react-router-dom';
 import { useData } from '../context/DataContext';
 import { useLanguage } from '../context/LanguageContext';
 import ResourceCard from '../components/common/ResourceCard';
+import { subjectTranslations } from '../utils/subjectTranslations';
 
 const NotesPage = () => {
   const { gradeId } = useParams();
@@ -10,19 +11,7 @@ const NotesPage = () => {
   const selectedSubjectId = searchParams.get('subject');
   const { generateGradePageData } = useData();
   const { selectedLanguage, shouldShowResource } = useLanguage();
-  const [uploadedFiles, setUploadedFiles] = useState([]);
 
-  // Load uploaded files from localStorage
-  useEffect(() => {
-    const savedFiles = localStorage.getItem('teachingTorch_uploadedFiles');
-    if (savedFiles) {
-      const allFiles = JSON.parse(savedFiles);
-      const notes = allFiles.filter(file => 
-        file.grade === gradeId && file.resourceType === 'notes'
-      );
-      setUploadedFiles(notes);
-    }
-  }, [gradeId]);
 
   // Generate page data
   const pageData = useMemo(() => {
@@ -43,15 +32,6 @@ const NotesPage = () => {
 
   const { grade, subjects } = pageData;
 
-  // Helper function to format file size
-  const formatFileSize = (bytes) => {
-    if (!bytes) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
-
   // Helper function to format chapter names
   const formatChapterName = (chapterKey) => {
     if (chapterKey.includes('_')) {
@@ -63,7 +43,7 @@ const NotesPage = () => {
       }
       return baseName.charAt(0).toUpperCase() + baseName.slice(1).replace('-', ' ');
     }
-    
+
     if (chapterKey.startsWith('ch')) {
       const chapterNum = chapterKey.replace('ch', '');
       return `Chapter ${chapterNum}`;
@@ -84,7 +64,7 @@ const NotesPage = () => {
     }
 
     // Filter notes by language
-    const filteredNotes = Object.entries(notes).filter(([noteKey, note]) => 
+    const filteredNotes = Object.entries(notes).filter(([noteKey, note]) =>
       shouldShowResource(note.language)
     );
 
@@ -95,9 +75,9 @@ const NotesPage = () => {
           <h5 className="mt-3 text-muted">No notes found</h5>
           <p className="text-muted">
             No notes available in{' '}
-            {selectedLanguage === 'sinhala' ? 'Sinhala' : 
-             selectedLanguage === 'tamil' ? 'Tamil' : 
-             selectedLanguage === 'english' ? 'English' : 'the selected language'}
+            {selectedLanguage === 'sinhala' ? 'Sinhala' :
+              selectedLanguage === 'tamil' ? 'Tamil' :
+                selectedLanguage === 'english' ? 'English' : 'the selected language'}
             {' '}for this subject.
           </p>
         </div>
@@ -142,9 +122,9 @@ const NotesPage = () => {
                           showDownloadButton={true}
                         />
                       ) : (
-                        <a 
-                          href={`/${note.path}`} 
-                          className="btn btn-primary btn-sm w-100" 
+                        <a
+                          href={`/${note.path}`}
+                          className="btn btn-primary btn-sm w-100"
                           download
                         >
                           <i className="bi bi-download me-1"></i>Download Notes
@@ -198,9 +178,9 @@ const NotesPage = () => {
               <small className="text-info">
                 <i className="bi bi-filter me-1"></i>
                 Showing notes in: <strong>
-                  {selectedLanguage === 'sinhala' ? 'සිංහල (Sinhala)' : 
-                   selectedLanguage === 'tamil' ? 'தமிழ் (Tamil)' : 
-                   selectedLanguage === 'english' ? 'English' : 'All Languages'}
+                  {selectedLanguage === 'sinhala' ? 'සිංහල (Sinhala)' :
+                    selectedLanguage === 'tamil' ? 'தமிழ் (Tamil)' :
+                      selectedLanguage === 'english' ? 'English' : 'All Languages'}
                 </strong>
               </small>
             </div>
@@ -214,21 +194,7 @@ const NotesPage = () => {
           {Object.keys(subjects).map(subjectId => {
             const subject = subjects[subjectId];
             const notes = subject.resources.notes || {};
-            
-            // Get uploaded notes for this subject
-            const uploadedNotes = uploadedFiles.filter(file => file.subject === subjectId);
-            const uploadedNotesObj = {};
-            uploadedNotes.forEach((file, index) => {
-              uploadedNotesObj[`uploaded_${index}`] = {
-                ...file,
-                filename: file.title || file.name,
-                language: file.languages?.[0] || 'english',
-                chapter: file.description || 'Uploaded Note'
-              };
-            });
-            
-            // Merge notes
-            const mergedNotes = { ...notes, ...uploadedNotesObj };
+            const mergedNotes = notes;
 
             // Filter by selected subject if specified
             if (selectedSubjectId && subjectId !== selectedSubjectId) {
@@ -251,7 +217,9 @@ const NotesPage = () => {
                       <i className={subject.icon} style={{ fontSize: '2.5rem', color: 'var(--primary)' }}></i>
                     </div>
                     <div>
-                      <h3 className="mb-0">{subject.name}</h3>
+                      <h3 className="mb-0">
+                        {subjectTranslations.getTranslatedName(subjectId, subject, selectedLanguage)}
+                      </h3>
                       <small className="text-muted">Chapter-wise short notes</small>
                     </div>
                   </div>
@@ -275,25 +243,25 @@ const NotesPage = () => {
           )}
 
           {/* No Results for Filter */}
-          {Object.keys(subjects).length > 0 && 
-           !Object.values(subjects).some(subject => 
-             Object.values(subject.resources.notes || {}).some(note => shouldShowResource(note.language))
-           ) && (
-            <div className="text-center py-5">
-              <i className="bi bi-search text-muted" style={{ fontSize: '4rem' }}></i>
-              <h4 className="mt-3 text-muted">No notes found</h4>
-              <p className="text-muted">
-                No notes available in{' '}
-                {selectedLanguage === 'sinhala' ? 'Sinhala' : 
-                 selectedLanguage === 'tamil' ? 'Tamil' : 
-                 selectedLanguage === 'english' ? 'English' : 'the selected language'}
-                {' '}for this grade.
-              </p>
-              <Link to={`/grade/${gradeId}`} className="btn btn-primary">
-                <i className="bi bi-arrow-left me-1"></i>Back to Grade Overview
-              </Link>
-            </div>
-          )}
+          {Object.keys(subjects).length > 0 &&
+            !Object.values(subjects).some(subject =>
+              Object.values(subject.resources.notes || {}).some(note => shouldShowResource(note.language))
+            ) && (
+              <div className="text-center py-5">
+                <i className="bi bi-search text-muted" style={{ fontSize: '4rem' }}></i>
+                <h4 className="mt-3 text-muted">No notes found</h4>
+                <p className="text-muted">
+                  No notes available in{' '}
+                  {selectedLanguage === 'sinhala' ? 'Sinhala' :
+                    selectedLanguage === 'tamil' ? 'Tamil' :
+                      selectedLanguage === 'english' ? 'English' : 'the selected language'}
+                  {' '}for this grade.
+                </p>
+                <Link to={`/grade/${gradeId}`} className="btn btn-primary">
+                  <i className="bi bi-arrow-left me-1"></i>Back to Grade Overview
+                </Link>
+              </div>
+            )}
         </div>
       </section>
 

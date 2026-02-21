@@ -232,3 +232,4 @@ Description: This is a test resource for Google Drive integration
 
 **Happy Testing! 🚀**
 
+## Planned for Phase 2\n\n- Sub-grades and Streams: Implement Option 1 (Flat Grades) or Option 2 (Stream Groups) to handle A/L sub-classifications such as Science, Commerce, Arts, etc. decided to hold off for user feedback first.

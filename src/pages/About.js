@@ -1,11 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useData } from '../context/DataContext';
 
 const About = () => {
-  const { getStats } = useData();
-  const stats = getStats();
-
   return (
     <div className="about-page">
       {/* Page Header */}
@@ -40,7 +36,7 @@ const About = () => {
               <div className="text-center mb-5">
                 <h2 className="mb-4">Our Mission</h2>
                 <p className="lead text-muted">
-                  To provide free, accessible, and comprehensive educational resources for all Sri Lankan students, 
+                  To provide free, accessible, and comprehensive educational resources for all Sri Lankan students,
                   breaking down barriers to quality education and fostering academic excellence across the nation.
                 </p>
               </div>
@@ -55,7 +51,7 @@ const About = () => {
                 </div>
                 <h4>Free Education</h4>
                 <p>
-                  We believe education should be accessible to everyone. All our resources are completely free 
+                  We believe education should be accessible to everyone. All our resources are completely free
                   to download and use, ensuring no student is left behind due to financial constraints.
                 </p>
               </div>
@@ -67,7 +63,7 @@ const About = () => {
                 </div>
                 <h4>Multi-Language Support</h4>
                 <p>
-                  Recognizing Sri Lanka's linguistic diversity, we provide resources in Sinhala, Tamil, and English, 
+                  Recognizing Sri Lanka's linguistic diversity, we provide resources in Sinhala, Tamil, and English,
                   ensuring every student can learn in their preferred language.
                 </p>
               </div>
@@ -79,7 +75,7 @@ const About = () => {
                 </div>
                 <h4>Digital Innovation</h4>
                 <p>
-                  Leveraging modern technology to create an intuitive, mobile-friendly platform that makes 
+                  Leveraging modern technology to create an intuitive, mobile-friendly platform that makes
                   learning resources available 24/7 to students across the island.
                 </p>
               </div>
@@ -95,12 +91,12 @@ const About = () => {
             <div className="col-lg-6 mb-4 mb-lg-0">
               <h2 className="mb-4">Our Vision</h2>
               <p className="mb-4">
-                To become the leading digital educational platform in Sri Lanka, serving as the primary 
-                resource hub for students from Grade 6 to Advanced Level. We envision a future where 
+                To become the leading digital educational platform in Sri Lanka, serving as the primary
+                resource hub for students from Grade 6 to Advanced Level. We envision a future where
                 every student has equal access to quality educational materials, regardless of their location or background.
               </p>
               <p className="mb-4">
-                Through technology and community collaboration, we aim to bridge the educational gap 
+                Through technology and community collaboration, we aim to bridge the educational gap
                 and create equal opportunities for all students across the country.
               </p>
               <h3 className="h5 mb-3">What We Offer:</h3>
@@ -149,14 +145,14 @@ const About = () => {
             <h2>Our Commitment</h2>
             <p className="text-muted">Dedicated to excellence in educational support</p>
           </div>
-          
+
           <div className="row g-4">
             <div className="col-md-4">
               <div className="commitment-card text-center">
                 <i className="bi bi-shield-check text-success mb-3" style={{ fontSize: '3rem' }}></i>
                 <h5>Quality Assurance</h5>
                 <p className="text-muted">
-                  All resources are carefully reviewed and aligned with the Sri Lankan curriculum 
+                  All resources are carefully reviewed and aligned with the Sri Lankan curriculum
                   to ensure accuracy and relevance.
                 </p>
               </div>
@@ -166,7 +162,7 @@ const About = () => {
                 <i className="bi bi-clock text-info mb-3" style={{ fontSize: '3rem' }}></i>
                 <h5>Regular Updates</h5>
                 <p className="text-muted">
-                  We continuously add new resources and update existing content to keep pace 
+                  We continuously add new resources and update existing content to keep pace
                   with curriculum changes and student needs.
                 </p>
               </div>
@@ -176,7 +172,7 @@ const About = () => {
                 <i className="bi bi-people text-warning mb-3" style={{ fontSize: '3rem' }}></i>
                 <h5>Community Driven</h5>
                 <p className="text-muted">
-                  Built by educators and students for the educational community, fostering 
+                  Built by educators and students for the educational community, fostering
                   collaboration and shared learning experiences.
                 </p>
               </div>
@@ -192,7 +188,7 @@ const About = () => {
             <h2>Our Values</h2>
             <p className="text-muted">The principles that guide everything we do</p>
           </div>
-          
+
           <div className="row g-4">
             <div className="col-lg-3 col-md-6">
               <div className="value-card text-center h-100">
@@ -250,7 +246,7 @@ const About = () => {
               <div className="col-lg-8">
                 <h2 className="mb-4">Join Our Educational Journey</h2>
                 <p className="lead mb-4">
-                  Whether you're a student seeking quality resources or an educator looking to support 
+                  Whether you're a student seeking quality resources or an educator looking to support
                   your students, Teaching Torch is here to help you succeed.
                 </p>
                 <div className="cta-buttons">
@@ -267,7 +263,7 @@ const About = () => {
         </div>
       </section>
 
-      <style jsx>{`
+      <style>{`
         .mission-card,
         .commitment-card,
         .value-card {

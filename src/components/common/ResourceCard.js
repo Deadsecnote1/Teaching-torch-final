@@ -15,11 +15,11 @@ const ResourceCard = ({
   showDownloadButton = true,
   className = ''
 }) => {
-  
+
   // Support both Google Drive links and regular URLs
   const driveLink = resource.driveLink || resource.downloadUrl || resource.url || resource.path;
   const isDrive = isGoogleDriveLink(driveLink);
-  
+
   const downloadUrl = isDrive ? getDownloadUrl(driveLink) : driveLink;
   const embedUrl = isDrive ? getEmbedUrl(driveLink) : null;
 
@@ -59,7 +59,7 @@ const ResourceCard = ({
               )}
             </div>
           </div>
-          
+
           <div className="resource-actions d-flex gap-1 ms-2">
             {showViewButton && (embedUrl || downloadUrl) && (
               <button
@@ -87,7 +87,7 @@ const ResourceCard = ({
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .resource-card-item {
           transition: all 0.3s ease;
         }
@@ -95,6 +95,11 @@ const ResourceCard = ({
         .resource-card-item:hover {
           transform: translateY(-2px);
           box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+          border-color: var(--primary);
+        }
+        
+        .resource-card-item .border {
+           transition: border-color 0.3s ease;
         }
       `}</style>
     </>

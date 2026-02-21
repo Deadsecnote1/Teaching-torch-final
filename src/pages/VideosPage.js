@@ -4,6 +4,7 @@ import { useData } from '../context/DataContext';
 import { useLanguage } from '../context/LanguageContext';
 import { extractYouTubeId, getYouTubeThumbnail, isYouTubeLink } from '../utils/youtube';
 import { getEmbedUrl, isGoogleDriveLink } from '../utils/googleDrive';
+import { subjectTranslations } from '../utils/subjectTranslations';
 
 const VideosPage = () => {
   const { gradeId } = useParams();
@@ -20,7 +21,7 @@ const VideosPage = () => {
     const savedFiles = localStorage.getItem('teachingTorch_uploadedFiles');
     if (savedFiles) {
       const allFiles = JSON.parse(savedFiles);
-      const videos = allFiles.filter(file => 
+      const videos = allFiles.filter(file =>
         file.grade === gradeId && file.resourceType === 'videos'
       );
       setUploadedFiles(videos);
@@ -109,7 +110,6 @@ const VideosPage = () => {
         <div className="row g-4">
           {filteredVideos.map((video, index) => {
             const videoUrl = video.driveLink || video.url || video.youtubeUrl;
-            const videoId = extractYouTubeId(videoUrl);
             const thumbnail = getYouTubeThumbnail(videoUrl);
 
             return (
@@ -119,8 +119,8 @@ const VideosPage = () => {
                     {/* Video Thumbnail */}
                     <div className="video-thumbnail position-relative">
                       {thumbnail ? (
-                        <img 
-                          src={thumbnail} 
+                        <img
+                          src={thumbnail}
                           alt={video.title}
                           className="card-img-top"
                           style={{ height: '200px', objectFit: 'cover' }}
@@ -130,12 +130,12 @@ const VideosPage = () => {
                           }}
                         />
                       ) : null}
-                      
+
                       {/* Fallback thumbnail */}
-                      <div 
+                      <div
                         className="placeholder-thumbnail d-flex align-items-center justify-content-center bg-light"
-                        style={{ 
-                          height: '200px', 
+                        style={{
+                          height: '200px',
                           display: thumbnail ? 'none' : 'flex'
                         }}
                       >
@@ -145,7 +145,7 @@ const VideosPage = () => {
                       {/* Play overlay */}
                       <div className="play-overlay position-absolute top-50 start-50 translate-middle">
                         <div className="play-button bg-danger text-white rounded-circle d-flex align-items-center justify-content-center"
-                             style={{ width: '60px', height: '60px' }}>
+                          style={{ width: '60px', height: '60px' }}>
                           <i className="bi bi-play-fill" style={{ fontSize: '1.5rem', marginLeft: '4px' }}></i>
                         </div>
                       </div>
@@ -153,7 +153,7 @@ const VideosPage = () => {
                       {/* Language badge */}
                       <div className="position-absolute top-0 end-0 m-2">
                         <span className="badge bg-dark bg-opacity-75 d-flex align-items-center">
-                          <span 
+                          <span
                             className="language-indicator me-1"
                             {...getLanguageIndicator(video.language)}
                           ></span>
@@ -166,7 +166,7 @@ const VideosPage = () => {
                     <div className="card-body d-flex flex-column">
                       <div className="video-content flex-grow-1">
                         <h6 className="video-title mb-2">{video.title}</h6>
-                        
+
                         {video.chapter && (
                           <p className="text-muted mb-2">
                             <i className="bi bi-bookmark me-1"></i>
@@ -258,7 +258,7 @@ const VideosPage = () => {
           {Object.keys(subjects).map(subjectId => {
             const subject = subjects[subjectId];
             const videos = subject.videos || [];
-            
+
             // Get uploaded videos for this subject
             const uploadedVideos = uploadedFiles.filter(file => file.subject === subjectId);
             const uploadedVideosFormatted = uploadedVideos.map(file => ({
@@ -268,7 +268,7 @@ const VideosPage = () => {
               url: file.driveLink || file.youtubeUrl || file.url,
               addedDate: file.uploadDate
             }));
-            
+
             // Merge videos
             const mergedVideos = [...videos, ...uploadedVideosFormatted];
 
@@ -293,7 +293,9 @@ const VideosPage = () => {
                       <i className={subject.icon} style={{ fontSize: '2.5rem', color: 'var(--primary)' }}></i>
                     </div>
                     <div>
-                      <h3 className="mb-0">{subject.name}</h3>
+                      <h3 className="mb-0">
+                        {subjectTranslations.getTranslatedName(subjectId, subject, selectedLanguage)}
+                      </h3>
                       <small className="text-muted">Educational video lessons</small>
                     </div>
                   </div>
@@ -317,25 +319,25 @@ const VideosPage = () => {
           )}
 
           {/* No Results for Filter */}
-          {Object.keys(subjects).length > 0 && 
-           !Object.values(subjects).some(subject => 
-             (subject.videos || []).some(video => shouldShowResource(video.language))
-           ) && (
-            <div className="text-center py-5">
-              <i className="bi bi-search text-muted" style={{ fontSize: '4rem' }}></i>
-              <h4 className="mt-3 text-muted">No videos found</h4>
-              <p className="text-muted">
-                No video lessons available in{' '}
-                {selectedLanguage === 'sinhala' && 'Sinhala'}
-                {selectedLanguage === 'tamil' && 'Tamil'}
-                {selectedLanguage === 'english' && 'English'}
-                {' '}for this grade.
-              </p>
-              <Link to={`/grade/${gradeId}`} className="btn btn-primary">
-                <i className="bi bi-arrow-left me-1"></i>Back to Grade Overview
-              </Link>
-            </div>
-          )}
+          {Object.keys(subjects).length > 0 &&
+            !Object.values(subjects).some(subject =>
+              (subject.videos || []).some(video => shouldShowResource(video.language))
+            ) && (
+              <div className="text-center py-5">
+                <i className="bi bi-search text-muted" style={{ fontSize: '4rem' }}></i>
+                <h4 className="mt-3 text-muted">No videos found</h4>
+                <p className="text-muted">
+                  No video lessons available in{' '}
+                  {selectedLanguage === 'sinhala' && 'Sinhala'}
+                  {selectedLanguage === 'tamil' && 'Tamil'}
+                  {selectedLanguage === 'english' && 'English'}
+                  {' '}for this grade.
+                </p>
+                <Link to={`/grade/${gradeId}`} className="btn btn-primary">
+                  <i className="bi bi-arrow-left me-1"></i>Back to Grade Overview
+                </Link>
+              </div>
+            )}
         </div>
       </section>
 
@@ -393,8 +395,8 @@ const VideosPage = () => {
           </div>
         </div>
       )}
- 
-      <style jsx>{`
+
+      <style>{`
         .video-thumbnail {
           position: relative;
           overflow: hidden;

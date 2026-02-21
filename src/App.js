@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { DataProvider } from './context/DataContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { LanguageProvider } from './context/LanguageContext';
+import { AuthProvider } from './context/AuthContext';
+import { Toaster } from 'react-hot-toast';
 
 // Components
 import Navbar from './components/common/Navbar';
@@ -24,7 +26,6 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import './styles/globals.css';
-import './App.css';
 
 // 404 Not Found Component
 const NotFound = () => (
@@ -50,27 +51,30 @@ function App() {
     <ThemeProvider>
       <LanguageProvider>
         <DataProvider>
-          <Router>
-            <div className="App">
-              <Navbar />
-              <main className="main-content">
-                <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/about" element={<About />} />
-                  <Route path="/contact" element={<Contact />} />
-                  <Route path="/grade/:gradeId" element={<GradePage />} />
-                  <Route path="/grade/:gradeId/textbooks" element={<TextbooksPage />} />
-                  <Route path="/grade/:gradeId/papers" element={<PapersPage />} />
-                  <Route path="/grade/:gradeId/notes" element={<NotesPage />} />
-                  <Route path="/grade/:gradeId/videos" element={<VideosPage />} />
-                  <Route path="/admin/login" element={<AdminLogin />} />
-                  <Route path="/admin" element={<AdminDashboard />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </main>
-              <Footer />
-            </div>
-          </Router>
+          <AuthProvider>
+            <Router>
+              <Toaster position="top-right" />
+              <div className="App">
+                <Navbar />
+                <main className="main-content">
+                  <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/about" element={<About />} />
+                    <Route path="/contact" element={<Contact />} />
+                    <Route path="/grade/:gradeId" element={<GradePage />} />
+                    <Route path="/grade/:gradeId/textbooks" element={<TextbooksPage />} />
+                    <Route path="/grade/:gradeId/papers" element={<PapersPage />} />
+                    <Route path="/grade/:gradeId/notes" element={<NotesPage />} />
+                    <Route path="/grade/:gradeId/videos" element={<VideosPage />} />
+                    <Route path="/admin/login" element={<AdminLogin />} />
+                    <Route path="/admin" element={<AdminDashboard />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </main>
+                <Footer />
+              </div>
+            </Router>
+          </AuthProvider>
         </DataProvider>
       </LanguageProvider>
     </ThemeProvider>

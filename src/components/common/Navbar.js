@@ -2,17 +2,19 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
 import { useLanguage } from '../../context/LanguageContext';
+import { useData } from '../../context/DataContext';
 
 const Navbar = () => {
   const { theme, toggleTheme } = useTheme();
   const { selectedLanguage, setLanguage, getAvailableLanguages, getCurrentLanguage } = useLanguage();
+  const { grades, gradesLoading } = useData();
   const location = useLocation();
   const languages = getAvailableLanguages();
-  
+
   // State for dropdown visibility
   const [showGradesDropdown, setShowGradesDropdown] = useState(false);
   const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
-  
+
   // Refs for dropdown elements
   const gradesDropdownRef = useRef(null);
   const languageDropdownRef = useRef(null);
@@ -42,32 +44,24 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark fixed-top" style={{ backgroundColor: 'var(--primary)' }}>
+    <nav className="navbar navbar-expand-lg navbar-dark fixed-top py-2" style={{ background: 'var(--primary-gradient)' }}>
       <div className="container">
         {/* Brand */}
         <Link className="navbar-brand d-flex align-items-center" to="/">
-          <div 
-            className="logo-placeholder me-2 d-flex align-items-center justify-content-center"
-            style={{ 
-              width: '40px', 
-              height: '40px', 
-              backgroundColor: 'white',
-              borderRadius: '50%',
-              fontSize: '1.5rem',
-              fontWeight: 'bold',
-              color: 'var(--primary)'
-            }}
-          >
-            T
-          </div>
-          <span className="brand-text text-white fw-bold">Teaching Torch</span>
+          <img
+            src={`${process.env.PUBLIC_URL}/logo192.png?t=${Date.now()}`}
+            alt="Teaching Torch Logo"
+            className="me-3"
+            style={{ width: '60px', height: '60px', objectFit: 'contain' }}
+          />
+          <span className="brand-text text-white fw-bold" style={{ fontSize: '1.75rem' }}>Teaching Torch</span>
         </Link>
 
         {/* Mobile Toggle */}
-        <button 
-          className="navbar-toggler" 
-          type="button" 
-          data-bs-toggle="collapse" 
+        <button
+          className="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
           data-bs-target="#navbarNav"
           aria-controls="navbarNav"
           aria-expanded="false"
@@ -81,7 +75,7 @@ const Navbar = () => {
           {/* Main Navigation */}
           <ul className="navbar-nav me-auto">
             <li className="nav-item">
-              <Link 
+              <Link
                 className={`nav-link text-white ${isActive('/') ? 'active fw-bold' : ''}`}
                 to="/"
               >
@@ -89,7 +83,7 @@ const Navbar = () => {
               </Link>
             </li>
             <li className="nav-item">
-              <Link 
+              <Link
                 className={`nav-link text-white ${isActive('/about') ? 'active fw-bold' : ''}`}
                 to="/about"
               >
@@ -97,7 +91,7 @@ const Navbar = () => {
               </Link>
             </li>
             <li className="nav-item">
-              <Link 
+              <Link
                 className={`nav-link text-white ${isActive('/contact') ? 'active fw-bold' : ''}`}
                 to="/contact"
               >
@@ -107,8 +101,8 @@ const Navbar = () => {
 
             {/* Grades Dropdown */}
             <li className="nav-item dropdown" ref={gradesDropdownRef}>
-              <button 
-                className="nav-link dropdown-toggle text-white btn btn-link border-0" 
+              <button
+                className="nav-link dropdown-toggle text-white btn btn-link border-0"
                 type="button"
                 onClick={() => {
                   setShowGradesDropdown(!showGradesDropdown);
@@ -120,70 +114,22 @@ const Navbar = () => {
                 <i className="bi bi-book-fill me-1"></i>Grades
               </button>
               <ul className={`dropdown-menu ${showGradesDropdown ? 'show' : ''}`}>
-                <li>
-                  <Link 
-                    className="dropdown-item" 
-                    to="/grade/grade6"
-                    onClick={() => setShowGradesDropdown(false)}
-                  >
-                    Grade 6
-                  </Link>
-                </li>
-                <li>
-                  <Link 
-                    className="dropdown-item" 
-                    to="/grade/grade7"
-                    onClick={() => setShowGradesDropdown(false)}
-                  >
-                    Grade 7
-                  </Link>
-                </li>
-                <li>
-                  <Link 
-                    className="dropdown-item" 
-                    to="/grade/grade8"
-                    onClick={() => setShowGradesDropdown(false)}
-                  >
-                    Grade 8
-                  </Link>
-                </li>
-                <li>
-                  <Link 
-                    className="dropdown-item" 
-                    to="/grade/grade9"
-                    onClick={() => setShowGradesDropdown(false)}
-                  >
-                    Grade 9
-                  </Link>
-                </li>
-                <li>
-                  <Link 
-                    className="dropdown-item" 
-                    to="/grade/grade10"
-                    onClick={() => setShowGradesDropdown(false)}
-                  >
-                    Grade 10
-                  </Link>
-                </li>
-                <li>
-                  <Link 
-                    className="dropdown-item" 
-                    to="/grade/grade11"
-                    onClick={() => setShowGradesDropdown(false)}
-                  >
-                    Grade 11
-                  </Link>
-                </li>
-                <li><hr className="dropdown-divider" /></li>
-                <li>
-                  <Link 
-                    className="dropdown-item" 
-                    to="/grade/al"
-                    onClick={() => setShowGradesDropdown(false)}
-                  >
-                    <i className="bi bi-mortarboard-fill me-2 text-success"></i>Advanced Level
-                  </Link>
-                </li>
+                {gradesLoading ? (
+                  <li><span className="dropdown-item text-muted">Loading grades...</span></li>
+                ) : (
+                  Object.entries(grades).map(([key, gradeData]) => (
+                    <li key={key}>
+                      <Link
+                        className="dropdown-item"
+                        to={`/grade/${key}`}
+                        onClick={() => setShowGradesDropdown(false)}
+                      >
+                        {key === 'al' && <i className="bi bi-mortarboard-fill me-2 text-success"></i>}
+                        {gradeData.display}
+                      </Link>
+                    </li>
+                  ))
+                )}
               </ul>
             </li>
           </ul>
@@ -192,8 +138,8 @@ const Navbar = () => {
           <ul className="navbar-nav">
             {/* Language Filter Dropdown */}
             <li className="nav-item dropdown" ref={languageDropdownRef}>
-              <button 
-                className="nav-link dropdown-toggle text-white btn btn-link border-0" 
+              <button
+                className="nav-link dropdown-toggle text-white btn btn-link border-0"
                 type="button"
                 onClick={() => {
                   setShowLanguageDropdown(!showLanguageDropdown);
@@ -211,34 +157,34 @@ const Navbar = () => {
                 {Object.entries(languages)
                   .filter(([langKey]) => langKey !== 'all') // Remove 'all' option
                   .map(([langKey, langConfig]) => (
-                  <li key={langKey}>
-                    <button
-                      className={`dropdown-item language-option ${selectedLanguage === langKey ? 'active' : ''}`}
-                      onClick={() => {
-                        setLanguage(langKey);
-                        setShowLanguageDropdown(false);
-                      }}
-                    >
-                      <i className={`${langConfig.icon} me-2`} 
-                         style={{ color: langConfig.color }}></i>
-                      {langConfig.display}
-                    </button>
-                  </li>
-                ))}
+                    <li key={langKey}>
+                      <button
+                        className={`dropdown-item language-option ${selectedLanguage === langKey ? 'active' : ''}`}
+                        onClick={() => {
+                          setLanguage(langKey);
+                          setShowLanguageDropdown(false);
+                        }}
+                      >
+                        <i className={`${langConfig.icon} me-2`}
+                          style={{ color: langConfig.color }}></i>
+                        {langConfig.display}
+                      </button>
+                    </li>
+                  ))}
               </ul>
             </li>
 
             {/* Theme Toggle */}
             <li className="nav-item">
-              <button 
-                className="nav-link btn btn-link text-white border-0" 
-                id="themeToggle" 
+              <button
+                className="nav-link btn btn-link text-white border-0"
+                id="themeToggle"
                 title="Toggle Dark Mode"
                 onClick={toggleTheme}
                 style={{ background: 'none', padding: '0.5rem 0.75rem' }}
               >
-                <i className={`bi ${theme === 'dark' ? 'bi-sun-fill' : 'bi-moon-fill'}`} 
-                   id="themeIcon"></i>
+                <i className={`bi ${theme === 'dark' ? 'bi-sun-fill' : 'bi-moon-fill'}`}
+                  id="themeIcon"></i>
               </button>
             </li>
           </ul>
@@ -246,7 +192,7 @@ const Navbar = () => {
       </div>
 
       {/* Custom Navbar Styles */}
-      <style jsx>{`
+      <style>{`
         .navbar {
           background-color: var(--primary) !important;
           box-shadow: 0 2px 10px rgba(0,0,0,0.1);

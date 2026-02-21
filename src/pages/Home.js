@@ -2,24 +2,30 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useData } from '../context/DataContext';
 
-const Home = () => {
-  const { grades } = useData();
 
-  // Grade configurations for display
-  const gradeConfigs = {
-    'grade6': { number: '6', color: 'primary' },
-    'grade7': { number: '7', color: 'primary' },
-    'grade8': { number: '8', color: 'primary' },
-    'grade9': { number: '9', color: 'primary' },
-    'grade10': { number: '10', color: 'primary' },
-    'grade11': { number: '11', color: 'primary' },
-    'al': { number: 'A/L', color: 'success' }
-  };
+const Home = () => {
+  const { grades, gradesLoading } = useData();
+
+  if (gradesLoading) {
+    return (
+      <div className="container py-5 text-center">
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+        <p className="mt-3">Loading grades...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="home-page">
       {/* Hero Section */}
-      <header className="hero-section">
+      <header className="hero-section" style={{
+        backgroundImage: `url('${process.env.PUBLIC_URL}/bg1.jpg')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}>
         <div className="container text-center text-white">
           <div className="hero-content">
             <h1 className="display-4 fw-bold mb-3">Welcome to Teaching Torch</h1>
@@ -36,75 +42,35 @@ const Home = () => {
         <div className="container">
           <h2 className="text-center mb-5">Choose Your Grade</h2>
           <div className="row g-4">
-            {/* Grade 6 */}
-            <div className="col-md-4 col-sm-6">
-              <Link to="/grade/grade6" className="grade-card">
-                <div className="grade-icon">6</div>
-                <h5>Grade 6</h5>
-                <p className="text-muted">Foundation level subjects</p>
-                <div className="btn btn-primary">View Resources</div>
-              </Link>
-            </div>
+            {Object.entries(grades).map(([key, gradeData], index) => {
+              // Determine icon text
+              let iconText = gradeData.display;
+              if (key.startsWith('grade')) {
+                iconText = key.replace('grade', '');
+              } else if (key === 'al') {
+                iconText = 'A/L';
+              } else {
+                // Format custom grades (like Law Degree) to initials
+                const words = gradeData.display.split(' ');
+                if (words.length > 1) {
+                  iconText = words[0][0].toUpperCase() + words[1][0].toUpperCase();
+                } else {
+                  iconText = words[0].substring(0, 2).toUpperCase();
+                }
+              }
 
-            {/* Grade 7 */}
-            <div className="col-md-4 col-sm-6">
-              <Link to="/grade/grade7" className="grade-card">
-                <div className="grade-icon">7</div>
-                <h5>Grade 7</h5>
-                <p className="text-muted">Intermediate level content</p>
-                <div className="btn btn-primary">View Resources</div>
-              </Link>
-            </div>
-
-            {/* Grade 8 */}
-            <div className="col-md-4 col-sm-6">
-              <Link to="/grade/grade8" className="grade-card">
-                <div className="grade-icon">8</div>
-                <h5>Grade 8</h5>
-                <p className="text-muted">Advanced concepts introduction</p>
-                <div className="btn btn-primary">View Resources</div>
-              </Link>
-            </div>
-
-            {/* Grade 9 */}
-            <div className="col-md-4 col-sm-6">
-              <Link to="/grade/grade9" className="grade-card">
-                <div className="grade-icon">9</div>
-                <h5>Grade 9</h5>
-                <p className="text-muted">Pre-O/L preparation</p>
-                <div className="btn btn-primary">View Resources</div>
-              </Link>
-            </div>
-
-            {/* Grade 10 */}
-            <div className="col-md-4 col-sm-6">
-              <Link to="/grade/grade10" className="grade-card">
-                <div className="grade-icon">10</div>
-                <h5>Grade 10</h5>
-                <p className="text-muted">O/L examination year</p>
-                <div className="btn btn-primary">View Resources</div>
-              </Link>
-            </div>
-
-            {/* Grade 11 */}
-            <div className="col-md-4 col-sm-6">
-              <Link to="/grade/grade11" className="grade-card">
-                <div className="grade-icon">11</div>
-                <h5>Grade 11</h5>
-                <p className="text-muted">Post-O/L studies</p>
-                <div className="btn btn-primary">View Resources</div>
-              </Link>
-            </div>
-
-            {/* Advanced Level */}
-            <div className="col-md-6 mx-auto">
-              <Link to="/grade/al" className="grade-card advanced-level">
-                <div className="grade-icon">A/L</div>
-                <h5>Advanced Level</h5>
-                <p className="text-muted">University preparation</p>
-                <div className="btn btn-success">View Resources</div>
-              </Link>
-            </div>
+              return (
+                <div key={key} className="col-md-4 col-sm-6">
+                  <Link to={`/grade/${key}`} className={`grade-card ${key === 'al' ? 'advanced-level' : ''}`}>
+                    <div className="grade-icon" style={gradeData.color ? { backgroundColor: `var(--${gradeData.color})` } : {}}>
+                      {iconText}
+                    </div>
+                    <h5>{gradeData.display}</h5>
+                    <div className="btn btn-primary mt-2">View Resources</div>
+                  </Link>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -145,13 +111,15 @@ const Home = () => {
         </div>
       </section>
 
+
+
       {/* Statistics Section */}
       <section className="py-5">
         <div className="container">
           <div className="row text-center">
             <div className="col-md-3">
               <div className="stat-item">
-                <h3 className="text-primary">7</h3>
+                <h3 className="text-primary">{Object.keys(grades).length}</h3>
                 <span>Grade Levels</span>
               </div>
             </div>
