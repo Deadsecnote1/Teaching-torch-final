@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useData } from '../context/DataContext';
 
 const Contact = () => {
+  const { settings } = useData();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -29,7 +31,7 @@ const Contact = () => {
     try {
       // In a real app, you would send this to your backend
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
+
       console.log('Form submitted:', formData);
       setSubmitStatus('success');
       setFormData({
@@ -82,7 +84,7 @@ const Contact = () => {
               <div className="contact-info-section">
                 <h3 className="mb-4">Get in Touch</h3>
                 <p className="text-muted mb-4">
-                  Have questions, suggestions, or need help? We're here to assist you with 
+                  Have questions, suggestions, or need help? We're here to assist you with
                   all your educational resource needs.
                 </p>
 
@@ -90,14 +92,14 @@ const Contact = () => {
                   <div className="contact-info mb-4">
                     <i className="bi bi-envelope-fill text-primary"></i>
                     <h5>Email Us</h5>
-                    <p className="text-primary">info@teachingtorch.lk</p>
+                    <p className="text-primary">{settings?.email || 'Not configured'}</p>
                     <p className="small text-muted">We typically respond within 24 hours</p>
                   </div>
 
                   <div className="contact-info mb-4">
                     <i className="bi bi-telephone-fill text-success"></i>
                     <h5>Call Us</h5>
-                    <p className="text-success">+94 11 234 5678</p>
+                    <p className="text-success">{settings?.phone || 'Not configured'}</p>
                     <p className="small text-muted">Monday - Friday, 9:00 AM - 5:00 PM</p>
                   </div>
 
@@ -112,18 +114,16 @@ const Contact = () => {
                     <i className="bi bi-chat-dots-fill text-info"></i>
                     <h5>Social Media</h5>
                     <div className="social-links mt-2">
-                      <a href="https://facebook.com" className="text-primary me-3" aria-label="Facebook" target="_blank" rel="noopener noreferrer">
-                        <i className="bi bi-facebook" style={{ fontSize: '1.5rem' }}></i>
-                      </a>
-                      <a href="https://twitter.com" className="text-info me-3" aria-label="Twitter" target="_blank" rel="noopener noreferrer">
-                        <i className="bi bi-twitter" style={{ fontSize: '1.5rem' }}></i>
-                      </a>
-                      <a href="https://youtube.com" className="text-danger me-3" aria-label="YouTube" target="_blank" rel="noopener noreferrer">
-                        <i className="bi bi-youtube" style={{ fontSize: '1.5rem' }}></i>
-                      </a>
-                      <a href="https://wa.me/94112345678" className="text-success" aria-label="WhatsApp" target="_blank" rel="noopener noreferrer">
-                        <i className="bi bi-whatsapp" style={{ fontSize: '1.5rem' }}></i>
-                      </a>
+                      {settings?.facebook && (
+                        <a href={settings.facebook} className="text-primary me-3" aria-label="Facebook" target="_blank" rel="noopener noreferrer">
+                          <i className="bi bi-facebook" style={{ fontSize: '1.5rem' }}></i>
+                        </a>
+                      )}
+                      {settings?.whatsapp && (
+                        <a href={`https://wa.me/${settings.whatsapp}`} className="text-success" aria-label="WhatsApp" target="_blank" rel="noopener noreferrer">
+                          <i className="bi bi-whatsapp" style={{ fontSize: '1.5rem' }}></i>
+                        </a>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -157,8 +157,8 @@ const Contact = () => {
                         {/* User Type */}
                         <div className="col-12">
                           <label htmlFor="userType" className="form-label">I am a</label>
-                          <select 
-                            className="form-select" 
+                          <select
+                            className="form-select"
                             id="userType"
                             name="userType"
                             value={formData.userType}
@@ -176,9 +176,9 @@ const Contact = () => {
                         {/* Name */}
                         <div className="col-md-6">
                           <label htmlFor="name" className="form-label">Full Name *</label>
-                          <input 
-                            type="text" 
-                            className="form-control" 
+                          <input
+                            type="text"
+                            className="form-control"
                             id="name"
                             name="name"
                             value={formData.name}
@@ -191,9 +191,9 @@ const Contact = () => {
                         {/* Email */}
                         <div className="col-md-6">
                           <label htmlFor="email" className="form-label">Email Address *</label>
-                          <input 
-                            type="email" 
-                            className="form-control" 
+                          <input
+                            type="email"
+                            className="form-control"
                             id="email"
                             name="email"
                             value={formData.email}
@@ -206,8 +206,8 @@ const Contact = () => {
                         {/* Subject */}
                         <div className="col-12">
                           <label htmlFor="subject" className="form-label">Subject *</label>
-                          <select 
-                            className="form-select" 
+                          <select
+                            className="form-select"
                             id="subject"
                             name="subject"
                             value={formData.subject}
@@ -228,8 +228,8 @@ const Contact = () => {
                         {/* Message */}
                         <div className="col-12">
                           <label htmlFor="message" className="form-label">Message *</label>
-                          <textarea 
-                            className="form-control" 
+                          <textarea
+                            className="form-control"
                             id="message"
                             name="message"
                             rows="6"
@@ -245,8 +245,8 @@ const Contact = () => {
 
                         {/* Submit Button */}
                         <div className="col-12">
-                          <button 
-                            type="submit" 
+                          <button
+                            type="submit"
                             className="btn btn-primary btn-lg"
                             disabled={isSubmitting}
                           >
@@ -290,7 +290,7 @@ const Contact = () => {
                       <h6><i className="bi bi-question-circle text-primary me-2"></i>Are all resources really free?</h6>
                       <p>Yes! All our educational resources are completely free to download and use. We believe in accessible education for everyone.</p>
                     </div>
-                    
+
                     <div className="faq-item">
                       <h6><i className="bi bi-question-circle text-primary me-2"></i>How often do you add new content?</h6>
                       <p>We regularly update our content and add new resources. Follow us on social media for the latest updates and announcements.</p>
@@ -307,7 +307,7 @@ const Contact = () => {
                       <h6><i className="bi bi-question-circle text-primary me-2"></i>Do you cover all subjects?</h6>
                       <p>We're continuously expanding our subject coverage. Currently, we focus on core subjects with plans to add more specialized subjects.</p>
                     </div>
-                    
+
                     <div className="faq-item">
                       <h6><i className="bi bi-question-circle text-primary me-2"></i>How can I report an issue?</h6>
                       <p>You can report any technical issues or content problems using our contact form above, selecting "Report a Bug" as the subject.</p>

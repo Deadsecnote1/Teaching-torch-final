@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 const AdminLogin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -71,15 +72,25 @@ const AdminLogin = () => {
 
                     <div className="mb-3">
                       <label htmlFor="password" className="form-label">Password</label>
-                      <input
-                        type="password"
-                        className="form-control"
-                        id="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="Enter admin password"
-                        required
-                      />
+                      <div className="input-group">
+                        <input
+                          type={showPassword ? "text" : "password"}
+                          className="form-control"
+                          id="password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          placeholder="Enter admin password"
+                          required
+                        />
+                        <button
+                          className="btn btn-outline-secondary"
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--card-bg)' }}
+                        >
+                          <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`}></i>
+                        </button>
+                      </div>
                     </div>
 
                     <button disabled={loading} type="submit" className="btn btn-primary w-100">

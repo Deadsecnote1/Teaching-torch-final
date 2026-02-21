@@ -29,7 +29,7 @@ const Home = () => {
         <div className="container text-center text-white">
           <div className="hero-content">
             <h1 className="display-4 fw-bold mb-3">Welcome to Teaching Torch</h1>
-            <p className="lead mb-4">Free Educational Resources for Sri Lankan Students (Grades 6–A/L)</p>
+            <p className="lead mb-4">Free Educational Resources for Sri Lankan Students</p>
             <div className="hero-buttons">
               <a href="#grades" className="btn btn-light btn-lg me-3">Explore Grades</a>
             </div>

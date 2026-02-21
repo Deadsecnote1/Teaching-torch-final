@@ -24,7 +24,9 @@ const AdminDashboard = () => {
     deleteGrade,
     deleteSubject,
     grades,
-    subjects
+    subjects,
+    settings,
+    updateSettings
   } = useData();
   const { currentUser, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('overview'); // overview, resources, grades, subjects
@@ -57,6 +59,39 @@ const AdminDashboard = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Settings State
+  const [settingsData, setSettingsData] = useState({
+    whatsapp: '',
+    email: '',
+    phone: '',
+    facebook: ''
+  });
+  const [isSavingSettings, setIsSavingSettings] = useState(false);
+
+  useEffect(() => {
+    if (settings) {
+      setSettingsData({
+        whatsapp: settings.whatsapp || '',
+        email: settings.email || '',
+        phone: settings.phone || '',
+        facebook: settings.facebook || ''
+      });
+    }
+  }, [settings]);
+
+  const handleSaveSettings = async (e) => {
+    e.preventDefault();
+    setIsSavingSettings(true);
+    try {
+      await updateSettings(settingsData);
+      toast.success('Settings updated successfully!');
+    } catch (error) {
+      toast.error('Failed to update settings');
+    } finally {
+      setIsSavingSettings(false);
+    }
+  };
+
   const stats = getStats();
 
   // Sync uploadedFiles with allResources from Context
@@ -72,6 +107,17 @@ const AdminDashboard = () => {
       navigate('/admin/login');
     }
   }, [currentUser, navigate]);
+
+  // Auto-correct selected subject when grade changes
+  useEffect(() => {
+    const availableSubjects = getSubjectsForGrade(selectedGrade);
+    const subjectKeys = Object.keys(availableSubjects);
+    if (subjectKeys.length > 0 && !subjectKeys.includes(selectedSubject)) {
+      setSelectedSubject(subjectKeys[0]);
+    } else if (subjectKeys.length === 0 && selectedSubject !== '') {
+      setSelectedSubject('');
+    }
+  }, [selectedGrade, getSubjectsForGrade, selectedSubject]);
 
   const handleLogout = async () => {
     try {
@@ -358,6 +404,15 @@ const AdminDashboard = () => {
               >
                 <i className="bi bi-mortarboard me-2"></i>
                 Grades & Subjects
+              </button>
+            </li>
+            <li className="nav-item">
+              <button
+                className={`nav-link ${activeTab === 'settings' ? 'active' : ''}`}
+                onClick={() => setActiveTab('settings')}
+              >
+                <i className="bi bi-gear me-2"></i>
+                Settings
               </button>
             </li>
           </ul>
@@ -987,6 +1042,89 @@ const AdminDashboard = () => {
                 </div>
               </div>
 
+            </div>
+          )}
+
+          {activeTab === 'settings' && (
+            <div className="row justify-content-center">
+              <div className="col-md-8">
+                <div className="card shadow-sm border-0 mb-4">
+                  <div className="card-header bg-primary text-white d-flex align-items-center">
+                    <i className="bi bi-gear-fill me-2 bg-white text-primary rounded-circle p-1"></i>
+                    <h5 className="mb-0 text-white">Contact & Social Settings</h5>
+                  </div>
+                  <div className="card-body p-4">
+                    <form onSubmit={handleSaveSettings}>
+                      <div className="mb-3">
+                        <label className="form-label">Support Email</label>
+                        <div className="input-group">
+                          <span className="input-group-text"><i className="bi bi-envelope"></i></span>
+                          <input
+                            type="email"
+                            className="form-control"
+                            placeholder="e.g. contact@teachingtorch.com"
+                            value={settingsData.email}
+                            onChange={(e) => setSettingsData({ ...settingsData, email: e.target.value })}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="mb-3">
+                        <label className="form-label">Phone Number</label>
+                        <div className="input-group">
+                          <span className="input-group-text"><i className="bi bi-telephone"></i></span>
+                          <input
+                            type="text"
+                            className="form-control"
+                            placeholder="e.g. +94 77 123 4567"
+                            value={settingsData.phone}
+                            onChange={(e) => setSettingsData({ ...settingsData, phone: e.target.value })}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="mb-3">
+                        <label className="form-label">WhatsApp Number</label>
+                        <div className="input-group">
+                          <span className="input-group-text"><i className="bi bi-whatsapp text-success"></i></span>
+                          <input
+                            type="text"
+                            className="form-control"
+                            placeholder="e.g. 94771234567"
+                            value={settingsData.whatsapp}
+                            onChange={(e) => setSettingsData({ ...settingsData, whatsapp: e.target.value })}
+                          />
+                        </div>
+                        <div className="form-text">For direct link generation, use format like 94771234567 (include country code, without spaces or +)</div>
+                      </div>
+
+                      <div className="mb-4">
+                        <label className="form-label">Facebook Page Link</label>
+                        <div className="input-group">
+                          <span className="input-group-text"><i className="bi bi-facebook" style={{ color: '#1877F2' }}></i></span>
+                          <input
+                            type="url"
+                            className="form-control"
+                            placeholder="e.g. https://facebook.com/teachingtorch"
+                            value={settingsData.facebook}
+                            onChange={(e) => setSettingsData({ ...settingsData, facebook: e.target.value })}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="d-grid pt-3 border-top">
+                        <button type="submit" className="btn btn-primary btn-lg" disabled={isSavingSettings}>
+                          {isSavingSettings ? (
+                            <><span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Saving...</>
+                          ) : (
+                            <><i className="bi bi-save me-2"></i> Save Settings</>
+                          )}
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 

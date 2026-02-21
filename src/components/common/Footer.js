@@ -1,4 +1,8 @@
-import React from 'react'; const Footer = () => {
+import React from 'react';
+import { useData } from '../../context/DataContext';
+
+const Footer = () => {
+  const { settings } = useData();
   return (
     <footer className="footer-section py-3 mt-auto">
       <div className="container">
@@ -10,18 +14,21 @@ import React from 'react'; const Footer = () => {
               Free educational resources for Sri Lankan students from Grade 6 to Advanced Level.
             </p>
             <div className="social-links mt-3">
-              <a href="https://facebook.com" className="footer-link text-white me-3" aria-label="Facebook" target="_blank" rel="noopener noreferrer">
-                <i className="bi bi-facebook"></i>
-              </a>
-              <a href="https://twitter.com" className="footer-link text-white me-3" aria-label="Twitter" target="_blank" rel="noopener noreferrer">
-                <i className="bi bi-twitter"></i>
-              </a>
-              <a href="https://youtube.com" className="footer-link text-white me-3" aria-label="YouTube" target="_blank" rel="noopener noreferrer">
-                <i className="bi bi-youtube"></i>
-              </a>
-              <a href="mailto:info@teachingtorch.lk" className="footer-link text-white" aria-label="Email">
-                <i className="bi bi-envelope"></i>
-              </a>
+              {settings?.facebook && (
+                <a href={settings.facebook} className="footer-link text-white me-3" aria-label="Facebook" target="_blank" rel="noopener noreferrer">
+                  <i className="bi bi-facebook"></i>
+                </a>
+              )}
+              {settings?.whatsapp && (
+                <a href={`https://wa.me/${settings.whatsapp}`} className="footer-link text-white me-3" aria-label="WhatsApp" target="_blank" rel="noopener noreferrer">
+                  <i className="bi bi-whatsapp"></i>
+                </a>
+              )}
+              {settings?.email && (
+                <a href={`mailto:${settings.email}`} className="footer-link text-white" aria-label="Email">
+                  <i className="bi bi-envelope"></i>
+                </a>
+              )}
             </div>
           </div>
         </div>

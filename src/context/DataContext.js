@@ -140,6 +140,12 @@ const dataReducer = (state, action) => {
         subjectsLoading: false
       };
 
+    case 'UPDATE_SETTINGS':
+      return {
+        ...state,
+        settings: { ...state.settings, ...action.payload }
+      };
+
     default:
       return state;
   }
@@ -214,14 +220,42 @@ export const DataProvider = ({ children }) => {
       dispatch({ type: 'SET_ERROR', payload: error.message });
     });
 
+    // Listen to Settings
+    const unsubSettings = onSnapshot(doc(db, "settings", "general"), (docSnap) => {
+      if (docSnap.exists()) {
+        dispatch({ type: 'UPDATE_SETTINGS', payload: docSnap.data() });
+      } else {
+        // Init empty settings if it doesn't exist
+        setDoc(doc(db, "settings", "general"), {
+          whatsapp: '',
+          email: '',
+          phone: '',
+          facebook: ''
+        });
+      }
+    }, (error) => {
+      console.error("Settings Firestore Error:", error);
+    });
+
     return () => {
       unsubscribe();
       unsubGrades();
       unsubSubjects();
+      unsubSettings();
     };
   }, [getDefaultData]);
 
   // Action creators (Modified to write to Firestore)
+  const updateSettings = useCallback(async (newSettings) => {
+    try {
+      await setDoc(doc(db, "settings", "general"), newSettings, { merge: true });
+      return true;
+    } catch (e) {
+      console.error("Error updating settings: ", e);
+      throw e;
+    }
+  }, []);
+
   const addTextbook = useCallback(async (gradeId, subjectId, medium, fileData) => {
     try {
       await addDoc(collection(db, "resources"), {
@@ -425,6 +459,7 @@ export const DataProvider = ({ children }) => {
     getVideos,
     getStats,
     generateGradePageData,
+    updateSettings,
     dispatch
   };
 
