@@ -1028,12 +1028,29 @@ const AdminDashboard = () => {
                     </div>
                     <div className="mb-3">
                       <label className="form-label">Available for Grades:</label>
-                      <select multiple className="form-select" value={newSubjectGrades} onChange={e => setNewSubjectGrades(Array.from(e.target.selectedOptions, option => option.value))}>
+                      <div className="border rounded p-2 bg-white" style={{ maxHeight: '150px', overflowY: 'auto' }}>
                         {Object.entries(grades).map(([key, g]) => (
-                          <option key={key} value={key}>{g.display}</option>
+                          <div className="form-check" key={key}>
+                            <input
+                              className="form-check-input"
+                              type="checkbox"
+                              id={`new-grade-${key}`}
+                              checked={newSubjectGrades.includes(key)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setNewSubjectGrades([...newSubjectGrades, key]);
+                                } else {
+                                  setNewSubjectGrades(newSubjectGrades.filter(k => k !== key));
+                                }
+                              }}
+                            />
+                            <label className="form-check-label" htmlFor={`new-grade-${key}`}>
+                              {g.display}
+                            </label>
+                          </div>
                         ))}
-                      </select>
-                      <small className="text-muted">Hold CTRL or CMD to select multiple grades.</small>
+                      </div>
+                      <small className="text-muted">Check all grades that should include this subject.</small>
                     </div>
                     <button className="btn btn-primary" onClick={handleAddSubject} disabled={isSubmitting}>
                       Create Subject
@@ -1083,12 +1100,29 @@ const AdminDashboard = () => {
                                     <input type="text" className="form-control form-control-sm mb-1" placeholder="Icon (e.g. bi-book)" value={editSubjectData.icon} onChange={e => setEditSubjectData({ ...editSubjectData, icon: e.target.value })} />
                                   </div>
                                   <div className="mb-2">
-                                    <select multiple className="form-select form-select-sm" value={editSubjectData.grades} onChange={e => setEditSubjectData({ ...editSubjectData, grades: Array.from(e.target.selectedOptions, option => option.value) })}>
+                                    <div className="border rounded p-2 bg-white form-control-sm" style={{ maxHeight: '150px', overflowY: 'auto' }}>
                                       {Object.entries(grades).map(([gKey, g]) => (
-                                        <option key={gKey} value={gKey}>{g.display}</option>
+                                        <div className="form-check" key={gKey}>
+                                          <input
+                                            className="form-check-input"
+                                            type="checkbox"
+                                            id={`edit-grade-${gKey}`}
+                                            checked={editSubjectData.grades.includes(gKey)}
+                                            onChange={(e) => {
+                                              if (e.target.checked) {
+                                                setEditSubjectData({ ...editSubjectData, grades: [...editSubjectData.grades, gKey] });
+                                              } else {
+                                                setEditSubjectData({ ...editSubjectData, grades: editSubjectData.grades.filter(k => k !== gKey) });
+                                              }
+                                            }}
+                                          />
+                                          <label className="form-check-label" htmlFor={`edit-grade-${gKey}`}>
+                                            {g.display}
+                                          </label>
+                                        </div>
                                       ))}
-                                    </select>
-                                    <small className="text-muted" style={{ fontSize: '0.7rem' }}>Hold CTRL/CMD to multi-select grades.</small>
+                                    </div>
+                                    <small className="text-muted" style={{ fontSize: '0.7rem' }}>Check grades to add/remove.</small>
                                   </div>
                                   <div className="d-flex gap-2">
                                     <button className="btn btn-sm btn-success flex-grow-1" onClick={handleSaveEditSubject} disabled={isSubmitting}>Save</button>

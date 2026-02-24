@@ -359,6 +359,16 @@ export const DataProvider = ({ children }) => {
     }
   }, []);
 
+  const updateSubject = useCallback(async (subjectId, subjectData) => {
+    try {
+      await updateDoc(doc(db, "subjects", subjectId), subjectData);
+      return true;
+    } catch (e) {
+      console.error("Error updating subject: ", e);
+      throw e;
+    }
+  }, []);
+
   const deleteGrade = useCallback(async (gradeId) => {
     try {
       await deleteDoc(doc(db, "grades", gradeId));
