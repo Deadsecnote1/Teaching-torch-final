@@ -24,6 +24,7 @@ const AdminDashboard = () => {
     deleteGrade,
     deleteSubject,
     updateSubject,
+    fetchAllResources,
     grades,
     subjects,
     settings,
@@ -107,10 +108,13 @@ const AdminDashboard = () => {
 
   // Sync uploadedFiles with allResources from Context
   useEffect(() => {
+    if (activeTab === 'resources') {
+      fetchAllResources();
+    }
     if (allResources) {
       setUploadedFiles(allResources);
     }
-  }, [allResources]);
+  }, [allResources, activeTab, fetchAllResources]);
 
   // Check if admin is logged in
   useEffect(() => {

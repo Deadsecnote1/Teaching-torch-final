@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { useParams, Link, useSearchParams } from 'react-router-dom';
 import { useData } from '../context/DataContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -9,9 +9,15 @@ const PapersPage = () => {
   const { gradeId } = useParams();
   const [searchParams] = useSearchParams();
   const selectedSubjectId = searchParams.get('subject');
-  const { generateGradePageData } = useData();
+  const { generateGradePageData, fetchResourcesForGrade } = useData();
   const { selectedLanguage, shouldShowResource } = useLanguage();
 
+  // Lazy-load resources for this grade
+  useEffect(() => {
+    if (gradeId) {
+      fetchResourcesForGrade(gradeId);
+    }
+  }, [gradeId, fetchResourcesForGrade]);
 
   // Generate page data
   const pageData = useMemo(() => {

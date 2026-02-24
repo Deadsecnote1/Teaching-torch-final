@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useData } from '../context/DataContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -10,7 +10,15 @@ import { subjectTranslations } from '../utils/subjectTranslations';
 
 const TextbooksPage = () => {
   const { gradeId } = useParams();
-  const { generateGradePageData, loading: isLoading } = useData();
+  const { generateGradePageData, fetchResourcesForGrade, loading: isLoading } = useData();
+
+  // Lazy-load resources for this grade
+  useEffect(() => {
+    if (gradeId) {
+      fetchResourcesForGrade(gradeId);
+    }
+  }, [gradeId, fetchResourcesForGrade]);
+
   // Generate page data
   const pageData = useMemo(() => {
     return generateGradePageData(gradeId);

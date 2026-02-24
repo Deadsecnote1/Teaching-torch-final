@@ -9,7 +9,9 @@ import {
   doc,
   deleteDoc,
   setDoc,
-  updateDoc
+  updateDoc,
+  getDocs,
+  where
 } from 'firebase/firestore';
 
 // Create Data Context
@@ -22,6 +24,8 @@ const initialState = {
   resources: {},
   videos: {},
   allResources: [], // New state property
+  fetchedGrades: {}, // Tracks which grades have been lazy-loaded
+  allResourcesFetched: false,
   settings: {},
   loading: true, // Start loading as true
   gradesLoading: true,
@@ -119,12 +123,29 @@ const dataReducer = (state, action) => {
         subjectsLoading: false
       };
 
+    case 'MERGE_RESOURCES':
+      // Merge exactly what came from the lazy-load on top of existing resources
+      return {
+        ...state,
+        resources: { ...state.resources, ...action.payload.resources },
+        videos: { ...state.videos, ...action.payload.videos },
+        allResources: [...state.allResources, ...action.payload.allResources],
+        fetchedGrades: { ...state.fetchedGrades, ...action.payload.fetchedGrades }
+      };
+
+    case 'SET_ALL_RESOURCES_FETCHED':
+      return {
+        ...state,
+        allResourcesFetched: true
+      };
+
     case 'UPDATE_RESOURCES':
       return {
         ...state,
         resources: action.payload.resources,
         videos: action.payload.videos,
-        allResources: action.payload.allResources
+        allResources: action.payload.allResources,
+        allResourcesFetched: true
       };
 
     case 'UPDATE_GRADES':
@@ -163,6 +184,8 @@ export const DataProvider = ({ children }) => {
     resources: {},
     videos: {},
     allResources: [],
+    fetchedGrades: {},
+    allResourcesFetched: false,
     settings: {
       siteName: 'Teaching Torch',
       lastUpdated: new Date().toISOString(),
@@ -203,23 +226,10 @@ export const DataProvider = ({ children }) => {
       dispatch({ type: 'UPDATE_SUBJECTS', payload: defaultData.subjects });
     });
 
-    // Listen to Resources Collection
-    const q = query(collection(db, "resources"), orderBy("uploadDate", "desc"));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      // Need to use the latest subjects state which is tricky in a closure.
-      const { structuredResources, structuredVideos, allResources } = processResources(snapshot.docs);
-      dispatch({
-        type: 'UPDATE_RESOURCES',
-        payload: {
-          resources: structuredResources,
-          videos: structuredVideos,
-          allResources
-        }
-      });
-    }, (error) => {
-      console.error("Firestore Error:", error);
-      dispatch({ type: 'SET_ERROR', payload: error.message });
-    });
+    // Firebase Global Read Optimization: 
+    // We removed the onSnapshot("resources") listener here.
+    // The web app will now lazy-load resources ON DEMAND (e.g. when visiting Grade 6)
+    // using fetchResourcesForGrade() and fetchAllResources().
 
     // Listen to Settings
     const unsubSettings = onSnapshot(doc(db, "settings", "general"), (docSnap) => {
@@ -239,12 +249,62 @@ export const DataProvider = ({ children }) => {
     });
 
     return () => {
-      unsubscribe();
       unsubGrades();
       unsubSubjects();
       unsubSettings();
     };
   }, [getDefaultData]);
+
+  // Data Fetching actions
+  const fetchResourcesForGrade = useCallback(async (gradeId) => {
+    // Prevent duplicated costly reads if we already have it
+    if (state.fetchedGrades[gradeId] || state.allResourcesFetched) return;
+
+    try {
+      const q = query(
+        collection(db, "resources"),
+        where("grade", "==", gradeId),
+        orderBy("uploadDate", "desc")
+      );
+
+      const snapshot = await getDocs(q);
+      const { structuredResources, structuredVideos, allResources } = processResources(snapshot.docs);
+
+      dispatch({
+        type: 'MERGE_RESOURCES',
+        payload: {
+          resources: structuredResources,
+          videos: structuredVideos,
+          allResources,
+          fetchedGrades: { [gradeId]: true }
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching resources for grade:", error);
+      // Wait for indexes to build if required by Firebase
+    }
+  }, [state.fetchedGrades, state.allResourcesFetched]);
+
+  const fetchAllResources = useCallback(async () => {
+    if (state.allResourcesFetched) return;
+
+    try {
+      const q = query(collection(db, "resources"), orderBy("uploadDate", "desc"));
+      const snapshot = await getDocs(q);
+      const { structuredResources, structuredVideos, allResources } = processResources(snapshot.docs);
+
+      dispatch({
+        type: 'UPDATE_RESOURCES',
+        payload: {
+          resources: structuredResources,
+          videos: structuredVideos,
+          allResources
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching all resources:", error);
+    }
+  }, [state.allResourcesFetched]);
 
   // Action creators (Modified to write to Firestore)
   const updateSettings = useCallback(async (newSettings) => {
@@ -471,6 +531,8 @@ export const DataProvider = ({ children }) => {
     getVideos,
     getStats,
     generateGradePageData,
+    fetchResourcesForGrade,
+    fetchAllResources,
     updateSettings,
     dispatch
   };
