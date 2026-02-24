@@ -8,7 +8,8 @@ import {
   orderBy,
   doc,
   deleteDoc,
-  setDoc
+  setDoc,
+  updateDoc
 } from 'firebase/firestore';
 
 // Create Data Context
@@ -454,6 +455,7 @@ export const DataProvider = ({ children }) => {
     deleteSubject,
     addGrade,
     addSubject,
+    updateSubject,
     getSubjectsForGrade,
     getResources,
     getVideos,

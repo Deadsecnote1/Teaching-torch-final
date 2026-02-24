@@ -23,6 +23,7 @@ const AdminDashboard = () => {
     deleteResource,
     deleteGrade,
     deleteSubject,
+    updateSubject,
     grades,
     subjects,
     settings,
@@ -55,6 +56,16 @@ const AdminDashboard = () => {
   const [newSubjectCode, setNewSubjectCode] = useState('');
   const [newSubjectIcon, setNewSubjectIcon] = useState('bi-book');
   const [newSubjectGrades, setNewSubjectGrades] = useState([]);
+
+  // Edit Subject State
+  const [editingSubjectPrefix, setEditingSubjectPrefix] = useState(null);
+  const [editSubjectData, setEditSubjectData] = useState({
+    name: '',
+    nameSinhala: '',
+    nameTamil: '',
+    icon: '',
+    grades: []
+  });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -234,6 +245,49 @@ const AdminDashboard = () => {
 
   const handleDeleteSelected = () => {
     toast.error("Bulk delete is disabled in Firestore mode for safety.");
+  };
+
+  const handleEditSubjectClick = (key, subject) => {
+    setEditingSubjectPrefix(key);
+    setEditSubjectData({
+      name: subject.name || '',
+      nameSinhala: subject.nameSinhala || '',
+      nameTamil: subject.nameTamil || '',
+      icon: subject.icon || '',
+      grades: subject.grades || []
+    });
+  };
+
+  const handleCancelEditSubject = () => {
+    setEditingSubjectPrefix(null);
+  };
+
+  const handleSaveEditSubject = async () => {
+    if (!editSubjectData.name.trim()) {
+      toast.error('Subject English name is required');
+      return;
+    }
+    if (editSubjectData.grades.length === 0) {
+      toast.error('Please select at least one grade');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await updateSubject(editingSubjectPrefix, {
+        name: editSubjectData.name.trim(),
+        nameSinhala: editSubjectData.nameSinhala.trim() || null,
+        nameTamil: editSubjectData.nameTamil.trim() || null,
+        icon: editSubjectData.icon.trim() || 'bi-book',
+        grades: editSubjectData.grades
+      });
+      toast.success('Subject updated successfully!');
+      setEditingSubjectPrefix(null);
+    } catch (error) {
+      toast.error('Failed to update subject: ' + error.message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleDeleteResource = async (resourceId) => {
@@ -1019,20 +1073,54 @@ const AdminDashboard = () => {
                         <h6 className="mb-3">Subjects</h6>
                         <ul className="list-group list-group-flush">
                           {Object.entries(subjects).map(([key, s]) => (
-                            <li key={key} className="list-group-item d-flex justify-content-between align-items-center">
-                              <div>
-                                <strong>{s.name}</strong> ({key})
-                                <div className="small text-muted">
-                                  In: {s.grades?.join(', ') || 'None'}
+                            <li key={key} className="list-group-item">
+                              {editingSubjectPrefix === key ? (
+                                <div className="edit-subject-form">
+                                  <div className="mb-2">
+                                    <input type="text" className="form-control form-control-sm mb-1" placeholder="English Name" value={editSubjectData.name} onChange={e => setEditSubjectData({ ...editSubjectData, name: e.target.value })} />
+                                    <input type="text" className="form-control form-control-sm mb-1" placeholder="Sinhala Name" value={editSubjectData.nameSinhala} onChange={e => setEditSubjectData({ ...editSubjectData, nameSinhala: e.target.value })} />
+                                    <input type="text" className="form-control form-control-sm mb-1" placeholder="Tamil Name" value={editSubjectData.nameTamil} onChange={e => setEditSubjectData({ ...editSubjectData, nameTamil: e.target.value })} />
+                                    <input type="text" className="form-control form-control-sm mb-1" placeholder="Icon (e.g. bi-book)" value={editSubjectData.icon} onChange={e => setEditSubjectData({ ...editSubjectData, icon: e.target.value })} />
+                                  </div>
+                                  <div className="mb-2">
+                                    <select multiple className="form-select form-select-sm" value={editSubjectData.grades} onChange={e => setEditSubjectData({ ...editSubjectData, grades: Array.from(e.target.selectedOptions, option => option.value) })}>
+                                      {Object.entries(grades).map(([gKey, g]) => (
+                                        <option key={gKey} value={gKey}>{g.display}</option>
+                                      ))}
+                                    </select>
+                                    <small className="text-muted" style={{ fontSize: '0.7rem' }}>Hold CTRL/CMD to multi-select grades.</small>
+                                  </div>
+                                  <div className="d-flex gap-2">
+                                    <button className="btn btn-sm btn-success flex-grow-1" onClick={handleSaveEditSubject} disabled={isSubmitting}>Save</button>
+                                    <button className="btn btn-sm btn-secondary flex-grow-1" onClick={handleCancelEditSubject} disabled={isSubmitting}>Cancel</button>
+                                  </div>
                                 </div>
-                              </div>
-                              <button
-                                className="btn btn-sm btn-outline-danger"
-                                onClick={() => handleDeleteSubject(key)}
-                                title="Delete Subject"
-                              >
-                                <i className="bi bi-trash"></i>
-                              </button>
+                              ) : (
+                                <div className="d-flex justify-content-between align-items-center">
+                                  <div>
+                                    <strong>{s.name}</strong> ({key})
+                                    <div className="small text-muted">
+                                      In: {s.grades?.join(', ') || 'None'}
+                                    </div>
+                                  </div>
+                                  <div className="btn-group">
+                                    <button
+                                      className="btn btn-sm btn-outline-primary"
+                                      onClick={() => handleEditSubjectClick(key, s)}
+                                      title="Edit Subject"
+                                    >
+                                      <i className="bi bi-pencil"></i>
+                                    </button>
+                                    <button
+                                      className="btn btn-sm btn-outline-danger"
+                                      onClick={() => handleDeleteSubject(key)}
+                                      title="Delete Subject"
+                                    >
+                                      <i className="bi bi-trash"></i>
+                                    </button>
+                                  </div>
+                                </div>
+                              )}
                             </li>
                           ))}
                         </ul>
