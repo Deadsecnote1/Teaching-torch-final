@@ -21,7 +21,7 @@ const Home = () => {
     <div className="home-page">
       {/* Hero Section */}
       <header className="hero-section" style={{
-        backgroundImage: `url('${process.env.PUBLIC_URL}/bg1.jpg')`,
+        backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('${process.env.PUBLIC_URL}/bg1.jpg')`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'

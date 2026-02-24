@@ -4,6 +4,7 @@ import { useData } from '../context/DataContext';
 import { useLanguage } from '../context/LanguageContext';
 import ResourceCard from '../components/common/ResourceCard';
 import { subjectTranslations } from '../utils/subjectTranslations';
+import { getResourceTypeName } from '../utils/resourceTranslations';
 
 const PapersPage = () => {
   const { gradeId } = useParams();
@@ -162,7 +163,7 @@ const PapersPage = () => {
       {/* Page Header */}
       <header className="grade-header">
         <div className="container text-center">
-          <h1 className="display-4 fw-bold">{grade.display} Exam Papers</h1>
+          <h1 className="display-4 fw-bold">{grade.display} {getResourceTypeName('papers', selectedLanguage)}</h1>
           <p className="lead">Past papers for practice and preparation</p>
         </div>
       </header>
@@ -179,7 +180,7 @@ const PapersPage = () => {
                 <Link to={`/grade/${gradeId}`}>{grade.display}</Link>
               </li>
               <li className="breadcrumb-item active" aria-current="page">
-                Exam Papers
+                {getResourceTypeName('papers', selectedLanguage)}
               </li>
             </ol>
           </nav>

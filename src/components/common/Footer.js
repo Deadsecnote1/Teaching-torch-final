@@ -9,10 +9,10 @@ const Footer = () => {
         <div className="row justify-content-center text-center">
           {/* Brand Column */}
           <div className="col-12 mb-3">
-            <h5 className="footer-title text-white">Teaching Torch</h5>
-            <p className="footer-text mx-auto text-white-50" style={{ maxWidth: '400px' }}>
+            <h5 className="footer-title text-white fw-bold">Teaching Torch</h5>
+            <h6 className="footer-text mx-auto text-white mt-1" style={{ maxWidth: '400px', lineHeight: '1.6' }}>
               Free educational resources for Sri Lankan students from Grade 6 to Advanced Level.
-            </p>
+            </h6>
             <div className="social-links mt-3">
               {settings?.facebook && (
                 <a href={settings.facebook} className="footer-link text-white me-3" aria-label="Facebook" target="_blank" rel="noopener noreferrer">
@@ -38,12 +38,12 @@ const Footer = () => {
         {/* Bottom Row */}
         <div className="row align-items-center">
           <div className="col-md-6 text-center text-md-start">
-            <p className="footer-copyright text-white-50 mb-0"><small>&copy; 2025 Teaching Torch. All rights reserved.</small></p>
+            <h6 className="footer-copyright text-white mb-0">&copy; 2025 Teaching Torch. All rights reserved.</h6>
           </div>
           <div className="col-md-6 text-md-end">
-            <small className="footer-made-with">
+            <h6 className="footer-made-with text-white mb-0">
               Made with ❤️ for Sri Lankan Education 🇱🇰
-            </small>
+            </h6>
           </div>
         </div>
       </div>

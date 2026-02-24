@@ -1,11 +1,11 @@
 import React, { useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useData } from '../context/DataContext';
-
+import { getResourceTypeName } from '../utils/resourceTranslations';
 
 const GradePage = () => {
   const { gradeId } = useParams();
-  const { generateGradePageData } = useData();
+  const { generateGradePageData, language } = useData();
 
   // Generate page data
   const pageData = useMemo(() => {
@@ -27,10 +27,10 @@ const GradePage = () => {
   const { grade } = pageData;
 
   const resourceTypes = [
-    { type: 'textbooks', icon: 'bi-book', color: 'text-primary', title: 'Textbooks', desc: 'Downloadable PDF textbooks' },
-    { type: 'papers', icon: 'bi-file-earmark-text', color: 'text-info', title: 'Exam Papers', desc: 'Term & chapter papers' },
-    { type: 'notes', icon: 'bi-sticky', color: 'text-warning', title: 'Short Notes', desc: 'Chapter-wise summaries' },
-    { type: 'videos', icon: 'bi-play-circle', color: 'text-danger', title: 'Video Lessons', desc: 'Educational videos' }
+    { type: 'textbooks', icon: 'bi-book', color: 'text-primary', title: getResourceTypeName('textbooks', language), desc: 'Downloadable PDF textbooks' },
+    { type: 'papers', icon: 'bi-file-earmark-text', color: 'text-info', title: getResourceTypeName('papers', language), desc: 'Term & chapter papers' },
+    { type: 'notes', icon: 'bi-sticky', color: 'text-warning', title: getResourceTypeName('notes', language), desc: 'Chapter-wise summaries' },
+    { type: 'videos', icon: 'bi-play-circle', color: 'text-danger', title: getResourceTypeName('videos', language), desc: 'Educational videos' }
   ];
 
   return (

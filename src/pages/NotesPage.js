@@ -4,6 +4,7 @@ import { useData } from '../context/DataContext';
 import { useLanguage } from '../context/LanguageContext';
 import ResourceCard from '../components/common/ResourceCard';
 import { subjectTranslations } from '../utils/subjectTranslations';
+import { getResourceTypeName } from '../utils/resourceTranslations';
 
 const NotesPage = () => {
   const { gradeId } = useParams();
@@ -152,7 +153,7 @@ const NotesPage = () => {
       {/* Page Header */}
       <header className="grade-header">
         <div className="container text-center">
-          <h1 className="display-4 fw-bold">{grade.display} Short Notes</h1>
+          <h1 className="display-4 fw-bold">{grade.display} {getResourceTypeName('notes', selectedLanguage)}</h1>
           <p className="lead">Quick reference notes for all chapters</p>
         </div>
       </header>
@@ -169,7 +170,7 @@ const NotesPage = () => {
                 <Link to={`/grade/${gradeId}`}>{grade.display}</Link>
               </li>
               <li className="breadcrumb-item active" aria-current="page">
-                Short Notes
+                {getResourceTypeName('notes', selectedLanguage)}
               </li>
             </ol>
           </nav>

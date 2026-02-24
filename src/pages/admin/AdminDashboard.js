@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useData } from '../../context/DataContext';
 import { useAuth } from '../../context/AuthContext';
+import { useLanguage } from '../../context/LanguageContext';
+import { getResourceTypeName } from '../../utils/resourceTranslations';
 import { isGoogleDriveLink, extractFileId } from '../../utils/googleDrive';
 import { isYouTubeLink, extractYouTubeId } from '../../utils/youtube';
 import toast from 'react-hot-toast';
@@ -30,6 +32,7 @@ const AdminDashboard = () => {
     settings,
     updateSettings
   } = useData();
+  const { selectedLanguage } = useLanguage();
   const { currentUser, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('overview'); // overview, resources, grades, subjects
   const [selectedGrade, setSelectedGrade] = useState('grade6');
@@ -646,10 +649,10 @@ const AdminDashboard = () => {
                             }
                           }}
                         >
-                          <option value="textbook">Textbook</option>
-                          <option value="notes">Notes</option>
-                          <option value="papers">Past Papers</option>
-                          <option value="videos">Videos</option>
+                          <option value="textbook">{getResourceTypeName('textbooks', selectedLanguage)}</option>
+                          <option value="notes">{getResourceTypeName('notes', selectedLanguage)}</option>
+                          <option value="papers">{getResourceTypeName('papers', selectedLanguage)}</option>
+                          <option value="videos">{getResourceTypeName('videos', selectedLanguage)}</option>
                         </select>
                       </div>
                     </div>

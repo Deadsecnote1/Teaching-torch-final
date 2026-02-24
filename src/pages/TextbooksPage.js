@@ -4,6 +4,7 @@ import { useData } from '../context/DataContext';
 import { useLanguage } from '../context/LanguageContext';
 import ResourceCard from '../components/common/ResourceCard';
 import { subjectTranslations } from '../utils/subjectTranslations';
+import { getResourceTypeName } from '../utils/resourceTranslations';
 
 
 // Removed API_BASE_URL - using Google Drive links instead
@@ -133,7 +134,7 @@ const TextbooksPage = () => {
       {/* Page Header */}
       <header className="grade-header">
         <div className="container text-center">
-          <h1 className="display-4 fw-bold">{grade.display} Textbooks</h1>
+          <h1 className="display-4 fw-bold">{grade.display} {getResourceTypeName('textbooks', selectedLanguage)}</h1>
           <p className="lead">
             {gradeId === 'al' ? 'Download A/L textbooks by stream' : 'Download textbooks in Sinhala, Tamil, and English'}
           </p>
@@ -152,7 +153,7 @@ const TextbooksPage = () => {
                 <Link to={`/grade/${gradeId}`}>{grade.display}</Link>
               </li>
               <li className="breadcrumb-item active" aria-current="page">
-                Textbooks
+                {getResourceTypeName('textbooks', selectedLanguage)}
               </li>
             </ol>
           </nav>

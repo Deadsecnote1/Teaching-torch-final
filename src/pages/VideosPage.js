@@ -5,6 +5,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { extractYouTubeId, getYouTubeThumbnail, isYouTubeLink } from '../utils/youtube';
 import { getEmbedUrl, isGoogleDriveLink } from '../utils/googleDrive';
 import { subjectTranslations } from '../utils/subjectTranslations';
+import { getResourceTypeName } from '../utils/resourceTranslations';
 
 const VideosPage = () => {
   const { gradeId } = useParams();
@@ -212,7 +213,7 @@ const VideosPage = () => {
       {/* Page Header */}
       <header className="grade-header">
         <div className="container text-center">
-          <h1 className="display-4 fw-bold">{grade.display} Video Lessons</h1>
+          <h1 className="display-4 fw-bold">{grade.display} {getResourceTypeName('videos', selectedLanguage)}</h1>
           <p className="lead">Educational videos and tutorials</p>
         </div>
       </header>
@@ -229,7 +230,7 @@ const VideosPage = () => {
                 <Link to={`/grade/${gradeId}`}>{grade.display}</Link>
               </li>
               <li className="breadcrumb-item active" aria-current="page">
-                Video Lessons
+                {getResourceTypeName('videos', selectedLanguage)}
               </li>
             </ol>
           </nav>
