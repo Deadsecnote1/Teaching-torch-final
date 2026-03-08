@@ -17,6 +17,7 @@ export const ThemeProvider = ({ children }) => {
   // Apply theme to document
   const applyTheme = (newTheme) => {
     document.documentElement.setAttribute('data-theme', newTheme);
+    document.documentElement.setAttribute('data-bs-theme', newTheme);
   };
 
   // Toggle theme
