@@ -76,7 +76,7 @@ const Home = () => {
       </section>
 
       {/* Features Section */}
-      <section className="py-5 bg-light">
+      <section className="py-5">
         <div className="container">
           <h3 className="text-center mb-5">Why Choose Teaching Torch?</h3>
           <div className="row g-4">

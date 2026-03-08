@@ -70,11 +70,14 @@
   box-sizing: border-box;
 }
 
+html, body, .App {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   line-height: 1.6;
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
