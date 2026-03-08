@@ -9,6 +9,7 @@ import { Toaster } from 'react-hot-toast';
 // Components
 import Navbar from './components/common/Navbar';
 import Footer from './components/common/Footer';
+import ScrollToTop from './components/common/ScrollToTop';
 
 // Pages
 import Home from './pages/Home';
@@ -53,6 +54,7 @@ function App() {
         <DataProvider>
           <AuthProvider>
             <Router>
+              <ScrollToTop />
               <Toaster position="top-right" />
               <div className="App">
                 <Navbar />
