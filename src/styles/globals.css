@@ -209,14 +209,12 @@ a:active {
 /* Hero Section */
 .hero-section {
   background: var(--hero-gradient);
-  min-height: 50vh;
-  /* Reduced from 60vh to pull content up slightly */
+  min-height: 60vh;
   display: flex;
   align-items: center;
   position: relative;
   color: white;
-  padding-top: 20px;
-  /* Reduced from 76px to pull content up */
+  padding-top: 76px;
 }
 
 .hero-section::before {
