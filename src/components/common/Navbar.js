@@ -265,7 +265,7 @@ const Navbar = () => {
         
         @media (max-width: 991.98px) {
           .navbar-nav {
-            background-color: rgba(0,0,0,0.1);
+            background-color: var(--card-bg, white);
             border-radius: 8px;
             padding: 0.5rem;
             margin-top: 0.5rem;
@@ -276,7 +276,17 @@ const Navbar = () => {
             float: none;
             width: 100%;
             margin-top: 0;
-            background-color: rgba(255,255,255,0.95);
+            background-color: transparent !important;
+            box-shadow: none !important;
+            border: none !important;
+          }
+          
+          .nav-link {
+            color: var(--text-primary) !important;
+          }
+          
+          [data-theme='dark'] .nav-link {
+            color: rgba(255,255,255,0.9) !important;
           }
         }
       `}</style>
