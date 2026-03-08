@@ -231,6 +231,9 @@ const AdminDashboard = () => {
       // Success notification
       toast.success(`Successfully added resource!`);
 
+      // Auto-refresh the file list since onSnapshot is disabled
+      await fetchAllResources(true);
+
       // Reset form
       setDriveLink('');
       setResourceTitle('');
@@ -301,7 +304,8 @@ const AdminDashboard = () => {
     if (window.confirm('Are you sure you want to delete this resource? This action cannot be undone.')) {
       try {
         await deleteResource(resourceId);
-        // UI updates automatically via onSnapshot in DataContext
+        // Refresh the file list since onSnapshot is disabled
+        await fetchAllResources(true);
         toast.success('Resource deleted successfully!');
       } catch (error) {
         console.error("Error deleting resource: ", error);
@@ -310,9 +314,10 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleRefresh = () => {
-    // No op - Firestore listens in real-time
-    toast.success('Data is automatically synced with Firestore!');
+  const handleRefresh = async () => {
+    toast.loading("Refreshing files...", { id: "refresh" });
+    await fetchAllResources(true);
+    toast.success('Files refreshed from database!', { id: "refresh" });
   };
 
   // Filter files based on search query
@@ -1035,7 +1040,7 @@ const AdminDashboard = () => {
                     </div>
                     <div className="mb-3">
                       <label className="form-label">Available for Grades:</label>
-                      <div className="border rounded p-2 bg-white" style={{ maxHeight: '150px', overflowY: 'auto' }}>
+                      <div className="border rounded p-2" style={{ maxHeight: '150px', overflowY: 'auto' }}>
                         {Object.entries(grades).map(([key, g]) => (
                           <div className="form-check" key={key}>
                             <input
@@ -1107,7 +1112,7 @@ const AdminDashboard = () => {
                                     <input type="text" className="form-control form-control-sm mb-1" placeholder="Icon (e.g. bi-book)" value={editSubjectData.icon} onChange={e => setEditSubjectData({ ...editSubjectData, icon: e.target.value })} />
                                   </div>
                                   <div className="mb-2">
-                                    <div className="border rounded p-2 bg-white form-control-sm" style={{ maxHeight: '150px', overflowY: 'auto' }}>
+                                    <div className="border rounded p-2 form-control-sm" style={{ maxHeight: '150px', overflowY: 'auto' }}>
                                       {Object.entries(grades).map(([gKey, g]) => (
                                         <div className="form-check" key={gKey}>
                                           <input

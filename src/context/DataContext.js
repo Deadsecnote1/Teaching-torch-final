@@ -285,8 +285,8 @@ export const DataProvider = ({ children }) => {
     }
   }, [state.fetchedGrades, state.allResourcesFetched]);
 
-  const fetchAllResources = useCallback(async () => {
-    if (state.allResourcesFetched) return;
+  const fetchAllResources = useCallback(async (force = false) => {
+    if (state.allResourcesFetched && !force) return;
 
     try {
       const q = query(collection(db, "resources"), orderBy("uploadDate", "desc"));
