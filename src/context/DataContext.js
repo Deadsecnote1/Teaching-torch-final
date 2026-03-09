@@ -479,13 +479,30 @@ export const DataProvider = ({ children }) => {
 
   // Utility functions (Unchanged mostly, just reading from state)
   const getSubjectsForGrade = useCallback((gradeId) => {
-    const subjects = {};
-    Object.keys(state.subjects).forEach(subjectId => {
-      const subject = state.subjects[subjectId];
-      if (subject.grades.includes(gradeId)) {
-        subjects[subjectId] = subject;
+    // 1. Gather all subjects belonging to this grade into an array
+    const validSubjectsArray = Object.entries(state.subjects)
+      .filter(([subjectId, subject]) => subject.grades?.includes(gradeId));
+
+    // 2. Sort the array primarily by the 'order' field (ascending), then by name
+    validSubjectsArray.sort((a, b) => {
+      const orderA = a[1].order !== undefined ? a[1].order : 999;
+      const orderB = b[1].order !== undefined ? b[1].order : 999;
+      
+      if (orderA !== orderB) {
+        return orderA - orderB; // Sort ascending by order
       }
+      
+      const nameA = a[1].name || '';
+      const nameB = b[1].name || '';
+      return nameA.localeCompare(nameB);
     });
+
+    // 3. Convert the sorted array back into an Object while preserving insertion order
+    const subjects = {};
+    for (const [subjectId, subject] of validSubjectsArray) {
+      subjects[subjectId] = subject;
+    }
+
     return subjects;
   }, [state.subjects]);
 

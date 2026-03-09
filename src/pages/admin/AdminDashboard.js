@@ -60,6 +60,7 @@ const AdminDashboard = () => {
   const [newSubjectNameTamil, setNewSubjectNameTamil] = useState('');
   const [newSubjectCode, setNewSubjectCode] = useState('');
   const [newSubjectIcon, setNewSubjectIcon] = useState('bi-book');
+  const [newSubjectOrder, setNewSubjectOrder] = useState('');
   const [newSubjectGrades, setNewSubjectGrades] = useState([]);
 
   // Edit Subject State
@@ -69,6 +70,7 @@ const AdminDashboard = () => {
     nameSinhala: '',
     nameTamil: '',
     icon: '',
+    order: '',
     grades: []
   });
 
@@ -259,6 +261,7 @@ const AdminDashboard = () => {
       nameSinhala: subject.nameSinhala || '',
       nameTamil: subject.nameTamil || '',
       icon: subject.icon || '',
+      order: subject.order !== undefined ? subject.order : '',
       grades: subject.grades || []
     });
   };
@@ -284,6 +287,7 @@ const AdminDashboard = () => {
         nameSinhala: editSubjectData.nameSinhala.trim() || null,
         nameTamil: editSubjectData.nameTamil.trim() || null,
         icon: editSubjectData.icon.trim() || 'bi-book',
+        order: editSubjectData.order !== '' ? parseInt(editSubjectData.order, 10) : 999,
         grades: editSubjectData.grades
       });
       toast.success('Subject updated successfully!');
@@ -379,6 +383,7 @@ const AdminDashboard = () => {
         nameSinhala: newSubjectNameSinhala.trim(),
         nameTamil: newSubjectNameTamil.trim(),
         icon: newSubjectIcon.trim(),
+        order: newSubjectOrder !== '' ? parseInt(newSubjectOrder, 10) : 999,
         grades: newSubjectGrades
       });
       toast.success('Subject created successfully!');
@@ -386,6 +391,7 @@ const AdminDashboard = () => {
       setNewSubjectNameSinhala('');
       setNewSubjectNameTamil('');
       setNewSubjectCode('');
+      setNewSubjectOrder('');
       setNewSubjectGrades([]);
     } catch (e) {
       toast.error('Failed to create subject');
@@ -1046,6 +1052,10 @@ const AdminDashboard = () => {
                       <input type="text" className="form-control" value={newSubjectIcon} onChange={e => setNewSubjectIcon(e.target.value)} />
                     </div>
                     <div className="mb-3">
+                      <label className="form-label">Display Order (Optional)</label>
+                      <input type="number" className="form-control" placeholder="Lower numbers appear first" value={newSubjectOrder} onChange={e => setNewSubjectOrder(e.target.value)} />
+                    </div>
+                    <div className="mb-3">
                       <label className="form-label">Available for Grades:</label>
                       <div className="border rounded p-2" style={{ maxHeight: '150px', overflowY: 'auto' }}>
                         {Object.entries(grades).map(([key, g]) => (
@@ -1117,6 +1127,7 @@ const AdminDashboard = () => {
                                     <input type="text" className="form-control form-control-sm mb-1" placeholder="Sinhala Name" value={editSubjectData.nameSinhala} onChange={e => setEditSubjectData({ ...editSubjectData, nameSinhala: e.target.value })} />
                                     <input type="text" className="form-control form-control-sm mb-1" placeholder="Tamil Name" value={editSubjectData.nameTamil} onChange={e => setEditSubjectData({ ...editSubjectData, nameTamil: e.target.value })} />
                                     <input type="text" className="form-control form-control-sm mb-1" placeholder="Icon (e.g. bi-book)" value={editSubjectData.icon} onChange={e => setEditSubjectData({ ...editSubjectData, icon: e.target.value })} />
+                                    <input type="number" className="form-control form-control-sm mb-1" placeholder="Display Order (Optional)" value={editSubjectData.order} onChange={e => setEditSubjectData({ ...editSubjectData, order: e.target.value })} />
                                   </div>
                                   <div className="mb-2">
                                     <div className="border rounded p-2 form-control-sm" style={{ maxHeight: '150px', overflowY: 'auto' }}>
