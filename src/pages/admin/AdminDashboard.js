@@ -82,7 +82,9 @@ const AdminDashboard = () => {
     description: '',
     url: '',
     language: 'english',
-    order: ''
+    order: '',
+    subject: '',
+    grade: ''
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -331,7 +333,9 @@ const AdminDashboard = () => {
       description: resource.description || '',
       url: resource.url || resource.driveLink || resource.youtubeUrl || '',
       language: resource.language || 'english',
-      order: resource.order !== undefined && resource.order !== 999 ? resource.order : '' // Exclude default 999 from showing
+      order: resource.order !== undefined && resource.order !== 999 ? resource.order : '', // Exclude default 999 from showing
+      subject: resource.subject || '',
+      grade: resource.grade || ''
     });
   };
 
@@ -352,7 +356,9 @@ const AdminDashboard = () => {
         name: editResourceData.title.trim(), // Keep sync
         description: editResourceData.description.trim(),
         order: editResourceData.order !== '' ? parseInt(editResourceData.order, 10) : 999,
-        language: editResourceData.language
+        language: editResourceData.language,
+        subject: editResourceData.subject,
+        grade: editResourceData.grade
       };
 
       // Correctly assign new driveLink or youtubeUrl based on the raw url
@@ -1027,6 +1033,32 @@ const AdminDashboard = () => {
                                     <label className="form-label small mb-0">Description</label>
                                     <textarea className="form-control form-control-sm mb-2" rows="2" value={editResourceData.description} onChange={e => setEditResourceData({ ...editResourceData, description: e.target.value })} />
                                     
+                                    <div className="row g-2 mb-2">
+                                      <div className="col-6">
+                                        <label className="form-label small mb-0">Grade</label>
+                                        <select className="form-select form-select-sm" value={editResourceData.grade} onChange={e => {
+                                          setEditResourceData({ ...editResourceData, grade: e.target.value });
+                                          // Auto-correct subject if the new grade doesn't have it
+                                          const availableSubjects = getSubjectsForGrade(e.target.value);
+                                          const subjectKeys = Object.keys(availableSubjects);
+                                          if (subjectKeys.length > 0 && !subjectKeys.includes(editResourceData.subject)) {
+                                            setEditResourceData(prev => ({ ...prev, grade: e.target.value, subject: subjectKeys[0] }));
+                                          }
+                                        }}>
+                                          {Object.entries(grades).map(([key, g]) => (
+                                            <option key={key} value={key}>{g.display}</option>
+                                          ))}
+                                        </select>
+                                      </div>
+                                      <div className="col-6">
+                                        <label className="form-label small mb-0">Subject</label>
+                                        <select className="form-select form-select-sm" value={editResourceData.subject} onChange={e => setEditResourceData({ ...editResourceData, subject: e.target.value })}>
+                                          {Object.entries(getSubjectsForGrade(editResourceData.grade)).map(([key, s]) => (
+                                            <option key={key} value={key}>{s.name}</option>
+                                          ))}
+                                        </select>
+                                      </div>
+                                    </div>
                                     <div className="row g-2">
                                       <div className="col-6">
                                         <label className="form-label small mb-0">Language</label>
