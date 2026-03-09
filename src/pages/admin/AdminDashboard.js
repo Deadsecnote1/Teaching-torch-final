@@ -89,6 +89,10 @@ const AdminDashboard = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  
+  // File Manager Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const filesPerPage = 20;
 
   // Settings State
   const [settingsData, setSettingsData] = useState({
@@ -127,7 +131,7 @@ const AdminDashboard = () => {
 
   // Sync uploadedFiles with allResources from Context
   useEffect(() => {
-    if (activeTab === 'resources') {
+    if (activeTab === 'upload' || activeTab === 'files') {
       fetchAllResources();
     }
     if (allResources) {
@@ -403,6 +407,20 @@ const AdminDashboard = () => {
     );
   });
 
+  // Calculate Pagination 
+  const indexOfLastFile = currentPage * filesPerPage;
+  const indexOfFirstFile = indexOfLastFile - filesPerPage;
+  // Reverse to show newest first, then slice
+  const currentFiles = filteredFiles.slice().reverse().slice(indexOfFirstFile, indexOfLastFile);
+  const totalPages = Math.ceil(filteredFiles.length / filesPerPage);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  // Reset to page 1 if search query changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
+
   // Group uploaded files by grade/subject/type
   const getFileGroups = () => {
     const groups = {};
@@ -531,11 +549,20 @@ const AdminDashboard = () => {
             </li>
             <li className="nav-item">
               <button
-                className={`nav-link ${activeTab === 'resources' ? 'active' : ''}`}
-                onClick={() => setActiveTab('resources')}
+                className={`nav-link ${activeTab === 'upload' ? 'active' : ''}`}
+                onClick={() => setActiveTab('upload')}
+              >
+                <i className="bi bi-cloud-upload me-2"></i>
+                Upload Resources
+              </button>
+            </li>
+            <li className="nav-item">
+              <button
+                className={`nav-link ${activeTab === 'files' ? 'active' : ''}`}
+                onClick={() => setActiveTab('files')}
               >
                 <i className="bi bi-folder me-2"></i>
-                Manage Resources
+                File Manager
               </button>
             </li>
             <li className="nav-item">
@@ -630,10 +657,17 @@ const AdminDashboard = () => {
                         </Link>
                         <button
                           className="btn btn-success"
-                          onClick={() => setActiveTab('resources')}
+                          onClick={() => setActiveTab('upload')}
                         >
                           <i className="bi bi-folder-plus me-2"></i>
-                          Manage Resources ({uploadedFiles.length} files)
+                          Upload Resources
+                        </button>
+                        <button
+                          className="btn btn-info text-white mt-2"
+                          onClick={() => setActiveTab('files')}
+                        >
+                          <i className="bi bi-files me-2"></i>
+                          Manage Files ({uploadedFiles.length})
                         </button>
                       </div>
                     </div>
@@ -661,15 +695,15 @@ const AdminDashboard = () => {
             </>
           )}
 
-          {activeTab === 'resources' && (
-            <div className="row g-4">
+          {activeTab === 'upload' && (
+            <div className="row justify-content-center">
               {/* Upload Files Section */}
-              <div className="col-md-8">
-                <div className="card">
-                  <div className="card-header">
-                    <h5>
+              <div className="col-lg-8">
+                <div className="card shadow-sm">
+                  <div className="card-header bg-primary text-white">
+                    <h5 className="mb-0">
                       <i className="bi bi-cloud-upload me-2"></i>
-                      Upload Files
+                      Upload New Resource
                     </h5>
                   </div>
                   <div className="card-body">
@@ -991,12 +1025,16 @@ const AdminDashboard = () => {
                   </div>
                 </div>
               </div>
+            </div>
+          )}
 
+          {activeTab === 'files' && (
+            <div className="row justify-content-center">
               {/* File Manager Section */}
-              <div className="col-md-4">
-                <div className="card h-100">
-                  <div className="card-header d-flex justify-content-between align-items-center">
-                    <h5>
+              <div className="col-lg-12">
+                <div className="card shadow-sm h-100">
+                  <div className="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                    <h5 className="mb-0">
                       <i className="bi bi-folder me-2"></i>
                       File Manager
                     </h5>
@@ -1016,10 +1054,10 @@ const AdminDashboard = () => {
                       />
                     </div>
 
-                    <div className="file-list" style={{ maxHeight: '350px', overflowY: 'auto' }}>
+                    <div className="file-list" style={{ minHeight: '350px' }}>
                       {filteredFiles.length > 0 ? (
                         <div>
-                          {filteredFiles.slice().reverse().map((file) => (
+                          {currentFiles.map((file) => (
                             <div key={file.id} className="p-2 border-bottom">
                               {editingResource === file.id ? (
                                 <div className="edit-resource-form">
@@ -1121,6 +1159,25 @@ const AdminDashboard = () => {
                               )}
                             </div>
                           ))}
+                          
+                          {/* Pagination Controls */}
+                          {totalPages > 1 && (
+                            <nav className="mt-4 d-flex justify-content-center">
+                              <ul className="pagination pagination-sm">
+                                <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                                  <button className="page-link" onClick={() => paginate(currentPage - 1)}>&laquo;</button>
+                                </li>
+                                {[...Array(totalPages)].map((_, i) => (
+                                  <li key={i + 1} className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}>
+                                    <button className="page-link" onClick={() => paginate(i + 1)}>{i + 1}</button>
+                                  </li>
+                                ))}
+                                <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                                  <button className="page-link" onClick={() => paginate(currentPage + 1)}>&raquo;</button>
+                                </li>
+                              </ul>
+                            </nav>
+                          )}
                         </div>
                       ) : (
                         <div className="text-center text-muted">
