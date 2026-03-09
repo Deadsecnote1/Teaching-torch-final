@@ -195,12 +195,6 @@ const TextbooksPage = () => {
                           <h3 className="mb-0">
                             {subjectTranslations.getTranslatedName(subjectId, subject, selectedLanguage)}
                           </h3>
-                          <small className="text-muted">
-                            {hasUploadedTextbooks ?
-                              `${Object.values(uploadedSubjectTextbooks).flat().length} textbook${Object.values(uploadedSubjectTextbooks).flat().length !== 1 ? 's' : ''} available` :
-                              'No textbooks uploaded yet'
-                            }
-                          </small>
                         </div>
                       </div>
                     </div>

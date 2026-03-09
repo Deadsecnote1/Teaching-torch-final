@@ -723,29 +723,21 @@ const AdminDashboard = () => {
 
                     {/* Language Selection */}
                     <div className="mb-4">
-                      <label className="form-label">Select Language(s)</label>
-                      <div className="d-flex gap-2">
-                        <button
-                          type="button"
-                          className={`btn ${selectedLanguages.includes('sinhala') ? 'btn-danger' : 'btn-outline-danger'}`}
-                          onClick={() => handleLanguageToggle('sinhala')}
-                        >
-                          සිංහල
-                        </button>
-                        <button
-                          type="button"
-                          className={`btn ${selectedLanguages.includes('tamil') ? 'btn-success' : 'btn-outline-success'}`}
-                          onClick={() => handleLanguageToggle('tamil')}
-                        >
-                          தமிழ்
-                        </button>
-                        <button
-                          type="button"
-                          className={`btn ${selectedLanguages.includes('english') ? 'btn-primary' : 'btn-outline-primary'}`}
-                          onClick={() => handleLanguageToggle('english')}
-                        >
-                          English
-                        </button>
+                      <label className="form-label">Select Language</label>
+                      <select
+                        className="form-select"
+                        value={selectedLanguages[0] || 'english'}
+                        onChange={(e) => setSelectedLanguages([e.target.value])}
+                      >
+                        <option value="english">English</option>
+                        <option value="sinhala">සිංහල</option>
+                        <option value="tamil">தமிழ்</option>
+                      </select>
+                      <div className="form-text">
+                        <small>
+                          <i className="bi bi-info-circle me-1"></i>
+                          Choose the medium for this resource.
+                        </small>
                       </div>
                     </div>
 
