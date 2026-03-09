@@ -268,11 +268,18 @@ export const DataProvider = ({ children }) => {
 
       const snapshot = await getDocs(q);
       
-      // Sort in JavaScript to avoid requiring a Firebase Composite Index
+      // Sort locally: First by 'order' (ascending), then by 'uploadDate' (descending)
       const sortedDocs = [...snapshot.docs].sort((a, b) => {
+        const orderA = a.data().order !== undefined ? a.data().order : 999;
+        const orderB = b.data().order !== undefined ? b.data().order : 999;
+        
+        if (orderA !== orderB) {
+          return orderA - orderB; // Sort ascending by order (1, 2, 3...)
+        }
+
         const dateA = a.data().uploadDate || '';
         const dateB = b.data().uploadDate || '';
-        return dateB.localeCompare(dateA); // Sort descending
+        return dateB.localeCompare(dateA); // Sort descending by date
       });
 
       const { structuredResources, structuredVideos, allResources } = processResources(sortedDocs);
@@ -298,7 +305,21 @@ export const DataProvider = ({ children }) => {
     try {
       const q = query(collection(db, "resources"), orderBy("uploadDate", "desc"));
       const snapshot = await getDocs(q);
-      const { structuredResources, structuredVideos, allResources } = processResources(snapshot.docs);
+      // Sort locally: First by 'order' (ascending), then by 'uploadDate' (descending)
+      const sortedDocs = [...snapshot.docs].sort((a, b) => {
+        const orderA = a.data().order !== undefined ? a.data().order : 999;
+        const orderB = b.data().order !== undefined ? b.data().order : 999;
+        
+        if (orderA !== orderB) {
+          return orderA - orderB; // Sort ascending by order (1, 2, 3...)
+        }
+
+        const dateA = a.data().uploadDate || '';
+        const dateB = b.data().uploadDate || '';
+        return dateB.localeCompare(dateA); // Sort descending by date
+      });
+
+      const { structuredResources, structuredVideos, allResources } = processResources(sortedDocs);
 
       dispatch({
         type: 'UPDATE_RESOURCES',

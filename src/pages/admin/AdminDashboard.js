@@ -45,8 +45,8 @@ const AdminDashboard = () => {
   // const [uploadProgress, setUploadProgress] = useState(0); 
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [driveLink, setDriveLink] = useState('');
-  const [resourceTitle, setResourceTitle] = useState('');
   const [resourceDescription, setResourceDescription] = useState('');
+  const [resourceOrder, setResourceOrder] = useState('');
   const [schoolName, setSchoolName] = useState('');
 
   // Add Grade State
@@ -194,6 +194,7 @@ const AdminDashboard = () => {
         description: resourceDescription.trim() || '',
         name: resourceTitle.trim(),
         url: driveLink.trim(),
+        order: resourceOrder !== '' ? parseInt(resourceOrder, 10) : 999,
         addedBy: currentUser ? currentUser.email : 'admin'
       };
 
@@ -238,6 +239,7 @@ const AdminDashboard = () => {
       setDriveLink('');
       setResourceTitle('');
       setResourceDescription('');
+      setResourceOrder('');
       setSelectedLanguages(['english']);
       setSchoolName('');
       if (selectedResourceType === 'papers') {
@@ -828,6 +830,25 @@ const AdminDashboard = () => {
                       />
                     </div>
 
+                    {/* Resource Order (Optional) */}
+                    <div className="mb-4">
+                      <label className="form-label">
+                        <i className="bi bi-sort-numeric-down me-2"></i>
+                        Display Order (Optional)
+                      </label>
+                      <input
+                        type="number"
+                        className="form-control"
+                        placeholder="e.g., 1, 2, 3 (Lower numbers appear first)"
+                        value={resourceOrder}
+                        onChange={(e) => setResourceOrder(e.target.value)}
+                        min="1"
+                      />
+                      <div className="form-text">
+                        <small>Leave empty to sort by date automatically.</small>
+                      </div>
+                    </div>
+
                     {/* Add Resource Button */}
                     <div className="d-flex gap-2">
                       <button
@@ -855,6 +876,7 @@ const AdminDashboard = () => {
                           setDriveLink('');
                           setResourceTitle('');
                           setResourceDescription('');
+                          setResourceOrder('');
                           setSelectedLanguages(['english']);
                           setSchoolName('');
                           if (selectedResourceType === 'papers') {
