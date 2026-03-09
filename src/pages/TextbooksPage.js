@@ -181,7 +181,6 @@ const TextbooksPage = () => {
           <div className="row g-4">
             {Object.entries(allSubjects).map(([subjectId, subject]) => {
               const uploadedSubjectTextbooks = uploadedTextbooks[subjectId] || {};
-              const hasUploadedTextbooks = Object.keys(uploadedSubjectTextbooks).length > 0;
 
               return (
                 <div key={subjectId} className="col-lg-6 mb-4">

@@ -45,6 +45,7 @@ const AdminDashboard = () => {
   // const [uploadProgress, setUploadProgress] = useState(0); 
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [driveLink, setDriveLink] = useState('');
+  const [resourceTitle, setResourceTitle] = useState('');
   const [resourceDescription, setResourceDescription] = useState('');
   const [resourceOrder, setResourceOrder] = useState('');
   const [schoolName, setSchoolName] = useState('');
@@ -144,14 +145,6 @@ const AdminDashboard = () => {
     } catch (error) {
       console.error("Failed to log out", error);
     }
-  };
-
-  const handleLanguageToggle = (language) => {
-    setSelectedLanguages(prev =>
-      prev.includes(language)
-        ? prev.filter(lang => lang !== language)
-        : [...prev, language]
-    );
   };
 
   const handleAddDriveLink = async () => {
