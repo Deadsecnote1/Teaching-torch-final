@@ -477,6 +477,16 @@ export const DataProvider = ({ children }) => {
     }
   }, []);
 
+  const updateResource = useCallback(async (resourceId, resourceData) => {
+    try {
+      await updateDoc(doc(db, "resources", resourceId), resourceData);
+      return true;
+    } catch (e) {
+      console.error("Error updating resource", e);
+      throw e;
+    }
+  }, []);
+
   // Utility functions (Unchanged mostly, just reading from state)
   const getSubjectsForGrade = useCallback((gradeId) => {
     // 1. Gather all subjects belonging to this grade into an array
@@ -566,6 +576,7 @@ export const DataProvider = ({ children }) => {
     addVideo,
     addNote,
     deleteResource,
+    updateResource,
     deleteGrade,
     deleteSubject,
     addGrade,

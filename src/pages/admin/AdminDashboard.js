@@ -23,6 +23,7 @@ const AdminDashboard = () => {
     getSubjectsForGrade,
     addSubject,
     deleteResource,
+    updateResource,
     deleteGrade,
     deleteSubject,
     updateSubject,
@@ -72,6 +73,16 @@ const AdminDashboard = () => {
     icon: '',
     order: '',
     grades: []
+  });
+
+  // Edit Resource State
+  const [editingResource, setEditingResource] = useState(null);
+  const [editResourceData, setEditResourceData] = useState({
+    title: '',
+    description: '',
+    url: '',
+    language: 'english',
+    order: ''
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -310,6 +321,63 @@ const AdminDashboard = () => {
         console.error("Error deleting resource: ", error);
         toast.error("Failed to delete resource: " + error.message);
       }
+    }
+  };
+
+  const handleEditResourceClick = (resource) => {
+    setEditingResource(resource.id);
+    setEditResourceData({
+      title: resource.title || resource.name || '',
+      description: resource.description || '',
+      url: resource.url || resource.driveLink || resource.youtubeUrl || '',
+      language: resource.language || 'english',
+      order: resource.order !== undefined && resource.order !== 999 ? resource.order : '' // Exclude default 999 from showing
+    });
+  };
+
+  const handleCancelEditResource = () => {
+    setEditingResource(null);
+  };
+
+  const handleSaveEditResource = async () => {
+    if (!editResourceData.title.trim() || !editResourceData.url.trim()) {
+      toast.error('Title and URL are required');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const updateData = {
+        title: editResourceData.title.trim(),
+        name: editResourceData.title.trim(), // Keep sync
+        description: editResourceData.description.trim(),
+        order: editResourceData.order !== '' ? parseInt(editResourceData.order, 10) : 999,
+        language: editResourceData.language
+      };
+
+      // Correctly assign new driveLink or youtubeUrl based on the raw url
+      if (isYouTubeLink(editResourceData.url)) {
+        updateData.url = editResourceData.url.trim();
+        updateData.youtubeUrl = editResourceData.url.trim();
+        updateData.fileId = extractYouTubeId(editResourceData.url);
+      } else if (isGoogleDriveLink(editResourceData.url)) {
+        updateData.url = editResourceData.url.trim();
+        updateData.driveLink = editResourceData.url.trim();
+        updateData.fileId = extractFileId(editResourceData.url);
+      } else {
+         updateData.url = editResourceData.url.trim();
+      }
+
+      await updateResource(editingResource, updateData);
+      
+      toast.success('Resource updated successfully!');
+      setEditingResource(null);
+      await fetchAllResources(true); // Manually refresh UI logic
+    } catch (error) {
+      console.error("Error updating resource", error);
+      toast.error('Failed to update resource: ' + error.message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -946,29 +1014,79 @@ const AdminDashboard = () => {
                       {filteredFiles.length > 0 ? (
                         <div>
                           {filteredFiles.slice().reverse().map((file) => (
-                            <div key={file.id} className="d-flex justify-content-between align-items-center p-2 border-bottom">
-                              <div className="flex-grow-1" style={{ minWidth: 0 }}>
-                                <div className="d-flex align-items-center">
-                                  <i className={`bi ${file.resourceType === 'textbook' ? 'bi-book' :
-                                    file.resourceType === 'papers' ? 'bi-file-text' :
-                                      file.resourceType === 'notes' ? 'bi-sticky' :
-                                        'bi-play-circle'
-                                    } me-2 text-primary`}></i>
-                                  <small className="text-truncate" style={{ maxWidth: '150px' }} title={file.title || file.name}>
-                                    {file.title || file.name}
-                                  </small>
+                            <div key={file.id} className="p-2 border-bottom">
+                              {editingResource === file.id ? (
+                                <div className="edit-resource-form">
+                                  <div className="mb-2">
+                                    <label className="form-label small mb-0">Title</label>
+                                    <input type="text" className="form-control form-control-sm mb-2" value={editResourceData.title} onChange={e => setEditResourceData({ ...editResourceData, title: e.target.value })} />
+                                    
+                                    <label className="form-label small mb-0">URL (Drive / YouTube)</label>
+                                    <input type="text" className="form-control form-control-sm mb-2" value={editResourceData.url} onChange={e => setEditResourceData({ ...editResourceData, url: e.target.value })} />
+                                    
+                                    <label className="form-label small mb-0">Description</label>
+                                    <textarea className="form-control form-control-sm mb-2" rows="2" value={editResourceData.description} onChange={e => setEditResourceData({ ...editResourceData, description: e.target.value })} />
+                                    
+                                    <div className="row g-2">
+                                      <div className="col-6">
+                                        <label className="form-label small mb-0">Language</label>
+                                        <select className="form-select form-select-sm" value={editResourceData.language} onChange={e => setEditResourceData({ ...editResourceData, language: e.target.value })}>
+                                          <option value="english">English</option>
+                                          <option value="sinhala">Sinhala</option>
+                                          <option value="tamil">Tamil</option>
+                                        </select>
+                                      </div>
+                                      <div className="col-6">
+                                        <label className="form-label small mb-0">Order</label>
+                                        <input type="number" className="form-control form-control-sm" placeholder="e.g 1" value={editResourceData.order} onChange={e => setEditResourceData({ ...editResourceData, order: e.target.value })} />
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className="d-flex justify-content-end gap-2 mt-2">
+                                    <button className="btn btn-sm btn-success" onClick={handleSaveEditResource} disabled={isSubmitting}>
+                                      <i className="bi bi-check2"></i> Save
+                                    </button>
+                                    <button className="btn btn-sm btn-secondary" onClick={handleCancelEditResource} disabled={isSubmitting}>
+                                      <i className="bi bi-x"></i> Cancel
+                                    </button>
+                                  </div>
                                 </div>
-                                <small className="text-muted d-block">
-                                  {file.grade} / {file.subject}
-                                </small>
-                              </div>
-                              <button
-                                className="btn btn-sm btn-outline-danger ms-2"
-                                onClick={() => handleDeleteResource(file.id)}
-                                title="Delete resource"
-                              >
-                                <i className="bi bi-trash"></i>
-                              </button>
+                              ) : (
+                                <div className="d-flex justify-content-between align-items-center">
+                                  <div className="flex-grow-1" style={{ minWidth: 0 }}>
+                                    <div className="d-flex align-items-center">
+                                      <i className={`bi ${file.resourceType === 'textbook' ? 'bi-book' :
+                                        file.resourceType === 'papers' ? 'bi-file-text' :
+                                          file.resourceType === 'notes' ? 'bi-sticky' :
+                                            'bi-play-circle'
+                                        } me-2 text-primary`}></i>
+                                      <small className="text-truncate" style={{ maxWidth: '150px' }} title={file.title || file.name}>
+                                        {file.title || file.name}
+                                      </small>
+                                    </div>
+                                    <small className="text-muted d-block">
+                                      {file.grade} / {file.subject} <span className="ms-1 px-1 bg-light rounded shadow-sm">{file.language || 'en'}</span>
+                                      {file.order !== undefined && file.order !== 999 && <span className="ms-1">(Order: {file.order})</span>}
+                                    </small>
+                                  </div>
+                                  <div className="d-flex gap-1 ms-2">
+                                    <button
+                                      className="btn btn-sm btn-outline-primary"
+                                      onClick={() => handleEditResourceClick(file)}
+                                      title="Edit resource"
+                                    >
+                                      <i className="bi bi-pencil"></i>
+                                    </button>
+                                    <button
+                                      className="btn btn-sm btn-outline-danger"
+                                      onClick={() => handleDeleteResource(file.id)}
+                                      title="Delete resource"
+                                    >
+                                      <i className="bi bi-trash"></i>
+                                    </button>
+                                  </div>
+                                </div>
+                              )}
                             </div>
                           ))}
                         </div>
