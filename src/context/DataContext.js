@@ -263,12 +263,19 @@ export const DataProvider = ({ children }) => {
     try {
       const q = query(
         collection(db, "resources"),
-        where("grade", "==", gradeId),
-        orderBy("uploadDate", "desc")
+        where("grade", "==", gradeId)
       );
 
       const snapshot = await getDocs(q);
-      const { structuredResources, structuredVideos, allResources } = processResources(snapshot.docs);
+      
+      // Sort in JavaScript to avoid requiring a Firebase Composite Index
+      const sortedDocs = [...snapshot.docs].sort((a, b) => {
+        const dateA = a.data().uploadDate || '';
+        const dateB = b.data().uploadDate || '';
+        return dateB.localeCompare(dateA); // Sort descending
+      });
+
+      const { structuredResources, structuredVideos, allResources } = processResources(sortedDocs);
 
       dispatch({
         type: 'MERGE_RESOURCES',
