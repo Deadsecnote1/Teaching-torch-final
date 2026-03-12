@@ -31,6 +31,15 @@ const Footer = () => {
               )}
             </div>
           </div>
+
+          {/* Quick Links Column */}
+          <div className="col-12 mb-3">
+            <div className="d-flex justify-content-center flex-wrap">
+              <a href="/about" className="footer-nav-link text-white mx-3 my-1">About Us</a>
+              <a href="/contact" className="footer-nav-link text-white mx-3 my-1">Contact Us</a>
+              <a href="/privacy-policy" className="footer-nav-link text-white mx-3 my-1">Privacy Policy</a>
+            </div>
+          </div>
         </div>
 
         <hr className="footer-divider my-2 border-white opacity-25" />

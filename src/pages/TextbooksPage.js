@@ -5,6 +5,7 @@ import { useLanguage } from '../context/LanguageContext';
 import ResourceCard from '../components/common/ResourceCard';
 import { subjectTranslations } from '../utils/subjectTranslations';
 import { getResourceTypeName } from '../utils/resourceTranslations';
+import AdSenseComponent from '../components/common/AdSenseComponent';
 
 
 // Removed API_BASE_URL - using Google Drive links instead
@@ -159,6 +160,9 @@ const TextbooksPage = () => {
           </nav>
         </div>
       </section>
+
+      {/* Header Ad Unit */}
+      <AdSenseComponent slot="TEXTBOOKS_HEADER_AD_SLOT" />
 
       {/* Upload Status */}
       {uploadedFiles.length > 0 && (

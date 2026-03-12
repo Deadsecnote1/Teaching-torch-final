@@ -91,6 +91,9 @@ const About = () => {
             <div className="col-lg-6 mb-4 mb-lg-0">
               <h2 className="mb-4">Our Vision</h2>
               <p className="mb-4">
+                [INSERT YOUR STORY HERE: Why did you start Teaching Torch? For example: I started this platform after seeing the challenges students face in accessing updated textbooks and past papers...]
+              </p>
+              <p className="mb-4">
                 To become the leading digital educational platform in Sri Lanka, serving as the primary
                 resource hub for students from Grade 6 to Advanced Level. We envision a future where
                 every student has equal access to quality educational materials, regardless of their location or background.

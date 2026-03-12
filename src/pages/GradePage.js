@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useData } from '../context/DataContext';
 import { getResourceTypeName } from '../utils/resourceTranslations';
+import AdSenseComponent from '../components/common/AdSenseComponent';
 
 const GradePage = () => {
   const { gradeId } = useParams();
@@ -42,6 +43,9 @@ const GradePage = () => {
           <p className="lead">Quick access to textbooks, papers, notes, and videos.</p>
         </div>
       </header>
+
+      {/* Header Ad Unit */}
+      <AdSenseComponent slot="GRADE_HEADER_AD_SLOT" />
 
       {/* Breadcrumb */}
       <section className="py-3 bg-light">

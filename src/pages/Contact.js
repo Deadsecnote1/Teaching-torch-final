@@ -92,7 +92,7 @@ const Contact = () => {
                   <div className="contact-info mb-4">
                     <i className="bi bi-envelope-fill text-primary"></i>
                     <h5>Email Us</h5>
-                    <p className="text-primary">{settings?.email || 'Not configured'}</p>
+                    <p className="text-primary">{settings?.email || '[your-email@example.com]'}</p>
                     <p className="small text-muted">We typically respond within 24 hours</p>
                   </div>
 

@@ -5,6 +5,7 @@ import { useLanguage } from '../context/LanguageContext';
 import ResourceCard from '../components/common/ResourceCard';
 import { subjectTranslations } from '../utils/subjectTranslations';
 import { getResourceTypeName } from '../utils/resourceTranslations';
+import AdSenseComponent from '../components/common/AdSenseComponent';
 
 const PapersPage = () => {
   const { gradeId } = useParams();
@@ -167,6 +168,9 @@ const PapersPage = () => {
           <p className="lead">Past papers for practice and preparation</p>
         </div>
       </header>
+
+      {/* Header Ad Unit */}
+      <AdSenseComponent slot="PAPERS_HEADER_AD_SLOT" />
 
       {/* Breadcrumb */}
       <section className="py-3 bg-light">

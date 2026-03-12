@@ -20,6 +20,7 @@ import TextbooksPage from './pages/TextbooksPage';
 import PapersPage from './pages/PapersPage';
 import NotesPage from './pages/NotesPage';
 import VideosPage from './pages/VideosPage';
+import PrivacyPolicy from './pages/PrivacyPolicy';
 import AdminLogin from './pages/admin/Login';
 import AdminDashboard from './pages/admin/AdminDashboard';
 
@@ -68,6 +69,7 @@ function App() {
                     <Route path="/grade/:gradeId/papers" element={<PapersPage />} />
                     <Route path="/grade/:gradeId/notes" element={<NotesPage />} />
                     <Route path="/grade/:gradeId/videos" element={<VideosPage />} />
+                    <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                     <Route path="/admin/login" element={<AdminLogin />} />
                     <Route path="/admin" element={<AdminDashboard />} />
                     <Route path="*" element={<NotFound />} />

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useData } from '../context/DataContext';
+import AdSenseComponent from '../components/common/AdSenseComponent';
 
 
 const Home = () => {
@@ -36,6 +37,9 @@ const Home = () => {
           </div>
         </div>
       </header>
+
+      {/* Hero Ad Unit */}
+      <AdSenseComponent slot="HOME_HERO_AD_SLOT" />
 
       {/* Grades Section */}
       <section className="py-5" id="grades">
@@ -144,6 +148,9 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      {/* Footer Ad Unit */}
+      <AdSenseComponent slot="HOME_FOOTER_AD_SLOT" />
     </div>
   );
 };

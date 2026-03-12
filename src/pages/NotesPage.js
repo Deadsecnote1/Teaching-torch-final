@@ -5,6 +5,7 @@ import { useLanguage } from '../context/LanguageContext';
 import ResourceCard from '../components/common/ResourceCard';
 import { subjectTranslations } from '../utils/subjectTranslations';
 import { getResourceTypeName } from '../utils/resourceTranslations';
+import AdSenseComponent from '../components/common/AdSenseComponent';
 
 const NotesPage = () => {
   const { gradeId } = useParams();
@@ -157,6 +158,9 @@ const NotesPage = () => {
           <p className="lead">Quick reference notes for all chapters</p>
         </div>
       </header>
+
+      {/* Header Ad Unit */}
+      <AdSenseComponent slot="NOTES_HEADER_AD_SLOT" />
 
       {/* Breadcrumb */}
       <section className="py-3 bg-light">
