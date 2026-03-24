@@ -212,7 +212,13 @@ const PapersPage = () => {
       {/* Papers Content */}
       <section className="py-5">
         <div className="container">
-          {Object.keys(subjects).map(subjectId => {
+          {Object.keys(subjects).filter(subjectId => {
+            const subject = subjects[subjectId];
+            if (subject.languages && subject.languages.length > 0) {
+              return subject.languages.includes(selectedLanguage);
+            }
+            return true;
+          }).map(subjectId => {
             const subject = subjects[subjectId];
             const papers = subject.resources.papers || {};
 

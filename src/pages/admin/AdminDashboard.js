@@ -63,6 +63,7 @@ const AdminDashboard = () => {
   const [newSubjectIcon, setNewSubjectIcon] = useState('bi-book');
   const [newSubjectOrder, setNewSubjectOrder] = useState('');
   const [newSubjectGrades, setNewSubjectGrades] = useState([]);
+  const [newSubjectLanguages, setNewSubjectLanguages] = useState(['sinhala', 'tamil', 'english']);
 
   // Edit Subject State
   const [editingSubjectPrefix, setEditingSubjectPrefix] = useState(null);
@@ -72,7 +73,8 @@ const AdminDashboard = () => {
     nameTamil: '',
     icon: '',
     order: '',
-    grades: []
+    grades: [],
+    languages: []
   });
 
   // Edit Resource State
@@ -279,7 +281,8 @@ const AdminDashboard = () => {
       nameTamil: subject.nameTamil || '',
       icon: subject.icon || '',
       order: subject.order !== undefined ? subject.order : '',
-      grades: subject.grades || []
+      grades: subject.grades || [],
+      languages: subject.languages || ['sinhala', 'tamil', 'english']
     });
   };
 
@@ -305,7 +308,8 @@ const AdminDashboard = () => {
         nameTamil: editSubjectData.nameTamil.trim() || null,
         icon: editSubjectData.icon.trim() || 'bi-book',
         order: editSubjectData.order !== '' ? parseInt(editSubjectData.order, 10) : 999,
-        grades: editSubjectData.grades
+        grades: editSubjectData.grades,
+        languages: editSubjectData.languages
       });
       toast.success('Subject updated successfully!');
       setEditingSubjectPrefix(null);
@@ -476,7 +480,8 @@ const AdminDashboard = () => {
         nameTamil: newSubjectNameTamil.trim(),
         icon: newSubjectIcon.trim(),
         order: newSubjectOrder !== '' ? parseInt(newSubjectOrder, 10) : 999,
-        grades: newSubjectGrades
+        grades: newSubjectGrades,
+        languages: newSubjectLanguages
       });
       toast.success('Subject created successfully!');
       setNewSubjectName('');
@@ -485,6 +490,7 @@ const AdminDashboard = () => {
       setNewSubjectCode('');
       setNewSubjectOrder('');
       setNewSubjectGrades([]);
+      setNewSubjectLanguages(['sinhala', 'tamil', 'english']);
     } catch (e) {
       toast.error('Failed to create subject');
     } finally {
@@ -1288,6 +1294,32 @@ const AdminDashboard = () => {
                       </div>
                       <small className="text-muted">Check all grades that should include this subject.</small>
                     </div>
+                    <div className="mb-3">
+                      <label className="form-label">Available for Mediums (Optional):</label>
+                      <div className="border rounded p-2">
+                        {['sinhala', 'tamil', 'english'].map((lang) => (
+                          <div className="form-check form-check-inline" key={`new-lang-${lang}`}>
+                            <input
+                              className="form-check-input"
+                              type="checkbox"
+                              id={`new-lang-${lang}`}
+                              checked={newSubjectLanguages.includes(lang)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setNewSubjectLanguages([...newSubjectLanguages, lang]);
+                                } else {
+                                  setNewSubjectLanguages(newSubjectLanguages.filter(l => l !== lang));
+                                }
+                              }}
+                            />
+                            <label className="form-check-label text-capitalize" htmlFor={`new-lang-${lang}`}>
+                              {lang}
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                      <small className="text-muted">If unchecked, it will be hidden from that medium. Default: all mediums.</small>
+                    </div>
                     <button className="btn btn-primary" onClick={handleAddSubject} disabled={isSubmitting}>
                       Create Subject
                     </button>
@@ -1360,6 +1392,31 @@ const AdminDashboard = () => {
                                       ))}
                                     </div>
                                     <small className="text-muted" style={{ fontSize: '0.7rem' }}>Check grades to add/remove.</small>
+                                  </div>
+                                  <div className="mb-2">
+                                    <div className="border rounded p-2 form-control-sm">
+                                      {['sinhala', 'tamil', 'english'].map((lang) => (
+                                        <div className="form-check form-check-inline" style={{ fontSize: '0.8rem' }} key={`edit-lang-${lang}`}>
+                                          <input
+                                            className="form-check-input"
+                                            type="checkbox"
+                                            id={`edit-lang-${lang}`}
+                                            checked={editSubjectData.languages.includes(lang)}
+                                            onChange={(e) => {
+                                              if (e.target.checked) {
+                                                setEditSubjectData({ ...editSubjectData, languages: [...editSubjectData.languages, lang] });
+                                              } else {
+                                                setEditSubjectData({ ...editSubjectData, languages: editSubjectData.languages.filter(l => l !== lang) });
+                                              }
+                                            }}
+                                          />
+                                          <label className="form-check-label text-capitalize" htmlFor={`edit-lang-${lang}`}>
+                                            {lang}
+                                          </label>
+                                        </div>
+                                      ))}
+                                    </div>
+                                    <small className="text-muted" style={{ fontSize: '0.7rem' }}>Available mediums.</small>
                                   </div>
                                   <div className="d-flex gap-2">
                                     <button className="btn btn-sm btn-success flex-grow-1" onClick={handleSaveEditSubject} disabled={isSubmitting}>Save</button>

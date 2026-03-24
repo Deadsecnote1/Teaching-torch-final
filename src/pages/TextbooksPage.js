@@ -115,7 +115,14 @@ const TextbooksPage = () => {
     );
   };
 
-  const allSubjects = subjects;
+  const allSubjects = Object.fromEntries(
+    Object.entries(subjects).filter(([subjectId, subject]) => {
+      if (subject.languages && subject.languages.length > 0) {
+        return subject.languages.includes(selectedLanguage);
+      }
+      return true;
+    })
+  );
 
   if (isLoading) {
     return (
