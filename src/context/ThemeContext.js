@@ -43,19 +43,10 @@ export const ThemeProvider = ({ children }) => {
       detail: { theme: newTheme } 
     }));
   };
-
-  // Get current theme
-  const getCurrentTheme = () => theme;
-
-  // Check if dark mode
-  const isDarkMode = () => theme === 'dark';
-
   const value = {
     theme,
     toggleTheme,
-    setThemeMode,
-    getCurrentTheme,
-    isDarkMode
+    setThemeMode
   };
 
   return (

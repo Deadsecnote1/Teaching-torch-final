@@ -94,40 +94,20 @@ export const LanguageProvider = ({ children }) => {
 
   // Count resources by language
   const countByLanguage = (resources) => {
-    const counts = {
-      all: 0,
-      sinhala: 0,
-      tamil: 0,
-      english: 0
-    };
+    const counts = { all: 0, sinhala: 0, tamil: 0, english: 0 };
+    if (!resources) return counts;
 
-    if (Array.isArray(resources)) {
-      resources.forEach(resource => {
-        const lang = resource.language || 'english';
-        if (counts[lang] !== undefined) {
-          counts[lang]++;
-        }
+    const items = Array.isArray(resources) 
+      ? resources 
+      : Object.values(resources).flatMap(val => Array.isArray(val) ? val : [val]);
+
+    items.forEach(item => {
+      if (item && typeof item === 'object') {
+        const lang = item.language || 'english';
+        if (counts[lang] !== undefined) counts[lang]++;
         counts.all++;
-      });
-    } else if (typeof resources === 'object' && resources !== null) {
-      Object.values(resources).forEach(resource => {
-        if (Array.isArray(resource)) {
-          resource.forEach(item => {
-            const lang = item.language || 'english';
-            if (counts[lang] !== undefined) {
-              counts[lang]++;
-            }
-            counts.all++;
-          });
-        } else {
-          const lang = resource.language || 'english';
-          if (counts[lang] !== undefined) {
-            counts[lang]++;
-          }
-          counts.all++;
-        }
-      });
-    }
+      }
+    });
 
     return counts;
   };

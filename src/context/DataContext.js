@@ -33,6 +33,22 @@ const initialState = {
   error: null
 };
 
+// Helper to sort resources by order (ascending) then uploadDate (descending)
+const sortDocsByOrderAndDate = (a, b) => {
+  const dataA = a.data ? a.data() : a;
+  const dataB = b.data ? b.data() : b;
+  const orderA = dataA.order !== undefined ? parseInt(dataA.order, 10) : 999;
+  const orderB = dataB.order !== undefined ? parseInt(dataB.order, 10) : 999;
+  
+  if (orderA !== orderB) {
+    return orderA - orderB; // Sort ascending by order (1, 2, 3...)
+  }
+
+  const dateA = dataA.uploadDate || '';
+  const dateB = dataB.uploadDate || '';
+  return dateB.localeCompare(dateA); // Sort descending by date
+};
+
 // Helper to structure resources like the old state for UI compatibility
 const processResources = (docs) => {
   const structuredResources = {};
@@ -269,18 +285,7 @@ export const DataProvider = ({ children }) => {
       const snapshot = await getDocs(q);
       
       // Sort locally: First by 'order' (ascending), then by 'uploadDate' (descending)
-      const sortedDocs = [...snapshot.docs].sort((a, b) => {
-        const orderA = a.data().order !== undefined ? a.data().order : 999;
-        const orderB = b.data().order !== undefined ? b.data().order : 999;
-        
-        if (orderA !== orderB) {
-          return orderA - orderB; // Sort ascending by order (1, 2, 3...)
-        }
-
-        const dateA = a.data().uploadDate || '';
-        const dateB = b.data().uploadDate || '';
-        return dateB.localeCompare(dateA); // Sort descending by date
-      });
+      const sortedDocs = [...snapshot.docs].sort(sortDocsByOrderAndDate);
 
       const { structuredResources, structuredVideos, allResources } = processResources(sortedDocs);
 
@@ -306,18 +311,7 @@ export const DataProvider = ({ children }) => {
       const q = query(collection(db, "resources"), orderBy("uploadDate", "desc"));
       const snapshot = await getDocs(q);
       // Sort locally: First by 'order' (ascending), then by 'uploadDate' (descending)
-      const sortedDocs = [...snapshot.docs].sort((a, b) => {
-        const orderA = a.data().order !== undefined ? a.data().order : 999;
-        const orderB = b.data().order !== undefined ? b.data().order : 999;
-        
-        if (orderA !== orderB) {
-          return orderA - orderB; // Sort ascending by order (1, 2, 3...)
-        }
-
-        const dateA = a.data().uploadDate || '';
-        const dateB = b.data().uploadDate || '';
-        return dateB.localeCompare(dateA); // Sort descending by date
-      });
+      const sortedDocs = [...snapshot.docs].sort(sortDocsByOrderAndDate);
 
       const { structuredResources, structuredVideos, allResources } = processResources(sortedDocs);
 
@@ -532,18 +526,31 @@ export const DataProvider = ({ children }) => {
   }, [state.videos]);
 
   const getStats = useCallback(() => {
-    // Recalculate stats based on Firestore data format would be better
-    // But for now, returning basic counts based on state
-    // This part might need better logic if state structure is different
+    let _totalResources = 0;
+    let _totalVideos = 0;
+    let _langs = { sinhala: 0, tamil: 0, english: 0 };
+
+    state.allResources.forEach(res => {
+      if (res.resourceType === 'videos') {
+        _totalVideos++;
+      } else {
+        _totalResources++;
+      }
+      
+      const resLangs = res.languages || ['english'];
+      resLangs.forEach(lang => {
+        if (_langs[lang] !== undefined) _langs[lang]++;
+      });
+    });
+
     return {
       totalGrades: Object.keys(state.grades).length,
       totalSubjects: Object.keys(state.subjects).length,
-      // approximate
-      totalResources: 0,
-      totalVideos: 0,
-      languageBreakdown: { sinhala: 0, tamil: 0, english: 0 }
+      totalResources: _totalResources,
+      totalVideos: _totalVideos,
+      languageBreakdown: _langs
     };
-  }, [state.grades, state.subjects]);
+  }, [state.grades, state.subjects, state.allResources]);
 
   const generateGradePageData = useCallback((gradeId) => {
     const grade = state.grades[gradeId];

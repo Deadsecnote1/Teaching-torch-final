@@ -16,14 +16,6 @@ export const AuthProvider = ({ children }) => {
     const [currentUser, setCurrentUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    const login = (email, password) => {
-        return signInWithEmailAndPassword(auth, email, password);
-    };
-
-    const logout = () => {
-        return signOut(auth);
-    };
-
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (user) => {
             setCurrentUser(user);
@@ -35,8 +27,8 @@ export const AuthProvider = ({ children }) => {
 
     const value = {
         currentUser,
-        login,
-        logout
+        login: (email, password) => signInWithEmailAndPassword(auth, email, password),
+        logout: () => signOut(auth)
     };
 
     return (
