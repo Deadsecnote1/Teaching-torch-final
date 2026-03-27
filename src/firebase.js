@@ -19,6 +19,17 @@ const analytics = getAnalytics(app);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-console.log("Firebase initialized successfully");
+// Enable persistent caching for Firestore
+const enableOffline = async () => {
+  try {
+    await enableIndexedDbPersistence(db);
+  } catch (err) {
+    if (err.code === 'failed-precondition') {
+      console.warn("Multiple tabs open, persistence can only be enabled in one tab at a a time.");
+    } else if (err.code === 'unimplemented') {
+      console.warn("The current browser does not support all of the features required to enable persistence");
+    }
+  }
+};
 
 export { app, analytics, auth, db };

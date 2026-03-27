@@ -32,7 +32,6 @@ const Contact = () => {
       // In a real app, you would send this to your backend
       await new Promise(resolve => setTimeout(resolve, 2000));
 
-      console.log('Form submitted:', formData);
       setSubmitStatus('success');
       setFormData({
         name: '',
