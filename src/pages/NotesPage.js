@@ -1,18 +1,32 @@
-import React, { useMemo, useEffect } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useParams, Link, useSearchParams } from 'react-router-dom';
 import { useData } from '../context/DataContext';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 import ResourceCard from '../components/common/ResourceCard';
+import ResourceEditorModal from '../components/admin/ResourceEditorModal';
+import MetadataEditorModal from '../components/admin/MetadataEditorModal';
 import { subjectTranslations } from '../utils/subjectTranslations';
 import { getResourceTypeName } from '../utils/resourceTranslations';
 import AdSenseComponent from '../components/common/AdSenseComponent';
+import toast from 'react-hot-toast';
 
 const NotesPage = () => {
   const { gradeId } = useParams();
   const [searchParams] = useSearchParams();
   const selectedSubjectId = searchParams.get('subject');
-  const { generateGradePageData, fetchResourcesForGrade } = useData();
+  const { generateGradePageData, fetchResourcesForGrade, updateSubject, deleteSubject } = useData();
   const { selectedLanguage, shouldShowResource } = useLanguage();
+  const { isManageMode } = useAuth();
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [addModalInitialData, setAddModalInitialData] = useState(null);
+  const [editingResource, setEditingResource] = useState(null);
+  const [metadataModal, setMetadataModal] = useState({
+    isOpen: false,
+    initialData: null,
+    type: 'subject',
+    key: null
+  });
 
   // Lazy-load resources for this grade
   useEffect(() => {
@@ -60,7 +74,7 @@ const NotesPage = () => {
   };
 
   // Generate notes grid component
-  const NotesGrid = ({ notes }) => {
+  const NotesGrid = ({ notes, onEdit }) => {
     if (!notes || Object.keys(notes).length === 0) {
       return (
         <div className="text-center py-5">
@@ -128,6 +142,7 @@ const NotesPage = () => {
                           description={note.filename}
                           showViewButton={true}
                           showDownloadButton={true}
+                          onEdit={onEdit}
                         />
                       ) : (
                         <a
@@ -228,7 +243,7 @@ const NotesPage = () => {
 
             return (
               <div key={subjectId} className="subject-section mb-5">
-                <div className="subject-header mb-4">
+                <div className="subject-header mb-4 d-flex justify-content-between align-items-center">
                   <div className="d-flex align-items-center">
                     <div className="subject-icon-large me-3">
                       <i className={subject.icon} style={{ fontSize: '2.5rem', color: 'var(--primary)' }}></i>
@@ -240,12 +255,73 @@ const NotesPage = () => {
                       <small className="text-muted">Chapter-wise short notes</small>
                     </div>
                   </div>
+
+                  {isManageMode && (
+                    <div className="admin-subject-actions d-flex gap-2">
+                       <button 
+                        className="btn btn-sm btn-outline-info"
+                        onClick={() => {
+                          setMetadataModal({
+                            isOpen: true,
+                            initialData: subject,
+                            type: 'subject',
+                            key: subjectId
+                          });
+                        }}
+                        title="Edit Subject"
+                      >
+                        <i className="bi bi-pencil"></i>
+                      </button>
+                      <button 
+                        className="btn btn-sm btn-outline-danger"
+                        onClick={() => {
+                          if (window.confirm(`Are you sure you want to delete "${subject.name}"?`)) {
+                            deleteSubject(subjectId);
+                            toast.success('Subject Deleted');
+                          }
+                        }}
+                        title="Delete Subject"
+                      >
+                        <i className="bi bi-trash"></i>
+                      </button>
+                    </div>
+                  )}
                 </div>
 
-                <NotesGrid notes={mergedNotes} />
+                <NotesGrid notes={mergedNotes} onEdit={(r) => setEditingResource(r)} />
+
+                {isManageMode && (
+                  <div className="mt-4 pt-3 border-top">
+                    <button 
+                      className="btn btn-outline-success w-100 py-2"
+                      style={{ borderStyle: 'dashed', borderWidth: '2px' }}
+                      onClick={() => {
+                        setAddModalInitialData({
+                          grade: gradeId,
+                          subject: subjectId,
+                          resourceType: 'notes',
+                          languages: ['sinhala', 'tamil', 'english']
+                        });
+                        setIsAddModalOpen(true);
+                      }}
+                    >
+                      <i className="bi bi-plus-lg me-2"></i>
+                      Add New Note
+                    </button>
+                  </div>
+                )}
               </div>
             );
           })}
+
+          <ResourceEditorModal 
+            isOpen={isAddModalOpen}
+            onClose={() => {
+              setIsAddModalOpen(false);
+              setAddModalInitialData(null);
+            }}
+            resource={addModalInitialData}
+          />
 
           {/* No Subjects Message */}
           {Object.keys(subjects).length === 0 && (
@@ -290,6 +366,25 @@ const NotesPage = () => {
           </Link>
         </div>
       </section>
+      {/* Resource Editor Modal (Centralized) */}
+      <ResourceEditorModal
+        resource={editingResource}
+        isOpen={!!editingResource}
+        onClose={() => setEditingResource(null)}
+      />
+
+      {/* Edit Subject Modal */}
+      <MetadataEditorModal
+        isOpen={metadataModal.isOpen}
+        onClose={() => setMetadataModal({ ...metadataModal, isOpen: false })}
+        onSave={(updatedData) => {
+          updateSubject(metadataModal.key, updatedData);
+          toast.success('Subject Updated');
+        }}
+        title="Edit Subject"
+        initialData={metadataModal.initialData}
+        type="subject"
+      />
     </div>
   );
 };

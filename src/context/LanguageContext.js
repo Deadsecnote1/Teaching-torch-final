@@ -67,11 +67,13 @@ export const LanguageProvider = ({ children }) => {
 
   // Filter function for resources
   const shouldShowResource = (resourceLanguage) => {
+    if (selectedLanguage === 'all') return true;
     return resourceLanguage === selectedLanguage;
   };
 
   // Filter array of items by language
   const filterByLanguage = (items, getLanguage) => {
+    if (selectedLanguage === 'all') return items;
     return items.filter(item => {
       const itemLanguage = typeof getLanguage === 'function' 
         ? getLanguage(item) 

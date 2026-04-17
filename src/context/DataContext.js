@@ -78,12 +78,12 @@ const processResources = (docs) => {
       // So DataContext structure for 'resources' is mainly used by `getResources` utility.
 
       const target = structuredResources[grade][subject].textbooks;
-      const lang = data.languages ? data.languages[0] : 'english';
+      const langs = data.languages && data.languages.length > 0 ? data.languages : ['english'];
 
-      if (!target[lang]) {
-        target[lang] = [];
-      }
-      target[lang].push(data);
+      langs.forEach(lang => {
+        if (!target[lang]) target[lang] = [];
+        target[lang].push(data);
+      });
     } else if (resourceType === 'papers') {
       const { paperType, paperCategory } = data;
       const target = structuredResources[grade][subject].papers;
@@ -345,14 +345,14 @@ export const DataProvider = ({ children }) => {
     }
   }, []);
 
-  const addTextbook = useCallback(async (gradeId, subjectId, medium, fileData) => {
+  const addTextbook = useCallback(async (gradeId, subjectId, languagesArray, fileData) => {
     try {
       await addDoc(collection(db, "resources"), {
         ...fileData,
         grade: gradeId,
         subject: subjectId,
         resourceType: 'textbook',
-        languages: [medium],
+        languages: Array.isArray(languagesArray) ? languagesArray : [languagesArray],
         uploadDate: new Date().toISOString()
       });
       return true;
@@ -362,7 +362,7 @@ export const DataProvider = ({ children }) => {
     }
   }, []);
 
-  const addPaper = useCallback(async (gradeId, subjectId, paperType, paperCategory, fileData, schoolName = '', language = 'english') => {
+  const addPaper = useCallback(async (gradeId, subjectId, paperType, paperCategory, fileData, schoolName = '', languagesArray = ['english']) => {
     try {
       await addDoc(collection(db, "resources"), {
         ...fileData,
@@ -372,7 +372,7 @@ export const DataProvider = ({ children }) => {
         paperType,
         paperCategory,
         school: schoolName,
-        languages: [language],
+        languages: Array.isArray(languagesArray) ? languagesArray : [languagesArray],
         uploadDate: new Date().toISOString()
       });
       return true;
@@ -399,14 +399,14 @@ export const DataProvider = ({ children }) => {
     }
   }, []);
 
-  const addNote = useCallback(async (gradeId, subjectId, noteData, language = 'english') => {
+  const addNote = useCallback(async (gradeId, subjectId, noteData, languagesArray = ['english']) => {
     try {
       await addDoc(collection(db, "resources"), {
         ...noteData,
         grade: gradeId,
         subject: subjectId,
         resourceType: 'notes',
-        languages: [language],
+        languages: Array.isArray(languagesArray) ? languagesArray : [languagesArray],
         uploadDate: new Date().toISOString()
       });
       return true;
@@ -433,6 +433,16 @@ export const DataProvider = ({ children }) => {
       return true;
     } catch (e) {
       console.error("Error adding grade", e);
+      throw e;
+    }
+  }, []);
+
+  const updateGrade = useCallback(async (gradeId, gradeData) => {
+    try {
+      await updateDoc(doc(db, "grades", gradeId), gradeData);
+      return true;
+    } catch (e) {
+      console.error("Error updating grade", e);
       throw e;
     }
   }, []);
@@ -580,6 +590,7 @@ export const DataProvider = ({ children }) => {
     deleteGrade,
     deleteSubject,
     addGrade,
+    updateGrade,
     addSubject,
     updateSubject,
     getSubjectsForGrade,

@@ -8,9 +8,12 @@ import { isGoogleDriveLink, extractFileId } from '../../utils/googleDrive';
 import { isYouTubeLink, extractYouTubeId } from '../../utils/youtube';
 import toast from 'react-hot-toast';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
+import ResourceEditorModal from '../../components/admin/ResourceEditorModal';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
+  const { currentUser, logout, isManageMode, toggleManageMode } = useAuth();
+  const { selectedLanguage } = useLanguage();
   const {
     getStats,
     exportData,
@@ -26,6 +29,7 @@ const AdminDashboard = () => {
     updateResource,
     deleteGrade,
     deleteSubject,
+    updateGrade,
     updateSubject,
     fetchAllResources,
     grades,
@@ -33,8 +37,6 @@ const AdminDashboard = () => {
     settings,
     updateSettings
   } = useData();
-  const { selectedLanguage } = useLanguage();
-  const { currentUser, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('overview'); // overview, resources, grades, subjects
   const [selectedGrade, setSelectedGrade] = useState('grade6');
   const [selectedSubject, setSelectedSubject] = useState('mathematics');
@@ -54,6 +56,7 @@ const AdminDashboard = () => {
   // Add Grade State
   const [newGradeName, setNewGradeName] = useState('');
   const [newGradeCode, setNewGradeCode] = useState('');
+  const [newGradeOrder, setNewGradeOrder] = useState('');
 
   // Add Subject State
   const [newSubjectName, setNewSubjectName] = useState('');
@@ -64,6 +67,13 @@ const AdminDashboard = () => {
   const [newSubjectOrder, setNewSubjectOrder] = useState('');
   const [newSubjectGrades, setNewSubjectGrades] = useState([]);
   const [newSubjectLanguages, setNewSubjectLanguages] = useState(['sinhala', 'tamil', 'english']);
+
+  // Edit Grade State
+  const [editingGradeId, setEditingGradeId] = useState(null);
+  const [editGradeData, setEditGradeData] = useState({
+    name: '',
+    order: ''
+  });
 
   // Edit Subject State
   const [editingSubjectPrefix, setEditingSubjectPrefix] = useState(null);
@@ -83,7 +93,7 @@ const AdminDashboard = () => {
     title: '',
     description: '',
     url: '',
-    language: 'english',
+    languages: ['english'],
     order: '',
     subject: '',
     grade: ''
@@ -101,7 +111,14 @@ const AdminDashboard = () => {
     whatsapp: '',
     email: '',
     phone: '',
-    facebook: ''
+    facebook: '',
+    adsenseClientId: '',
+    slotHomeHero: '',
+    slotHomeFooter: '',
+    slotGradeHeader: '',
+    slotTextbooksHeader: '',
+    slotPapersHeader: '',
+    slotNotesHeader: ''
   });
   const [isSavingSettings, setIsSavingSettings] = useState(false);
 
@@ -111,7 +128,14 @@ const AdminDashboard = () => {
         whatsapp: settings.whatsapp || '',
         email: settings.email || '',
         phone: settings.phone || '',
-        facebook: settings.facebook || ''
+        facebook: settings.facebook || '',
+        adsenseClientId: settings.adsenseClientId || '',
+        slotHomeHero: settings.slotHomeHero || '',
+        slotHomeFooter: settings.slotHomeFooter || '',
+        slotGradeHeader: settings.slotGradeHeader || '',
+        slotTextbooksHeader: settings.slotTextbooksHeader || '',
+        slotPapersHeader: settings.slotPapersHeader || '',
+        slotNotesHeader: settings.slotNotesHeader || ''
       });
     }
   }, [settings]);
@@ -223,20 +247,15 @@ const AdminDashboard = () => {
 
       // Call DataContext actions based on type
       if (selectedResourceType === 'textbook') {
-        // Add for each selected language (though usually one)
-        for (const lang of selectedLanguages) {
-          await addTextbook(selectedGrade, selectedSubject, lang, fileData);
-        }
+        // Pass the entire selectedLanguages array natively
+        await addTextbook(selectedGrade, selectedSubject, selectedLanguages, fileData);
       } else if (selectedResourceType === 'papers') {
-        // Default to first language if multiple selected (papers usually one lang per PDF)
-        const lang = selectedLanguages[0];
-        await addPaper(selectedGrade, selectedSubject, selectedPaperType, selectedPaperCategory, fileData, schoolName, lang);
+        // Default to first language if multiple selected (papers usually one lang per PDF), but pass array
+        await addPaper(selectedGrade, selectedSubject, selectedPaperType, selectedPaperCategory, fileData, schoolName, selectedLanguages);
       } else if (selectedResourceType === 'videos') {
-        const lang = selectedLanguages[0];
-        await addVideo(selectedGrade, selectedSubject, { ...fileData, language: lang });
+        await addVideo(selectedGrade, selectedSubject, { ...fileData, languages: selectedLanguages });
       } else if (selectedResourceType === 'notes') {
-        const lang = selectedLanguages[0];
-        await addNote(selectedGrade, selectedSubject, fileData, lang);
+        await addNote(selectedGrade, selectedSubject, fileData, selectedLanguages);
       } else {
         toast.error('Unsupported resource type.');
         setIsSubmitting(false);
@@ -320,6 +339,28 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleSaveEditGrade = async () => {
+    if (!editGradeData.name.trim()) {
+      toast.error('Display name is required');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await updateGrade(editingGradeId, {
+        name: editGradeData.name.trim(),
+        display: editGradeData.name.trim(),
+        order: editGradeData.order !== '' ? parseInt(editGradeData.order, 10) : 999,
+      });
+      toast.success('Grade updated successfully!');
+      setEditingGradeId(null);
+    } catch (error) {
+      toast.error('Failed to update grade: ' + error.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handleDeleteResource = async (resourceId) => {
     if (window.confirm('Are you sure you want to delete this resource? This action cannot be undone.')) {
       try {
@@ -334,17 +375,14 @@ const AdminDashboard = () => {
     }
   };
 
+  const [resourceToEdit, setResourceToEdit] = useState(null);
+
   const handleEditResourceClick = (resource) => {
-    setEditingResource(resource.id);
-    setEditResourceData({
-      title: resource.title || resource.name || '',
-      description: resource.description || '',
-      url: resource.url || resource.driveLink || resource.youtubeUrl || '',
-      language: resource.language || 'english',
-      order: resource.order !== undefined && resource.order !== 999 ? resource.order : '', // Exclude default 999 from showing
-      subject: resource.subject || '',
-      grade: resource.grade || ''
-    });
+    setResourceToEdit(resource);
+  };
+
+  const handleCloseModal = () => {
+    setResourceToEdit(null);
   };
 
   const handleCancelEditResource = () => {
@@ -364,7 +402,7 @@ const AdminDashboard = () => {
         name: editResourceData.title.trim(), // Keep sync
         description: editResourceData.description.trim(),
         order: editResourceData.order !== '' ? parseInt(editResourceData.order, 10) : 999,
-        language: editResourceData.language,
+        languages: editResourceData.languages,
         subject: editResourceData.subject,
         grade: editResourceData.grade
       };
@@ -451,11 +489,13 @@ const AdminDashboard = () => {
       await addGrade(newGradeCode.trim().toLowerCase(), {
         name: newGradeName.trim(),
         display: newGradeName.trim(),
+        order: newGradeOrder !== '' ? parseInt(newGradeOrder, 10) : 999,
         active: true
       });
       toast.success('Grade created successfully!');
       setNewGradeName('');
       setNewGradeCode('');
+      setNewGradeOrder('');
     } catch (e) {
       toast.error('Failed to create grade');
     } finally {
@@ -532,10 +572,33 @@ const AdminDashboard = () => {
               <h1 className="display-4 fw-bold">Admin Dashboard</h1>
               <p className="lead">Teaching Torch Administration Panel</p>
             </div>
-            <button onClick={handleLogout} className="btn btn-outline-light">
-              <i className="bi bi-box-arrow-right me-2"></i>
-              Logout
-            </button>
+            <div className="d-flex flex-column align-items-end gap-2">
+              <button onClick={handleLogout} className="btn btn-outline-light">
+                <i className="bi bi-box-arrow-right me-2"></i>
+                Logout
+              </button>
+              
+              {/* Easy Manage Mode Toggle */}
+              <div className="bg-white bg-opacity-10 p-2 rounded d-flex align-items-center gap-2">
+                <div className="form-check form-switch mb-0">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    id="dashboardManageMode"
+                    checked={isManageMode}
+                    onChange={toggleManageMode}
+                  />
+                  <label className="form-check-label text-white small fw-bold" htmlFor="dashboardManageMode">
+                    Easy Manage Mode
+                  </label>
+                </div>
+                {isManageMode && (
+                   <Link to="/" className="btn btn-sm btn-info text-white py-0 px-2" style={{ fontSize: '0.7rem' }}>
+                     View Site <i className="bi bi-box-arrow-up-right ms-1"></i>
+                   </Link>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </header>
@@ -838,22 +901,30 @@ const AdminDashboard = () => {
 
                     {/* Language Selection */}
                     <div className="mb-4">
-                      <label className="form-label">Select Language</label>
-                      <select
-                        className="form-select"
-                        value={selectedLanguages[0] || 'english'}
-                        onChange={(e) => setSelectedLanguages([e.target.value])}
-                      >
-                        <option value="english">English</option>
-                        <option value="sinhala">සිංහල</option>
-                        <option value="tamil">தமிழ்</option>
-                      </select>
-                      <div className="form-text">
-                        <small>
-                          <i className="bi bi-info-circle me-1"></i>
-                          Choose the medium for this resource.
-                        </small>
+                      <label className="form-label d-block">Select Language(s)</label>
+                      <div className="d-flex gap-3 flex-wrap">
+                        {['english', 'sinhala', 'tamil'].map(lang => (
+                          <div className="form-check" key={lang}>
+                            <input
+                              className="form-check-input"
+                              type="checkbox"
+                              id={`lang-${lang}`}
+                              checked={selectedLanguages.includes(lang)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setSelectedLanguages(prev => [...prev, lang]);
+                                } else {
+                                  setSelectedLanguages(prev => prev.filter(l => l !== lang));
+                                }
+                              }}
+                            />
+                            <label className="form-check-label text-capitalize" htmlFor={`lang-${lang}`}>
+                              {lang === 'sinhala' ? 'සිංහල' : lang === 'tamil' ? 'தமிழ்' : lang}
+                            </label>
+                          </div>
+                        ))}
                       </div>
+                      <small className="text-muted d-block mt-1">Select all languages that this resource applies to.</small>
                     </div>
 
                     {/* Link Input (Google Drive or YouTube) */}
@@ -1105,12 +1176,29 @@ const AdminDashboard = () => {
                                     </div>
                                     <div className="row g-2">
                                       <div className="col-6">
-                                        <label className="form-label small mb-0">Language</label>
-                                        <select className="form-select form-select-sm" value={editResourceData.language} onChange={e => setEditResourceData({ ...editResourceData, language: e.target.value })}>
-                                          <option value="english">English</option>
-                                          <option value="sinhala">Sinhala</option>
-                                          <option value="tamil">Tamil</option>
-                                        </select>
+                                        <label className="form-label small mb-0">Languages</label>
+                                        <div className="border rounded px-2 py-1 bg-white form-control-sm" style={{ maxHeight: '80px', overflowY: 'auto' }}>
+                                          {['english', 'sinhala', 'tamil'].map(lang => (
+                                            <div className="form-check mb-0" style={{ fontSize: '0.8rem' }} key={`edit-rlang-${lang}`}>
+                                              <input
+                                                className="form-check-input"
+                                                type="checkbox"
+                                                id={`edit-rlang-${lang}`}
+                                                checked={editResourceData.languages.includes(lang)}
+                                                onChange={(e) => {
+                                                  if (e.target.checked) {
+                                                    setEditResourceData(prev => ({ ...prev, languages: [...prev.languages, lang] }));
+                                                  } else {
+                                                    setEditResourceData(prev => ({ ...prev, languages: prev.languages.filter(l => l !== lang) }));
+                                                  }
+                                                }}
+                                              />
+                                              <label className="form-check-label text-capitalize" htmlFor={`edit-rlang-${lang}`}>
+                                                {lang}
+                                              </label>
+                                            </div>
+                                          ))}
+                                        </div>
                                       </div>
                                       <div className="col-6">
                                         <label className="form-label small mb-0">Order</label>
@@ -1230,6 +1318,10 @@ const AdminDashboard = () => {
                       <label className="form-label">Display Name (e.g. 'Law Degree')</label>
                       <input type="text" className="form-control" value={newGradeName} onChange={e => setNewGradeName(e.target.value)} />
                     </div>
+                    <div className="mb-3">
+                      <label className="form-label">Display Order (Optional)</label>
+                      <input type="number" className="form-control" placeholder="Lower numbers appear first" value={newGradeOrder} onChange={e => setNewGradeOrder(e.target.value)} />
+                    </div>
                     <button className="btn btn-primary" onClick={handleAddGrade} disabled={isSubmitting}>
                       Create Grade
                     </button>
@@ -1339,17 +1431,45 @@ const AdminDashboard = () => {
                         <h6 className="mb-3">Grades</h6>
                         <ul className="list-group list-group-flush">
                           {Object.entries(grades).map(([key, g]) => (
-                            <li key={key} className="list-group-item d-flex justify-content-between align-items-center">
-                              <div>
-                                <strong>{g.display}</strong> ({key})
-                              </div>
-                              <button
-                                className="btn btn-sm btn-outline-danger"
-                                onClick={() => handleDeleteGrade(key)}
-                                title="Delete Grade"
-                              >
-                                <i className="bi bi-trash"></i>
-                              </button>
+                            <li key={key} className="list-group-item">
+                              {editingGradeId === key ? (
+                                <div className="edit-grade-form">
+                                  <div className="mb-2">
+                                    <input type="text" className="form-control form-control-sm mb-1" placeholder="Display Name" value={editGradeData.name} onChange={e => setEditGradeData({ ...editGradeData, name: e.target.value })} />
+                                    <input type="number" className="form-control form-control-sm mb-1" placeholder="Display Order (Optional)" value={editGradeData.order} onChange={e => setEditGradeData({ ...editGradeData, order: e.target.value })} />
+                                  </div>
+                                  <div className="d-flex justify-content-end gap-2">
+                                    <button className="btn btn-sm btn-outline-secondary" onClick={() => setEditingGradeId(null)}>Cancel</button>
+                                    <button className="btn btn-sm btn-success" onClick={handleSaveEditGrade} disabled={isSubmitting}>Save</button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="d-flex justify-content-between align-items-center">
+                                  <div>
+                                    <strong>{g.display}</strong> ({key})
+                                    {g.order !== undefined && g.order !== 999 && <span className="badge bg-secondary ms-2 text-xs">Order: {g.order}</span>}
+                                  </div>
+                                  <div className="d-flex gap-2">
+                                    <button
+                                      className="btn btn-sm btn-outline-primary"
+                                      onClick={() => {
+                                        setEditingGradeId(key);
+                                        setEditGradeData({ name: g.display || g.name || '', order: g.order || '' });
+                                      }}
+                                      title="Edit Grade"
+                                    >
+                                      <i className="bi bi-pencil"></i>
+                                    </button>
+                                    <button
+                                      className="btn btn-sm btn-outline-danger"
+                                      onClick={() => handleDeleteGrade(key)}
+                                      title="Delete Grade"
+                                    >
+                                      <i className="bi bi-trash"></i>
+                                    </button>
+                                  </div>
+                                </div>
+                              )}
                             </li>
                           ))}
                         </ul>
@@ -1525,6 +1645,48 @@ const AdminDashboard = () => {
                             value={settingsData.facebook}
                             onChange={(e) => setSettingsData({ ...settingsData, facebook: e.target.value })}
                           />
+                        </div>
+                      </div>
+
+                      <hr className="my-4" />
+                      <h6 className="mb-3 text-primary"><i className="bi bi-google me-2"></i>Google AdSense Settings</h6>
+                      
+                      <div className="mb-3">
+                        <label className="form-label fw-bold">Publisher ID (ca-pub-XXX)</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          placeholder="e.g. ca-pub-1234567890123456"
+                          value={settingsData.adsenseClientId}
+                          onChange={(e) => setSettingsData({ ...settingsData, adsenseClientId: e.target.value })}
+                        />
+                        <div className="form-text">Your global AdSense Publisher ID.</div>
+                      </div>
+
+                      <div className="row g-3 mb-3">
+                        <div className="col-md-6">
+                          <label className="form-label small mb-1">Home Hero Slot</label>
+                          <input type="text" className="form-control form-control-sm" value={settingsData.slotHomeHero} onChange={e => setSettingsData({...settingsData, slotHomeHero: e.target.value})} placeholder="Slot ID" />
+                        </div>
+                        <div className="col-md-6">
+                          <label className="form-label small mb-1">Home Footer Slot</label>
+                          <input type="text" className="form-control form-control-sm" value={settingsData.slotHomeFooter} onChange={e => setSettingsData({...settingsData, slotHomeFooter: e.target.value})} placeholder="Slot ID" />
+                        </div>
+                        <div className="col-md-6">
+                          <label className="form-label small mb-1">Grade Header Slot</label>
+                          <input type="text" className="form-control form-control-sm" value={settingsData.slotGradeHeader} onChange={e => setSettingsData({...settingsData, slotGradeHeader: e.target.value})} placeholder="Slot ID" />
+                        </div>
+                        <div className="col-md-6">
+                          <label className="form-label small mb-1">Textbooks Header Slot</label>
+                          <input type="text" className="form-control form-control-sm" value={settingsData.slotTextbooksHeader} onChange={e => setSettingsData({...settingsData, slotTextbooksHeader: e.target.value})} placeholder="Slot ID" />
+                        </div>
+                        <div className="col-md-6">
+                          <label className="form-label small mb-1">Papers Header Slot</label>
+                          <input type="text" className="form-control form-control-sm" value={settingsData.slotPapersHeader} onChange={e => setSettingsData({...settingsData, slotPapersHeader: e.target.value})} placeholder="Slot ID" />
+                        </div>
+                        <div className="col-md-6">
+                          <label className="form-label small mb-1">Notes Header Slot</label>
+                          <input type="text" className="form-control form-control-sm" value={settingsData.slotNotesHeader} onChange={e => setSettingsData({...settingsData, slotNotesHeader: e.target.value})} placeholder="Slot ID" />
                         </div>
                       </div>
 

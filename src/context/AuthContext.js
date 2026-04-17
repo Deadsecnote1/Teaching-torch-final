@@ -15,6 +15,10 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
     const [currentUser, setCurrentUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [isManageMode, setIsManageMode] = useState(() => {
+        const saved = localStorage.getItem('isManageMode');
+        return saved === 'true';
+    });
 
     const login = (email, password) => {
         return signInWithEmailAndPassword(auth, email, password);
@@ -22,6 +26,14 @@ export const AuthProvider = ({ children }) => {
 
     const logout = () => {
         return signOut(auth);
+    };
+
+    const toggleManageMode = () => {
+        setIsManageMode(prev => {
+            const newValue = !prev;
+            localStorage.setItem('isManageMode', newValue);
+            return newValue;
+        });
     };
 
     useEffect(() => {
@@ -35,6 +47,8 @@ export const AuthProvider = ({ children }) => {
 
     const value = {
         currentUser,
+        isManageMode,
+        toggleManageMode,
         login,
         logout
     };

@@ -1,5 +1,8 @@
 import React from 'react';
 import { getDownloadUrl, getEmbedUrl, isGoogleDriveLink } from '../../utils/googleDrive';
+import { useAuth } from '../../context/AuthContext';
+import { useData } from '../../context/DataContext';
+import toast from 'react-hot-toast';
 
 /**
  * Resource Card Component
@@ -13,8 +16,11 @@ const ResourceCard = ({
   showLanguageLabel = false,
   showViewButton = true,
   showDownloadButton = true,
-  className = ''
+  className = '',
+  onEdit // New prop for centralized editing
 }) => {
+  const { isManageMode } = useAuth();
+  const { deleteResource } = useData();
 
   // Support both Google Drive links and regular URLs
   const driveLink = resource.driveLink || resource.downloadUrl || resource.url || resource.path;
@@ -60,7 +66,8 @@ const ResourceCard = ({
             </div>
           </div>
 
-          <div className="resource-actions d-flex gap-1 ms-2">
+          <div className="resource-actions d-flex gap-1 ms-2 align-items-center">
+            {/* Standard User Actions */}
             {showViewButton && (embedUrl || downloadUrl) && (
               <button
                 className="btn btn-sm btn-outline-primary"
@@ -73,7 +80,7 @@ const ResourceCard = ({
             {showDownloadButton && (
               <a
                 href={downloadUrl}
-                className="btn btn-sm btn-primary"
+                className={`btn btn-sm ${isManageMode ? 'btn-outline-secondary' : 'btn-primary'}`}
                 onClick={handleDownload}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -82,6 +89,35 @@ const ResourceCard = ({
               >
                 <i className="bi bi-download"></i>
               </a>
+            )}
+
+            {/* Admin Management Actions */}
+            {isManageMode && (
+              <div className="admin-actions d-flex gap-1 border-start ps-2 ms-1">
+                <button
+                  className="btn btn-sm btn-info text-white"
+                  onClick={() => onEdit && onEdit(resource)}
+                  title="Edit Resource"
+                >
+                  <i className="bi bi-pencil"></i>
+                </button>
+                <button
+                  className="btn btn-sm btn-danger"
+                  onClick={async () => {
+                    if (window.confirm(`Are you sure you want to delete "${title || resource.title}"?`)) {
+                      try {
+                        await deleteResource(resource.id);
+                        toast.success('Deleted successfully');
+                      } catch (err) {
+                        toast.error('Failed to delete');
+                      }
+                    }
+                  }}
+                  title="Delete Resource"
+                >
+                  <i className="bi bi-trash"></i>
+                </button>
+              </div>
             )}
           </div>
         </div>

@@ -1,11 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useData } from '../context/DataContext';
+import { useAuth } from '../context/AuthContext';
 import AdSenseComponent from '../components/common/AdSenseComponent';
-
+import MetadataEditorModal from '../components/admin/MetadataEditorModal';
+import toast from 'react-hot-toast';
 
 const Home = () => {
-  const { grades, gradesLoading } = useData();
+  const { grades, gradesLoading, updateGrade, deleteGrade } = useData();
+  const { isManageMode } = useAuth();
+  
+  const [metadataModal, setMetadataModal] = useState({
+    isOpen: false,
+    initialData: null,
+    type: 'grade',
+    key: null
+  });
 
   if (gradesLoading) {
     return (
@@ -46,7 +56,17 @@ const Home = () => {
         <div className="container">
           <h2 className="text-center mb-5">Choose Your Grade</h2>
           <div className="row g-4">
-            {Object.entries(grades).map(([key, gradeData], index) => {
+            {Object.entries(grades).sort((a, b) => {
+              const orderA = a[1].order !== undefined && a[1].order !== '' ? parseInt(a[1].order, 10) : 999;
+              const orderB = b[1].order !== undefined && b[1].order !== '' ? parseInt(b[1].order, 10) : 999;
+              
+              if (orderA !== orderB) return orderA - orderB;
+
+              // Fallback to numeric extraction if orders are the same (e.g. both 999)
+              const numA = parseInt(a[0].replace('grade', '')) || 999;
+              const numB = parseInt(b[0].replace('grade', '')) || 999;
+              return numA - numB;
+            }).map(([key, gradeData], index) => {
               // Determine icon text
               let iconText = gradeData.display;
               if (key.startsWith('grade')) {
@@ -63,8 +83,40 @@ const Home = () => {
                 }
               }
 
-              return (
-                <div key={key} className="col-md-4 col-sm-6">
+               return (
+                <div key={key} className="col-md-4 col-sm-6 position-relative">
+                  {isManageMode && (
+                    <div className="admin-actions position-absolute top-0 end-0 m-3 z-3 d-flex gap-1">
+                      <button 
+                        className="btn btn-sm btn-info text-white shadow"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setMetadataModal({
+                            isOpen: true,
+                            initialData: gradeData,
+                            type: 'grade',
+                            key: key
+                          });
+                        }}
+                      >
+                        <i className="bi bi-pencil"></i>
+                      </button>
+                      <button 
+                        className="btn btn-sm btn-danger shadow"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          if (window.confirm(`Are you sure you want to delete "${gradeData.display}" and ALL its resources? This cannot be undone.`)) {
+                            deleteGrade(key);
+                            toast.success('Deleted Grade');
+                          }
+                        }}
+                      >
+                        <i className="bi bi-trash"></i>
+                      </button>
+                    </div>
+                  )}
                   <Link to={`/grade/${key}`} className={`grade-card ${key === 'al' ? 'advanced-level' : ''}`}>
                     <div className="grade-icon" style={gradeData.color ? { backgroundColor: `var(--${gradeData.color})` } : {}}>
                       {iconText}
@@ -151,6 +203,19 @@ const Home = () => {
 
       {/* Footer Ad Unit */}
       <AdSenseComponent slot="HOME_FOOTER_AD_SLOT" />
+
+      {/* Metadata Editor Modal */}
+      <MetadataEditorModal
+        isOpen={metadataModal.isOpen}
+        onClose={() => setMetadataModal({ ...metadataModal, isOpen: false })}
+        onSave={(updatedData) => {
+          updateGrade(metadataModal.key, updatedData);
+          toast.success('Grade Updated');
+        }}
+        title="Edit Grade"
+        initialData={metadataModal.initialData}
+        type="grade"
+      />
     </div>
   );
 };

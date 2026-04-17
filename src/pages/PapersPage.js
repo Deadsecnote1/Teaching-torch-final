@@ -1,18 +1,32 @@
-import React, { useMemo, useEffect } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useParams, Link, useSearchParams } from 'react-router-dom';
 import { useData } from '../context/DataContext';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 import ResourceCard from '../components/common/ResourceCard';
+import ResourceEditorModal from '../components/admin/ResourceEditorModal';
+import MetadataEditorModal from '../components/admin/MetadataEditorModal';
 import { subjectTranslations } from '../utils/subjectTranslations';
 import { getResourceTypeName } from '../utils/resourceTranslations';
 import AdSenseComponent from '../components/common/AdSenseComponent';
+import toast from 'react-hot-toast';
 
 const PapersPage = () => {
   const { gradeId } = useParams();
   const [searchParams] = useSearchParams();
   const selectedSubjectId = searchParams.get('subject');
-  const { generateGradePageData, fetchResourcesForGrade } = useData();
+  const { generateGradePageData, fetchResourcesForGrade, updateSubject, deleteSubject } = useData();
   const { selectedLanguage, shouldShowResource } = useLanguage();
+  const { isManageMode } = useAuth();
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [addModalInitialData, setAddModalInitialData] = useState(null);
+  const [editingResource, setEditingResource] = useState(null);
+  const [metadataModal, setMetadataModal] = useState({
+    isOpen: false,
+    initialData: null,
+    type: 'subject',
+    key: null
+  });
 
   // Lazy-load resources for this grade
   useEffect(() => {
@@ -62,7 +76,7 @@ const PapersPage = () => {
   };
 
   // Generate term papers component
-  const TermPapers = ({ termPapers }) => {
+  const TermPapers = ({ termPapers, onEdit }) => {
     if (!termPapers || Object.keys(termPapers).length === 0) {
       return (
         <div className="text-center py-4">
@@ -99,6 +113,7 @@ const PapersPage = () => {
                       showLanguageLabel={true}
                       showViewButton={true}
                       showDownloadButton={true}
+                      onEdit={onEdit}
                     />
                   </div>
                 ))}
@@ -111,7 +126,7 @@ const PapersPage = () => {
   };
 
   // Generate chapter papers component
-  const ChapterPapers = ({ chapterPapers }) => {
+  const ChapterPapers = ({ chapterPapers, onEdit }) => {
     if (!chapterPapers || Object.keys(chapterPapers).length === 0) {
       return (
         <div className="text-center py-4">
@@ -148,6 +163,7 @@ const PapersPage = () => {
                       showLanguageLabel={true}
                       showViewButton={true}
                       showDownloadButton={true}
+                      onEdit={onEdit}
                     />
                   </div>
                 ))}
@@ -252,7 +268,7 @@ const PapersPage = () => {
 
             return (
               <div key={subjectId} className="subject-section mb-5">
-                <div className="subject-header mb-4">
+                <div className="subject-header mb-4 d-flex justify-content-between align-items-center">
                   <div className="d-flex align-items-center">
                     <div className="subject-icon-large me-3">
                       <i className={subject.icon} style={{ fontSize: '2.5rem', color: 'var(--primary)' }}></i>
@@ -264,20 +280,67 @@ const PapersPage = () => {
                       <small className="text-muted">Past examination papers</small>
                     </div>
                   </div>
+
+                  {isManageMode && (
+                    <div className="admin-subject-actions d-flex gap-2">
+                       <button 
+                        className="btn btn-sm btn-outline-info"
+                        onClick={() => {
+                          setMetadataModal({
+                            isOpen: true,
+                            initialData: subject,
+                            type: 'subject',
+                            key: subjectId
+                          });
+                        }}
+                        title="Edit Subject"
+                      >
+                        <i className="bi bi-pencil"></i>
+                      </button>
+                      <button 
+                        className="btn btn-sm btn-outline-danger"
+                        onClick={() => {
+                          if (window.confirm(`Are you sure you want to delete "${subject.name}"?`)) {
+                            deleteSubject(subjectId);
+                            toast.success('Subject Deleted');
+                          }
+                        }}
+                        title="Delete Subject"
+                      >
+                        <i className="bi bi-trash"></i>
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 <div className="row g-4">
                   {/* Term Papers */}
                   <div className="col-md-6">
-                    <div className="paper-type-card h-100">
+                    <div className="paper-type-card h-100 position-relative">
                       <div className="card h-100">
-                        <div className="card-header bg-primary text-white">
-                          <h5 className="mb-0">
+                        <div className="card-header bg-primary text-white d-flex justify-content-between align-items-center py-2">
+                          <h5 className="mb-0 h6">
                             <i className="bi bi-calendar me-2"></i>Term Papers
                           </h5>
+                          {isManageMode && (
+                            <button 
+                              className="btn btn-sm btn-light py-0 text-primary fw-bold"
+                              onClick={() => {
+                                setAddModalInitialData({
+                                  grade: gradeId,
+                                  subject: subjectId,
+                                  resourceType: 'papers',
+                                  languages: ['sinhala', 'tamil', 'english']
+                                });
+                                setIsAddModalOpen(true);
+                              }}
+                            >
+                              <i className="bi bi-plus"></i> Add
+                            </button>
+                          )}
                         </div>
                         <div className="card-body">
-                          <TermPapers termPapers={mergedPapers.terms} />
+                          <TermPapers termPapers={mergedPapers.terms} onEdit={(r) => setEditingResource(r)} />
                         </div>
                       </div>
                     </div>
@@ -287,13 +350,29 @@ const PapersPage = () => {
                   <div className="col-md-6">
                     <div className="paper-type-card h-100">
                       <div className="card h-100">
-                        <div className="card-header bg-success text-white">
-                          <h5 className="mb-0">
+                        <div className="card-header bg-success text-white d-flex justify-content-between align-items-center py-2">
+                          <h5 className="mb-0 h6">
                             <i className="bi bi-journal-text me-2"></i>Chapter Papers
                           </h5>
+                          {isManageMode && (
+                            <button 
+                              className="btn btn-sm btn-light py-0 text-success fw-bold"
+                              onClick={() => {
+                                setAddModalInitialData({
+                                  grade: gradeId,
+                                  subject: subjectId,
+                                  resourceType: 'papers',
+                                  languages: ['sinhala', 'tamil', 'english']
+                                });
+                                setIsAddModalOpen(true);
+                              }}
+                            >
+                              <i className="bi bi-plus"></i> Add
+                            </button>
+                          )}
                         </div>
                         <div className="card-body">
-                          <ChapterPapers chapterPapers={mergedPapers.chapters} />
+                          <ChapterPapers chapterPapers={mergedPapers.chapters} onEdit={(r) => setEditingResource(r)} />
                         </div>
                       </div>
                     </div>
@@ -302,6 +381,15 @@ const PapersPage = () => {
               </div>
             );
           })}
+
+          <ResourceEditorModal 
+            isOpen={isAddModalOpen}
+            onClose={() => {
+              setIsAddModalOpen(false);
+              setAddModalInitialData(null);
+            }}
+            resource={addModalInitialData}
+          />
 
           {/* No Subjects Message */}
           {Object.keys(subjects).length === 0 && (
@@ -325,6 +413,25 @@ const PapersPage = () => {
           </Link>
         </div>
       </section>
+      {/* Resource Editor Modal (Centralized) */}
+      <ResourceEditorModal
+        resource={editingResource}
+        isOpen={!!editingResource}
+        onClose={() => setEditingResource(null)}
+      />
+
+      {/* Edit Subject Modal */}
+      <MetadataEditorModal
+        isOpen={metadataModal.isOpen}
+        onClose={() => setMetadataModal({ ...metadataModal, isOpen: false })}
+        onSave={(updatedData) => {
+          updateSubject(metadataModal.key, updatedData);
+          toast.success('Subject Updated');
+        }}
+        title="Edit Subject"
+        initialData={metadataModal.initialData}
+        type="subject"
+      />
     </div>
   );
 };

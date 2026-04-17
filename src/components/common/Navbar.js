@@ -3,11 +3,13 @@ import { Link, useLocation } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useData } from '../../context/DataContext';
+import { useAuth } from '../../context/AuthContext';
 
 const Navbar = () => {
   const { theme, toggleTheme } = useTheme();
   const { selectedLanguage, setLanguage, getAvailableLanguages, getCurrentLanguage } = useLanguage();
   const { grades, gradesLoading } = useData();
+  const { currentUser, isManageMode, toggleManageMode } = useAuth();
   const location = useLocation();
   const languages = getAvailableLanguages();
 
