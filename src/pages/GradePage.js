@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useData } from '../context/DataContext';
 import { getResourceTypeName } from '../utils/resourceTranslations';
 import AdSenseComponent from '../components/common/AdSenseComponent';
+import useDocumentTitle from '../hooks/useDocumentTitle';
 
 const GradePage = () => {
   const { gradeId } = useParams();
@@ -12,6 +13,9 @@ const GradePage = () => {
   const pageData = useMemo(() => {
     return generateGradePageData(gradeId);
   }, [gradeId, generateGradePageData]);
+
+  const gradeName = pageData.grade?.display || 'Grade';
+  useDocumentTitle(gradeName);
 
   if (!pageData.grade) {
     return (

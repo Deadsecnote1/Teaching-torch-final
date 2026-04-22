@@ -3,32 +3,23 @@ import { Link, useLocation } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useData } from '../../context/DataContext';
-import { useAuth } from '../../context/AuthContext';
 
 const Navbar = () => {
   const { theme, toggleTheme } = useTheme();
   const { selectedLanguage, setLanguage, getAvailableLanguages, getCurrentLanguage } = useLanguage();
   const { grades, gradesLoading } = useData();
-  const { currentUser, isManageMode, toggleManageMode } = useAuth();
   const location = useLocation();
   const languages = getAvailableLanguages();
 
-  // State for dropdown visibility
   const [showGradesDropdown, setShowGradesDropdown] = useState(false);
-  const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
 
-  // Refs for dropdown elements
   const gradesDropdownRef = useRef(null);
-  const languageDropdownRef = useRef(null);
 
   // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (gradesDropdownRef.current && !gradesDropdownRef.current.contains(event.target)) {
         setShowGradesDropdown(false);
-      }
-      if (languageDropdownRef.current && !languageDropdownRef.current.contains(event.target)) {
-        setShowLanguageDropdown(false);
       }
     };
 
@@ -45,13 +36,15 @@ const Navbar = () => {
     return false;
   };
 
+
+
   return (
     <nav className="navbar navbar-expand-lg navbar-dark fixed-top py-2" style={{ background: 'var(--primary-gradient)' }}>
       <div className="container">
         {/* Brand */}
         <Link className="navbar-brand d-flex align-items-center" to="/">
           <img
-            src={`${process.env.PUBLIC_URL}/logo192.png?t=${Date.now()}`}
+            src={`${process.env.PUBLIC_URL}/logo192.png`}
             alt="Teaching Torch Logo"
             className="me-3"
             style={{ width: '60px', height: '60px', objectFit: 'contain' }}
@@ -108,7 +101,6 @@ const Navbar = () => {
                 type="button"
                 onClick={() => {
                   setShowGradesDropdown(!showGradesDropdown);
-                  setShowLanguageDropdown(false);
                 }}
                 aria-expanded={showGradesDropdown}
                 style={{ background: 'none', padding: '0.5rem 0.75rem' }}
@@ -138,44 +130,6 @@ const Navbar = () => {
 
           {/* Right Side Controls */}
           <ul className="navbar-nav">
-            {/* Language Filter Dropdown */}
-            <li className="nav-item dropdown" ref={languageDropdownRef}>
-              <button
-                className="nav-link dropdown-toggle text-white btn btn-link border-0"
-                type="button"
-                onClick={() => {
-                  setShowLanguageDropdown(!showLanguageDropdown);
-                  setShowGradesDropdown(false);
-                }}
-                aria-expanded={showLanguageDropdown}
-                style={{ background: 'none', padding: '0.5rem 0.75rem' }}
-              >
-                <i className="bi bi-translate me-1"></i>
-                <span id="currentLanguage">
-                  {getCurrentLanguage().display}
-                </span>
-              </button>
-              <ul className={`dropdown-menu dropdown-menu-end ${showLanguageDropdown ? 'show' : ''}`}>
-                {Object.entries(languages)
-                  .filter(([langKey]) => langKey !== 'all') // Remove 'all' option
-                  .map(([langKey, langConfig]) => (
-                    <li key={langKey}>
-                      <button
-                        className={`dropdown-item language-option ${selectedLanguage === langKey ? 'active' : ''}`}
-                        onClick={() => {
-                          setLanguage(langKey);
-                          setShowLanguageDropdown(false);
-                        }}
-                      >
-                        <i className={`${langConfig.icon} me-2`}
-                          style={{ color: langConfig.color }}></i>
-                        {langConfig.display}
-                      </button>
-                    </li>
-                  ))}
-              </ul>
-            </li>
-
             {/* Theme Toggle */}
             <li className="nav-item">
               <button

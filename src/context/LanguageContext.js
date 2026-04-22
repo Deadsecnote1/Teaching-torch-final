@@ -65,10 +65,23 @@ export const LanguageProvider = ({ children }) => {
   // Check if showing all languages
   const isShowingAll = () => selectedLanguage === 'all';
 
-  // Filter function for resources
-  const shouldShowResource = (resourceLanguage) => {
+  // Filter function for resources - accepts language string OR resource object
+  const shouldShowResource = (resourceOrLang) => {
     if (selectedLanguage === 'all') return true;
-    return resourceLanguage === selectedLanguage;
+    
+    // If it's a string (legacy call), compare directly
+    if (typeof resourceOrLang === 'string') {
+      return resourceOrLang === selectedLanguage;
+    }
+    
+    // If it's an object, check the new 'languages' array first
+    if (resourceOrLang && resourceOrLang.languages && Array.isArray(resourceOrLang.languages)) {
+      return resourceOrLang.languages.includes(selectedLanguage);
+    }
+    
+    // Fallback to singular 'language' property
+    const itemLang = resourceOrLang?.language || resourceOrLang?.lang;
+    return itemLang === selectedLanguage;
   };
 
   // Filter array of items by language

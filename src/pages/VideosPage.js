@@ -1,6 +1,7 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useParams, Link, useSearchParams } from 'react-router-dom';
 import { useData } from '../context/DataContext';
+import { useGradePage } from '../hooks/useGradePage';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import ResourceCard from '../components/common/ResourceCard';
@@ -13,11 +14,12 @@ import { getResourceTypeName } from '../utils/resourceTranslations';
 import toast from 'react-hot-toast';
 
 const VideosPage = () => {
-  const { gradeId } = useParams();
+  const { gradeId, streamId, subjectId: paramSubjectId } = useParams();
   const [searchParams] = useSearchParams();
-  const selectedSubjectId = searchParams.get('subject');
-  const { generateGradePageData, updateSubject, deleteSubject } = useData();
-  const { selectedLanguage, shouldShowResource, getLanguageIndicator } = useLanguage();
+  const selectedSubjectId = paramSubjectId || searchParams.get('subject');
+  const { grade: rawGrade, subjects, isLoading, isGradeMissing } = useGradePage(streamId || gradeId);
+  const { updateSubject, deleteSubject, grades } = useData();
+  const { selectedLanguage, setLanguage, shouldShowResource, getLanguageIndicator, languages } = useLanguage();
   const { isManageMode } = useAuth();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [addModalInitialData, setAddModalInitialData] = useState(null);
@@ -28,28 +30,24 @@ const VideosPage = () => {
     type: 'subject',
     key: null
   });
-  const [uploadedFiles, setUploadedFiles] = useState([]);
   const [activeVideo, setActiveVideo] = useState(null);
   const [showPlayer, setShowPlayer] = useState(false);
 
-  // Load uploaded files from localStorage - MUST be before any conditional returns
-  useEffect(() => {
-    const savedFiles = localStorage.getItem('teachingTorch_uploadedFiles');
-    if (savedFiles) {
-      const allFiles = JSON.parse(savedFiles);
-      const videos = allFiles.filter(file =>
-        file.grade === gradeId && file.resourceType === 'videos'
-      );
-      setUploadedFiles(videos);
-    }
-  }, [gradeId]);
+  const grade = rawGrade;
+  const parentGrade = streamId ? grades[gradeId] : null;
+  const subject = selectedSubjectId ? subjects[selectedSubjectId] : null;
 
-  // Generate page data
-  const pageData = useMemo(() => {
-    return generateGradePageData(gradeId);
-  }, [gradeId, generateGradePageData]);
+  if (isLoading) {
+    return (
+      <div className="container py-5 text-center">
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    );
+  }
 
-  if (!pageData.grade) {
+  if (isGradeMissing) {
     return (
       <div className="container py-5">
         <div className="text-center">
@@ -60,8 +58,6 @@ const VideosPage = () => {
       </div>
     );
   }
-
-  const { grade, subjects } = pageData;
 
   const handlePlayVideo = (video, videoUrl) => {
     const youtubeId = extractYouTubeId(videoUrl);
@@ -103,7 +99,7 @@ const VideosPage = () => {
     }
 
     // Filter videos by language
-    const filteredVideos = videos.filter(video => shouldShowResource(video.language));
+    const filteredVideos = videos.filter(video => shouldShowResource(video));
 
     if (filteredVideos.length === 0) {
       return (
@@ -171,9 +167,9 @@ const VideosPage = () => {
                         <span className="badge bg-dark bg-opacity-75 d-flex align-items-center">
                           <span
                             className="language-indicator me-1"
-                            {...getLanguageIndicator(video.language)}
+                            {...getLanguageIndicator(video.language || video.languages?.[0])}
                           ></span>
-                          {video.language}
+                          {video.language || video.languages?.[0]}
                         </span>
                       </div>
                     </div>
@@ -194,12 +190,10 @@ const VideosPage = () => {
                           <p className="text-muted small mb-3">{video.description}</p>
                         )}
 
-                        <div className="video-meta">
                           <small className="text-muted d-block">
                             <i className="bi bi-calendar me-1"></i>
-                            Added: {new Date(video.addedDate).toLocaleDateString()}
+                            Added: {video.addedDate ? new Date(video.addedDate).toLocaleDateString() : 'Recently'}
                           </small>
-                        </div>
                       </div>
 
                       {/* Video Actions */}
@@ -239,13 +233,36 @@ const VideosPage = () => {
 
   return (
     <div className="videos-page">
-      {/* Page Header */}
+      {/* Header */}
       <header className="grade-header">
         <div className="container text-center">
-          <h1 className="display-4 fw-bold">{grade.display} {getResourceTypeName('videos', selectedLanguage)}</h1>
-          <p className="lead">Educational videos and tutorials</p>
+          <h1 className="display-4 fw-bold mb-0">{grade.display} Video Lessons</h1>
+          <p className="lead mt-2">Curated educational videos and tutorials</p>
         </div>
       </header>
+
+      {/* Language Switcher Section */}
+      <section className="py-4 switcher-container border-bottom">
+        <div className="container">
+          <div className="d-flex flex-column flex-md-row align-items-center justify-content-center gap-3">
+            <span className="fw-bold text-uppercase tracking-wider small opacity-75">Select Content Medium:</span>
+            <div className="btn-group shadow-sm" role="group">
+              {['sinhala', 'tamil', 'english'].map(lang => (
+                <button
+                  key={lang}
+                  type="button"
+                  className={`btn px-4 py-2 content-medium-btn ${selectedLanguage === lang ? 'btn-primary active' : 'btn-outline-custom'}`}
+                  onClick={() => setLanguage(lang)}
+                  style={{ minWidth: '120px' }}
+                >
+                  <i className={`bi bi-circle-fill me-2`} style={{ color: languages[lang].color, fontSize: '0.7rem' }}></i>
+                  {languages[lang].display}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Breadcrumb */}
       <section className="py-3 bg-light">
@@ -255,9 +272,19 @@ const VideosPage = () => {
               <li className="breadcrumb-item">
                 <Link to="/">Home</Link>
               </li>
+              {parentGrade && (
+                <li className="breadcrumb-item">
+                  <Link to={`/grade/${gradeId}`}>{parentGrade.display}</Link>
+                </li>
+              )}
               <li className="breadcrumb-item">
-                <Link to={`/grade/${gradeId}`}>{grade.display}</Link>
+                <Link to={streamId ? `/grade/${gradeId}/${streamId}` : `/grade/${gradeId}`}>{grade.display}</Link>
               </li>
+              {subject && (
+                <li className="breadcrumb-item">
+                  <Link to={`/grade/${gradeId}/${streamId}/${selectedSubjectId}`}>{subject.display}</Link>
+                </li>
+              )}
               <li className="breadcrumb-item active" aria-current="page">
                 {getResourceTypeName('videos', selectedLanguage)}
               </li>
@@ -266,26 +293,13 @@ const VideosPage = () => {
         </div>
       </section>
 
-      {/* Language Filter Info */}
-      <section className="py-2 bg-info bg-opacity-10">
-        <div className="container">
-          <div className="text-center">
-            <small className="text-info">
-              <i className="bi bi-filter me-1"></i>
-              Showing videos in: <strong>
-                {selectedLanguage === 'sinhala' && 'සිංහල (Sinhala)'}
-                {selectedLanguage === 'tamil' && 'தமிழ் (Tamil)'}
-                {selectedLanguage === 'english' && 'English'}
-              </strong>
-            </small>
-          </div>
-        </div>
-      </section>
+
 
       {/* Videos Content */}
       <section className="py-5">
         <div className="container">
           {Object.keys(subjects).filter(subjectId => {
+            if (subjectId === 'standalone') return false;
             const subject = subjects[subjectId];
             if (subject.languages && subject.languages.length > 0) {
               return subject.languages.includes(selectedLanguage);
@@ -295,18 +309,7 @@ const VideosPage = () => {
             const subject = subjects[subjectId];
             const videos = subject.videos || [];
 
-            // Get uploaded videos for this subject
-            const uploadedVideos = uploadedFiles.filter(file => file.subject === subjectId);
-            const uploadedVideosFormatted = uploadedVideos.map(file => ({
-              ...file,
-              title: file.title || file.name,
-              language: file.languages?.[0] || 'english',
-              url: file.driveLink || file.youtubeUrl || file.url,
-              addedDate: file.uploadDate
-            }));
-
-            // Merge videos
-            const mergedVideos = [...videos, ...uploadedVideosFormatted];
+            const mergedVideos = videos;
 
             // Filter by selected subject if specified
             if (selectedSubjectId && subjectId !== selectedSubjectId) {
@@ -314,7 +317,7 @@ const VideosPage = () => {
             }
 
             // Check if any videos match the filter
-            const hasFilteredVideos = mergedVideos.some(video => shouldShowResource(video.language));
+            const hasFilteredVideos = mergedVideos.some(video => shouldShowResource(video));
 
             // Skip subject if no videos match filter
             if (!hasFilteredVideos) {
@@ -394,14 +397,7 @@ const VideosPage = () => {
             );
           })}
 
-          <ResourceEditorModal 
-            isOpen={isAddModalOpen}
-            onClose={() => {
-              setIsAddModalOpen(false);
-              setAddModalInitialData(null);
-            }}
-            resource={addModalInitialData}
-          />
+
 
           {/* No Subjects Message */}
           {Object.keys(subjects).length === 0 && (
@@ -418,7 +414,7 @@ const VideosPage = () => {
           {/* No Results for Filter */}
           {Object.keys(subjects).length > 0 &&
             !Object.values(subjects).some(subject =>
-              (subject.videos || []).some(video => shouldShowResource(video.language))
+              (subject.videos || []).some(video => shouldShowResource(video))
             ) && (
               <div className="text-center py-5">
                 <i className="bi bi-search text-muted" style={{ fontSize: '4rem' }}></i>
@@ -548,9 +544,13 @@ const VideosPage = () => {
       `}</style>
       {/* Resource Editor Modal (Centralized) */}
       <ResourceEditorModal
-        resource={editingResource}
-        isOpen={!!editingResource}
-        onClose={() => setEditingResource(null)}
+        resource={editingResource || addModalInitialData}
+        isOpen={!!editingResource || isAddModalOpen}
+        onClose={() => {
+          setEditingResource(null);
+          setIsAddModalOpen(false);
+          setAddModalInitialData(null);
+        }}
       />
 
       {/* Edit Subject Modal */}

@@ -21,7 +21,7 @@ const About = () => {
                 <Link to="/">Home</Link>
               </li>
               <li className="breadcrumb-item active" aria-current="page">
-                About
+                About Us
               </li>
             </ol>
           </nav>
@@ -36,8 +36,7 @@ const About = () => {
               <div className="text-center mb-5">
                 <h2 className="mb-4">Our Mission</h2>
                 <p className="lead text-muted">
-                  To provide free, accessible, and comprehensive educational resources for all Sri Lankan students,
-                  breaking down barriers to quality education and fostering academic excellence across the nation.
+                  To provide free, accessible, and comprehensive educational resources for all Sri Lankan students, breaking down barriers to quality education and fostering academic excellence across the nation.
                 </p>
               </div>
             </div>
@@ -50,10 +49,7 @@ const About = () => {
                   <i className="bi bi-heart-fill text-danger" style={{ fontSize: '3rem' }}></i>
                 </div>
                 <h4>Free Education</h4>
-                <p>
-                  We believe education should be accessible to everyone. All our resources are completely free
-                  to download and use, ensuring no student is left behind due to financial constraints.
-                </p>
+                <p>We believe education should be accessible to everyone. All our resources are completely free to download and use, ensuring no student is left behind due to financial constraints.</p>
               </div>
             </div>
             <div className="col-md-4">
@@ -61,11 +57,8 @@ const About = () => {
                 <div className="mission-icon mb-3">
                   <i className="bi bi-translate text-primary" style={{ fontSize: '3rem' }}></i>
                 </div>
-                <h4>Multi-Language Support</h4>
-                <p>
-                  Recognizing Sri Lanka's linguistic diversity, we provide resources in Sinhala, Tamil, and English,
-                  ensuring every student can learn in their preferred language.
-                </p>
+                <h4>Multi-Medium Support</h4>
+                <p>Recognizing Sri Lanka's linguistic diversity, we provide resources in Sinhala, Tamil, and English, ensuring every student can learn in their preferred language.</p>
               </div>
             </div>
             <div className="col-md-4">
@@ -74,10 +67,7 @@ const About = () => {
                   <i className="bi bi-laptop text-success" style={{ fontSize: '3rem' }}></i>
                 </div>
                 <h4>Digital Innovation</h4>
-                <p>
-                  Leveraging modern technology to create an intuitive, mobile-friendly platform that makes
-                  learning resources available 24/7 to students across the island.
-                </p>
+                <p>Leveraging modern technology to create an intuitive, mobile-friendly platform that makes learning resources available 24/7 to students across the island.</p>
               </div>
             </div>
           </div>
@@ -91,16 +81,13 @@ const About = () => {
             <div className="col-lg-6 mb-4 mb-lg-0">
               <h2 className="mb-4">Our Vision</h2>
               <p className="mb-4">
-                [INSERT YOUR STORY HERE: Why did you start Teaching Torch? For example: I started this platform after seeing the challenges students face in accessing updated textbooks and past papers...]
+                To become the leading digital educational platform in Sri Lanka, serving as the primary resource hub for students from Grade 6 to Advanced Level.
               </p>
               <p className="mb-4">
-                To become the leading digital educational platform in Sri Lanka, serving as the primary
-                resource hub for students from Grade 6 to Advanced Level. We envision a future where
-                every student has equal access to quality educational materials, regardless of their location or background.
+                We envision a future where every student has equal access to quality educational materials, regardless of their location or background.
               </p>
               <p className="mb-4">
-                Through technology and community collaboration, we aim to bridge the educational gap
-                and create equal opportunities for all students across the country.
+                Through technology and community collaboration, we aim to bridge the educational gap and create equal opportunities for all students across the country.
               </p>
               <h3 className="h5 mb-3">What We Offer:</h3>
               <ul className="list-unstyled">
@@ -154,30 +141,21 @@ const About = () => {
               <div className="commitment-card text-center">
                 <i className="bi bi-shield-check text-success mb-3" style={{ fontSize: '3rem' }}></i>
                 <h5>Quality Assurance</h5>
-                <p className="text-muted">
-                  All resources are carefully reviewed and aligned with the Sri Lankan curriculum
-                  to ensure accuracy and relevance.
-                </p>
+                <p className="text-muted">All resources are carefully reviewed and aligned with the Sri Lankan curriculum to ensure accuracy and relevance.</p>
               </div>
             </div>
             <div className="col-md-4">
               <div className="commitment-card text-center">
                 <i className="bi bi-clock text-info mb-3" style={{ fontSize: '3rem' }}></i>
                 <h5>Regular Updates</h5>
-                <p className="text-muted">
-                  We continuously add new resources and update existing content to keep pace
-                  with curriculum changes and student needs.
-                </p>
+                <p className="text-muted">We continuously add new resources and update existing content to keep pace with curriculum changes and student needs.</p>
               </div>
             </div>
             <div className="col-md-4">
               <div className="commitment-card text-center">
                 <i className="bi bi-people text-warning mb-3" style={{ fontSize: '3rem' }}></i>
                 <h5>Community Driven</h5>
-                <p className="text-muted">
-                  Built by educators and students for the educational community, fostering
-                  collaboration and shared learning experiences.
-                </p>
+                <p className="text-muted">Built by educators and students for the educational community, fostering collaboration and shared learning experiences.</p>
               </div>
             </div>
           </div>
@@ -199,9 +177,7 @@ const About = () => {
                   <i className="bi bi-unlock-fill text-primary" style={{ fontSize: '2.5rem' }}></i>
                 </div>
                 <h5>Accessibility</h5>
-                <p className="text-muted small">
-                  Making quality education accessible to every student, regardless of economic background.
-                </p>
+                <p className="text-muted small">Making quality education accessible to every student, regardless of economic background.</p>
               </div>
             </div>
             <div className="col-lg-3 col-md-6">
@@ -210,9 +186,7 @@ const About = () => {
                   <i className="bi bi-star-fill text-warning" style={{ fontSize: '2.5rem' }}></i>
                 </div>
                 <h5>Excellence</h5>
-                <p className="text-muted small">
-                  Striving for the highest quality in all our educational resources and services.
-                </p>
+                <p className="text-muted small">Striving for the highest quality in all our educational resources and services.</p>
               </div>
             </div>
             <div className="col-lg-3 col-md-6">
@@ -221,9 +195,7 @@ const About = () => {
                   <i className="bi bi-globe text-info" style={{ fontSize: '2.5rem' }}></i>
                 </div>
                 <h5>Inclusivity</h5>
-                <p className="text-muted small">
-                  Embracing linguistic and cultural diversity to serve all Sri Lankan students.
-                </p>
+                <p className="text-muted small">Embracing linguistic and cultural diversity to serve all Sri Lankan students.</p>
               </div>
             </div>
             <div className="col-lg-3 col-md-6">
@@ -232,9 +204,7 @@ const About = () => {
                   <i className="bi bi-lightbulb-fill text-success" style={{ fontSize: '2.5rem' }}></i>
                 </div>
                 <h5>Innovation</h5>
-                <p className="text-muted small">
-                  Leveraging technology to create better learning experiences for modern students.
-                </p>
+                <p className="text-muted small">Leveraging technology to create better learning experiences for modern students.</p>
               </div>
             </div>
           </div>
@@ -249,8 +219,7 @@ const About = () => {
               <div className="col-lg-8">
                 <h2 className="mb-4">Join Our Educational Journey</h2>
                 <p className="lead mb-4">
-                  Whether you're a student seeking quality resources or an educator looking to support
-                  your students, Teaching Torch is here to help you succeed.
+                  Whether you're a student seeking quality resources or an educator looking to support your students, Teaching Torch is here to help you succeed.
                 </p>
                 <div className="cta-buttons">
                   <Link to="/" className="btn btn-primary btn-lg me-3">

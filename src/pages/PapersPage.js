@@ -1,6 +1,7 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useParams, Link, useSearchParams } from 'react-router-dom';
 import { useData } from '../context/DataContext';
+import { useGradePage } from '../hooks/useGradePage';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import ResourceCard from '../components/common/ResourceCard';
@@ -12,11 +13,12 @@ import AdSenseComponent from '../components/common/AdSenseComponent';
 import toast from 'react-hot-toast';
 
 const PapersPage = () => {
-  const { gradeId } = useParams();
+  const { gradeId, streamId, subjectId: paramSubjectId } = useParams();
   const [searchParams] = useSearchParams();
-  const selectedSubjectId = searchParams.get('subject');
-  const { generateGradePageData, fetchResourcesForGrade, updateSubject, deleteSubject } = useData();
-  const { selectedLanguage, shouldShowResource } = useLanguage();
+  const selectedSubjectId = paramSubjectId || searchParams.get('subject');
+  const { grade: rawGrade, subjects, isLoading, isGradeMissing } = useGradePage(streamId || gradeId);
+  const { updateSubject, deleteSubject, grades } = useData();
+  const { selectedLanguage, setLanguage, shouldShowResource, languages } = useLanguage();
   const { isManageMode } = useAuth();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [addModalInitialData, setAddModalInitialData] = useState(null);
@@ -28,19 +30,21 @@ const PapersPage = () => {
     key: null
   });
 
-  // Lazy-load resources for this grade
-  useEffect(() => {
-    if (gradeId) {
-      fetchResourcesForGrade(gradeId);
-    }
-  }, [gradeId, fetchResourcesForGrade]);
+  const grade = rawGrade;
+  const parentGrade = streamId ? grades[gradeId] : null;
+  const subject = selectedSubjectId ? subjects[selectedSubjectId] : null;
 
-  // Generate page data
-  const pageData = useMemo(() => {
-    return generateGradePageData(gradeId);
-  }, [gradeId, generateGradePageData]);
+  if (isLoading) {
+    return (
+      <div className="container py-5 text-center">
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    );
+  }
 
-  if (!pageData.grade) {
+  if (isGradeMissing) {
     return (
       <div className="container py-5">
         <div className="text-center">
@@ -51,8 +55,6 @@ const PapersPage = () => {
       </div>
     );
   }
-
-  const { grade, subjects } = pageData;
 
 
 
@@ -92,7 +94,7 @@ const PapersPage = () => {
           if (!Array.isArray(papers) || papers.length === 0) return null;
 
           // Filter papers by language
-          const filteredPapers = papers.filter(paper => shouldShowResource(paper.language));
+          const filteredPapers = papers.filter(paper => shouldShowResource(paper));
 
           if (filteredPapers.length === 0) return null;
 
@@ -142,7 +144,7 @@ const PapersPage = () => {
           if (!Array.isArray(papers) || papers.length === 0) return null;
 
           // Filter papers by language
-          const filteredPapers = papers.filter(paper => shouldShowResource(paper.language));
+          const filteredPapers = papers.filter(paper => shouldShowResource(paper));
 
           if (filteredPapers.length === 0) return null;
 
@@ -177,13 +179,36 @@ const PapersPage = () => {
 
   return (
     <div className="papers-page">
-      {/* Page Header */}
+      {/* Header */}
       <header className="grade-header">
         <div className="container text-center">
-          <h1 className="display-4 fw-bold">{grade.display} {getResourceTypeName('papers', selectedLanguage)}</h1>
-          <p className="lead">Past papers for practice and preparation</p>
+          <h1 className="display-4 fw-bold mb-0">{grade.display} Past Papers</h1>
+          <p className="lead mt-2">Practice with real examination papers</p>
         </div>
       </header>
+
+      {/* Language Switcher Section */}
+      <section className="py-4 switcher-container border-bottom">
+        <div className="container">
+          <div className="d-flex flex-column flex-md-row align-items-center justify-content-center gap-3">
+            <span className="fw-bold text-uppercase tracking-wider small opacity-75">Select Content Medium:</span>
+            <div className="btn-group shadow-sm" role="group">
+              {['sinhala', 'tamil', 'english'].map(lang => (
+                <button
+                  key={lang}
+                  type="button"
+                  className={`btn px-4 py-2 content-medium-btn ${selectedLanguage === lang ? 'btn-primary active' : 'btn-outline-custom'}`}
+                  onClick={() => setLanguage(lang)}
+                  style={{ minWidth: '120px' }}
+                >
+                  <i className={`bi bi-circle-fill me-2`} style={{ color: languages[lang].color, fontSize: '0.7rem' }}></i>
+                  {languages[lang].display}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Header Ad Unit */}
       <AdSenseComponent slot="PAPERS_HEADER_AD_SLOT" />
@@ -196,9 +221,19 @@ const PapersPage = () => {
               <li className="breadcrumb-item">
                 <Link to="/">Home</Link>
               </li>
+              {parentGrade && (
+                <li className="breadcrumb-item">
+                  <Link to={`/grade/${gradeId}`}>{parentGrade.display}</Link>
+                </li>
+              )}
               <li className="breadcrumb-item">
-                <Link to={`/grade/${gradeId}`}>{grade.display}</Link>
+                <Link to={streamId ? `/grade/${gradeId}/${streamId}` : `/grade/${gradeId}`}>{grade.display}</Link>
               </li>
+              {subject && (
+                <li className="breadcrumb-item">
+                  <Link to={`/grade/${gradeId}/${streamId}/${selectedSubjectId}`}>{subject.display}</Link>
+                </li>
+              )}
               <li className="breadcrumb-item active" aria-current="page">
                 {getResourceTypeName('papers', selectedLanguage)}
               </li>
@@ -229,6 +264,7 @@ const PapersPage = () => {
       <section className="py-5">
         <div className="container">
           {Object.keys(subjects).filter(subjectId => {
+            if (subjectId === 'standalone') return false;
             const subject = subjects[subjectId];
             if (subject.languages && subject.languages.length > 0) {
               return subject.languages.includes(selectedLanguage);
@@ -250,10 +286,10 @@ const PapersPage = () => {
 
             // Check if any papers match the filter
             const hasTermPapers = mergedPapers.terms && Object.values(mergedPapers.terms).some(termPapers =>
-              Array.isArray(termPapers) && termPapers.some(paper => shouldShowResource(paper.language))
+              Array.isArray(termPapers) && termPapers.some(paper => shouldShowResource(paper))
             );
             const hasChapterPapers = mergedPapers.chapters && Object.values(mergedPapers.chapters).some(chapterPapers =>
-              Array.isArray(chapterPapers) && chapterPapers.some(paper => shouldShowResource(paper.language))
+              Array.isArray(chapterPapers) && chapterPapers.some(paper => shouldShowResource(paper))
             );
 
             // Filter by selected subject if specified
@@ -274,9 +310,9 @@ const PapersPage = () => {
                       <i className={subject.icon} style={{ fontSize: '2.5rem', color: 'var(--primary)' }}></i>
                     </div>
                     <div>
-                      <h3 className="mb-0">
-                        {subjectTranslations.getTranslatedName(subjectId, subject, selectedLanguage)}
-                      </h3>
+                      <h4 className="subject-title mb-0">
+                      {subjectTranslations.getTranslatedName(subjectId, subject, selectedLanguage)}
+                    </h4>
                       <small className="text-muted">Past examination papers</small>
                     </div>
                   </div>
@@ -382,14 +418,7 @@ const PapersPage = () => {
             );
           })}
 
-          <ResourceEditorModal 
-            isOpen={isAddModalOpen}
-            onClose={() => {
-              setIsAddModalOpen(false);
-              setAddModalInitialData(null);
-            }}
-            resource={addModalInitialData}
-          />
+
 
           {/* No Subjects Message */}
           {Object.keys(subjects).length === 0 && (
@@ -415,9 +444,13 @@ const PapersPage = () => {
       </section>
       {/* Resource Editor Modal (Centralized) */}
       <ResourceEditorModal
-        resource={editingResource}
-        isOpen={!!editingResource}
-        onClose={() => setEditingResource(null)}
+        resource={editingResource || addModalInitialData}
+        isOpen={!!editingResource || isAddModalOpen}
+        onClose={() => {
+          setEditingResource(null);
+          setIsAddModalOpen(false);
+          setAddModalInitialData(null);
+        }}
       />
 
       {/* Edit Subject Modal */}

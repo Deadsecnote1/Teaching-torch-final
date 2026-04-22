@@ -99,7 +99,8 @@ export const subjectTranslations = {
             return subjectTranslations[subjectId][language] || subjectObj.name;
         }
 
-        // 3. Fall back to default database name
-        return subjectObj.name;
+        // 3. Fall back to default database name or formatted ID
+        const finalName = subjectObj.name || subjectObj.display || subjectId;
+        return finalName.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
     }
 };

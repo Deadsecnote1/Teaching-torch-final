@@ -5,8 +5,10 @@ import { useAuth } from '../context/AuthContext';
 import AdSenseComponent from '../components/common/AdSenseComponent';
 import MetadataEditorModal from '../components/admin/MetadataEditorModal';
 import toast from 'react-hot-toast';
+import useDocumentTitle from '../hooks/useDocumentTitle';
 
 const Home = () => {
+  useDocumentTitle('Home');
   const { grades, gradesLoading, updateGrade, deleteGrade } = useData();
   const { isManageMode } = useAuth();
   

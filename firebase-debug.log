@@ -1,0 +1,158 @@
+[debug] [2026-04-22T16:01:08.551Z] ----------------------------------------------------------------------
+[debug] [2026-04-22T16:01:08.552Z] Command:       /usr/bin/node /home/thanushiyan/Desktop/TT_v1/node_modules/.bin/firebase deploy --only hosting
+[debug] [2026-04-22T16:01:08.552Z] CLI Version:   15.9.1
+[debug] [2026-04-22T16:01:08.552Z] Platform:      linux
+[debug] [2026-04-22T16:01:08.553Z] Node Version:  v20.19.2
+[debug] [2026-04-22T16:01:08.553Z] Time:          Wed Apr 22 2026 21:31:08 GMT+0530 (India Standard Time)
+[debug] [2026-04-22T16:01:08.553Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-04-22T16:01:09.353Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-04-22T16:01:09.354Z] > authorizing via signed-in user (davidthanu1006@gmail.com)
+[debug] [2026-04-22T16:01:09.354Z] [iam] checking project tt-v1-c2a11 for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2026-04-22T16:01:09.355Z] Checked if tokens are valid: true, expires at: 1776875657385
+[debug] [2026-04-22T16:01:09.355Z] Checked if tokens are valid: true, expires at: 1776875657385
+[debug] [2026-04-22T16:01:09.355Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/tt-v1-c2a11:testIamPermissions [none]
+[debug] [2026-04-22T16:01:09.355Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/tt-v1-c2a11:testIamPermissions  x-goog-user-project=tt-v1-c2a11
+[debug] [2026-04-22T16:01:09.356Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/tt-v1-c2a11:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2026-04-22T16:01:19.383Z] *** [apiv2] error from fetch(https://cloudresourcemanager.googleapis.com/v1/projects/tt-v1-c2a11:testIamPermissions, {"headers":{},"method":"POST","body":"{\"permissions\":[\"firebase.projects.get\",\"firebasehosting.sites.update\"]}"}): FetchError: request to https://cloudresourcemanager.googleapis.com/v1/projects/tt-v1-c2a11:testIamPermissions failed, reason: getaddrinfo EAI_AGAIN cloudresourcemanager.googleapis.com
+[debug] [2026-04-22T16:01:19.384Z] [iam] error while checking permissions, command may fail: Failed to make request to https://cloudresourcemanager.googleapis.com/v1/projects/tt-v1-c2a11:testIamPermissions
+[debug] [2026-04-22T16:01:19.385Z] Checked if tokens are valid: true, expires at: 1776875657385
+[debug] [2026-04-22T16:01:19.385Z] Checked if tokens are valid: true, expires at: 1776875657385
+[debug] [2026-04-22T16:01:19.385Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/tt-v1-c2a11 [none]
+[debug] [2026-04-22T16:01:42.632Z] *** [apiv2] error from fetch(https://firebase.googleapis.com/v1beta1/projects/tt-v1-c2a11, {"headers":{},"method":"GET","signal":{"reason":""}}): FetchError: request to https://firebase.googleapis.com/v1beta1/projects/tt-v1-c2a11 failed, reason: Client network socket disconnected before secure TLS connection was established
+[debug] [2026-04-22T16:01:42.633Z] Failed to make request to https://firebase.googleapis.com/v1beta1/projects/tt-v1-c2a11 (original: request to https://firebase.googleapis.com/v1beta1/projects/tt-v1-c2a11 failed, reason: Client network socket disconnected before secure TLS connection was established)
+[debug] [2026-04-22T16:01:47.640Z] Error: Timed out.
+    at Timeout._onTimeout (/home/thanushiyan/Desktop/TT_v1/node_modules/firebase-tools/lib/utils.js:308:49)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-04-22T16:02:23.953Z] ----------------------------------------------------------------------
+[debug] [2026-04-22T16:02:23.955Z] Command:       /usr/bin/node /home/thanushiyan/Desktop/TT_v1/node_modules/.bin/firebase deploy --only hosting --debug
+[debug] [2026-04-22T16:02:23.955Z] CLI Version:   15.9.1
+[debug] [2026-04-22T16:02:23.956Z] Platform:      linux
+[debug] [2026-04-22T16:02:23.956Z] Node Version:  v20.19.2
+[debug] [2026-04-22T16:02:23.956Z] Time:          Wed Apr 22 2026 21:32:23 GMT+0530 (India Standard Time)
+[debug] [2026-04-22T16:02:23.956Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-04-22T16:02:24.588Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-04-22T16:02:24.589Z] > authorizing via signed-in user (davidthanu1006@gmail.com)
+[debug] [2026-04-22T16:02:24.589Z] [iam] checking project tt-v1-c2a11 for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2026-04-22T16:02:24.590Z] Checked if tokens are valid: true, expires at: 1776875657385
+[debug] [2026-04-22T16:02:24.590Z] Checked if tokens are valid: true, expires at: 1776875657385
+[debug] [2026-04-22T16:02:24.591Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/tt-v1-c2a11:testIamPermissions [none]
+[debug] [2026-04-22T16:02:24.591Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/tt-v1-c2a11:testIamPermissions  x-goog-user-project=tt-v1-c2a11
+[debug] [2026-04-22T16:02:24.591Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/tt-v1-c2a11:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2026-04-22T16:02:37.551Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/tt-v1-c2a11:testIamPermissions 200
+[debug] [2026-04-22T16:02:37.551Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/tt-v1-c2a11:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2026-04-22T16:02:37.553Z] Checked if tokens are valid: true, expires at: 1776875657385
+[debug] [2026-04-22T16:02:37.553Z] Checked if tokens are valid: true, expires at: 1776875657385
+[debug] [2026-04-22T16:02:37.554Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/tt-v1-c2a11 [none]
+[debug] [2026-04-22T16:02:38.291Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/tt-v1-c2a11 200
+[debug] [2026-04-22T16:02:38.291Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/tt-v1-c2a11 {"projectId":"tt-v1-c2a11","projectNumber":"522162205753","displayName":"TT-v1","name":"projects/tt-v1-c2a11","resources":{"hostingSite":"tt-v1-c2a11"},"state":"ACTIVE","etag":"1_949a44b3-b3be-4a67-8066-01a6bed3a29c"}
+[info] 
+[info] === Deploying to 'tt-v1-c2a11'...
+[info] 
+[info] i  deploying hosting 
+[debug] [2026-04-22T16:02:38.300Z] Checked if tokens are valid: true, expires at: 1776875657385
+[debug] [2026-04-22T16:02:38.300Z] Checked if tokens are valid: true, expires at: 1776875657385
+[debug] [2026-04-22T16:02:38.300Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/tt-v1-c2a11/versions [none]
+[debug] [2026-04-22T16:02:38.301Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/tt-v1-c2a11/versions {"status":"CREATED","labels":{"deployment-tool":"cli-firebase"}}
+[debug] [2026-04-22T16:02:40.121Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/tt-v1-c2a11/versions 200
+[debug] [2026-04-22T16:02:40.121Z] <<< [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/tt-v1-c2a11/versions {"name":"projects/522162205753/sites/tt-v1-c2a11/versions/d03f3cb867a05911","status":"CREATED","config":{},"labels":{"deployment-tool":"cli-firebase"}}
+[info] i  hosting[tt-v1-c2a11]: beginning deploy... 
+[info] i  hosting[tt-v1-c2a11]: found 19 files in build 
+[debug] [2026-04-22T16:02:40.131Z] [hosting] uploading with 200 concurrency
+[debug] [2026-04-22T16:02:40.537Z] Checked if tokens are valid: true, expires at: 1776875657385
+[debug] [2026-04-22T16:02:40.538Z] Checked if tokens are valid: true, expires at: 1776875657385
+[debug] [2026-04-22T16:02:40.539Z] [hosting] hash cache [YnVpbGQ] stored for 19 files
+[debug] [2026-04-22T16:02:40.540Z] [hosting][hash queue][FINAL] {"max":403,"min":9,"avg":63.36842105263158,"active":0,"complete":19,"success":19,"errored":0,"retried":0,"total":19,"elapsed":408}
+[debug] [2026-04-22T16:02:40.540Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/522162205753/sites/tt-v1-c2a11/versions/d03f3cb867a05911:populateFiles [none]
+[debug] [2026-04-22T16:02:40.540Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/522162205753/sites/tt-v1-c2a11/versions/d03f3cb867a05911:populateFiles {"files":{"/robots.txt":"2544ca049f223a42bff01f72ad930a5edba75bbb7199d0f8430a02ff5aca16ec","/logo512.png":"7779210d56c1f3741e2e487799fe3092def4fa6ac450a60532b807c3a8971205","/manifest.json":"4f0a5a556ffaff2b7bd5cbeef3ba1f773efa620031034427b128f7f0f0f64b4f","/index.html":"16b51bcf296963614c9351af56474d631595789a5b9e711b0ba519bc835546e8","/favicon.ico":"c599b7a91ab3627e3538125d9f40adc2d4bf949046984262670545dc7738af06","/asset-manifest.json":"353a81db5732dc29762e1863813cadfa39876c649ef417f73265c7c1f9debbf1","/ads.txt":"3e59f7d534aa69c5dec1b922debe89cc1a99fc56f6eddfeca8061f47837f7dfb","/static/js/main.0ae815d0.js.LICENSE.txt":"da55b75bae9d49aa70eae572a0033d5f6411b60c433a1342f0f51caa0782277c","/logo192.png":"3e5beaa9f691eb49e14d81840a1e8818055bff70da28200d2f283a1c9e0b25ce","/assets/images/T.png":"97d5ffae112a09520c2a39cfd3c2f0b319b4f92ac1b7f32f88995da6980cdbe4","/static/media/bootstrap-icons.92ea18a81d737146ff04.woff2":"cee3becd2f87a574e0db9921cf0d582a5749545bba3b04ab1138d050ebe189c2","/static/media/bootstrap-icons.1295669cd4e305c97f2c.woff":"46e458927a13d34f10a64147297fb048eddf02c56bc1ceb2cefa20e5bedeead4","/static/css/main.43a073b1.css":"4f3d5d482f981c75fb8c5907360314b1a310172181040b14680f29aa31f67371","/static/js/main.0ae815d0.js":"501138c0b71dc97c6814aebdee13fa734abcfd97eee729d8a67f5a1670524b96","/static/css/main.43a073b1.css.map":"ceb0935abb6effba0c3e1cc65a4e352357844bb76ae6185e31a5deea2c62cc53","/bg11.jpg":"1e69d4d3b33c50e6e728b1be0300355850cf01e323f92303e4bdba8fa817deed","/bg3":"7ea320427d42928cd5747aaa6650f2746fea5d42566289fff298387f8358e505","/bg1.jpg":"e2ca1bafc179c1524e5e730fc3baded26bdf1844339c29bae7760f53643eb0f5","/static/js/main.0ae815d0.js.map":"a931bd03166a2962d5bc08e37f1b0a5ba90471beae599b002abf50c3fac53a13"}}
+[debug] [2026-04-22T16:02:41.568Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/522162205753/sites/tt-v1-c2a11/versions/d03f3cb867a05911:populateFiles 200
+[debug] [2026-04-22T16:02:41.569Z] <<< [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/522162205753/sites/tt-v1-c2a11/versions/d03f3cb867a05911:populateFiles {"uploadRequiredHashes":["16b51bcf296963614c9351af56474d631595789a5b9e711b0ba519bc835546e8","501138c0b71dc97c6814aebdee13fa734abcfd97eee729d8a67f5a1670524b96","a931bd03166a2962d5bc08e37f1b0a5ba90471beae599b002abf50c3fac53a13","353a81db5732dc29762e1863813cadfa39876c649ef417f73265c7c1f9debbf1"],"uploadUrl":"https://upload-firebasehosting.googleapis.com/upload/sites/tt-v1-c2a11/versions/d03f3cb867a05911/files"}
+[debug] [2026-04-22T16:02:41.570Z] Checked if tokens are valid: true, expires at: 1776875657385
+[debug] [2026-04-22T16:02:41.570Z] Checked if tokens are valid: true, expires at: 1776875657385
+[debug] [2026-04-22T16:02:41.570Z] Checked if tokens are valid: true, expires at: 1776875657385
+[debug] [2026-04-22T16:02:41.570Z] Checked if tokens are valid: true, expires at: 1776875657385
+[debug] [2026-04-22T16:02:41.571Z] Checked if tokens are valid: true, expires at: 1776875657385
+[debug] [2026-04-22T16:02:41.571Z] Checked if tokens are valid: true, expires at: 1776875657385
+[debug] [2026-04-22T16:02:41.571Z] Checked if tokens are valid: true, expires at: 1776875657385
+[debug] [2026-04-22T16:02:41.571Z] Checked if tokens are valid: true, expires at: 1776875657385
+[debug] [2026-04-22T16:02:41.571Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/tt-v1-c2a11/versions/d03f3cb867a05911/files/16b51bcf296963614c9351af56474d631595789a5b9e711b0ba519bc835546e8 [none]
+[debug] [2026-04-22T16:02:41.571Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/tt-v1-c2a11/versions/d03f3cb867a05911/files/16b51bcf296963614c9351af56474d631595789a5b9e711b0ba519bc835546e8 [stream]
+[debug] [2026-04-22T16:02:41.572Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/tt-v1-c2a11/versions/d03f3cb867a05911/files/501138c0b71dc97c6814aebdee13fa734abcfd97eee729d8a67f5a1670524b96 [none]
+[debug] [2026-04-22T16:02:41.573Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/tt-v1-c2a11/versions/d03f3cb867a05911/files/501138c0b71dc97c6814aebdee13fa734abcfd97eee729d8a67f5a1670524b96 [stream]
+[debug] [2026-04-22T16:02:41.573Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/tt-v1-c2a11/versions/d03f3cb867a05911/files/a931bd03166a2962d5bc08e37f1b0a5ba90471beae599b002abf50c3fac53a13 [none]
+[debug] [2026-04-22T16:02:41.573Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/tt-v1-c2a11/versions/d03f3cb867a05911/files/a931bd03166a2962d5bc08e37f1b0a5ba90471beae599b002abf50c3fac53a13 [stream]
+[debug] [2026-04-22T16:02:41.574Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/tt-v1-c2a11/versions/d03f3cb867a05911/files/353a81db5732dc29762e1863813cadfa39876c649ef417f73265c7c1f9debbf1 [none]
+[debug] [2026-04-22T16:02:41.574Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/tt-v1-c2a11/versions/d03f3cb867a05911/files/353a81db5732dc29762e1863813cadfa39876c649ef417f73265c7c1f9debbf1 [stream]
+[debug] [2026-04-22T16:02:41.575Z] [hosting][populate queue][FINAL] {"max":1034,"min":1034,"avg":1034,"active":0,"complete":1,"success":1,"errored":0,"retried":0,"total":1,"elapsed":1038}
+[debug] [2026-04-22T16:02:41.575Z] [hosting] uploads queued: 4
+[info] i  hosting: uploading new files [0/4] (0%) 
+[info] i  hosting: uploading new files [0/4] (0%) 
+[info] i  hosting: uploading new files [0/4] (0%) 
+[info] i  hosting: uploading new files [0/4] (0%) 
+[info] i  hosting: uploading new files [0/4] (0%) 
+[info] i  hosting: uploading new files [0/4] (0%) 
+[debug] [2026-04-22T16:02:52.193Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/tt-v1-c2a11/versions/d03f3cb867a05911/files/16b51bcf296963614c9351af56474d631595789a5b9e711b0ba519bc835546e8 200
+[debug] [2026-04-22T16:02:52.193Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/tt-v1-c2a11/versions/d03f3cb867a05911/files/16b51bcf296963614c9351af56474d631595789a5b9e711b0ba519bc835546e8 [stream]
+[debug] [2026-04-22T16:02:52.678Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/tt-v1-c2a11/versions/d03f3cb867a05911/files/353a81db5732dc29762e1863813cadfa39876c649ef417f73265c7c1f9debbf1 200
+[debug] [2026-04-22T16:02:52.678Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/tt-v1-c2a11/versions/d03f3cb867a05911/files/353a81db5732dc29762e1863813cadfa39876c649ef417f73265c7c1f9debbf1 [stream]
+[info] i  hosting: uploading new files [2/4] (50%) 
+[debug] [2026-04-22T16:02:55.776Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/tt-v1-c2a11/versions/d03f3cb867a05911/files/501138c0b71dc97c6814aebdee13fa734abcfd97eee729d8a67f5a1670524b96 200
+[debug] [2026-04-22T16:02:55.777Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/tt-v1-c2a11/versions/d03f3cb867a05911/files/501138c0b71dc97c6814aebdee13fa734abcfd97eee729d8a67f5a1670524b96 [stream]
+[info] i  hosting: uploading new files [3/4] (75%) 
+[info] i  hosting: uploading new files [3/4] (75%) 
+[info] i  hosting: uploading new files [3/4] (75%) 
+[info] i  hosting: uploading new files [3/4] (75%) 
+[info] i  hosting: uploading new files [3/4] (75%) 
+[debug] [2026-04-22T16:03:05.156Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/tt-v1-c2a11/versions/d03f3cb867a05911/files/a931bd03166a2962d5bc08e37f1b0a5ba90471beae599b002abf50c3fac53a13 200
+[debug] [2026-04-22T16:03:05.157Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/tt-v1-c2a11/versions/d03f3cb867a05911/files/a931bd03166a2962d5bc08e37f1b0a5ba90471beae599b002abf50c3fac53a13 [stream]
+[debug] [2026-04-22T16:03:05.157Z] [hosting][upload queue][FINAL] {"max":23587,"min":10624,"avg":14881.25,"active":0,"complete":4,"success":4,"errored":0,"retried":0,"total":4,"elapsed":23588}
+[info] i  hosting: upload complete 
+[info] ✔  hosting[tt-v1-c2a11]: file upload complete 
+[debug] [2026-04-22T16:03:05.160Z] [hosting] deploy completed after 25038ms
+[debug] [2026-04-22T16:03:05.160Z] [
+  {
+    "config": {
+      "public": "build",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "rewrites": [
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
+      ],
+      "site": "tt-v1-c2a11"
+    },
+    "version": "projects/522162205753/sites/tt-v1-c2a11/versions/d03f3cb867a05911"
+  }
+]
+[info] i  hosting[tt-v1-c2a11]: finalizing version... 
+[debug] [2026-04-22T16:03:05.162Z] Checked if tokens are valid: true, expires at: 1776875657385
+[debug] [2026-04-22T16:03:05.163Z] Checked if tokens are valid: true, expires at: 1776875657385
+[debug] [2026-04-22T16:03:05.164Z] >>> [apiv2][query] PATCH https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/tt-v1-c2a11/versions/d03f3cb867a05911 updateMask=status%2Cconfig
+[debug] [2026-04-22T16:03:05.164Z] >>> [apiv2][body] PATCH https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/tt-v1-c2a11/versions/d03f3cb867a05911 {"status":"FINALIZED","config":{"rewrites":[{"glob":"**","path":"/index.html"}]}}
+[debug] [2026-04-22T16:03:07.049Z] <<< [apiv2][status] PATCH https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/tt-v1-c2a11/versions/d03f3cb867a05911 200
+[debug] [2026-04-22T16:03:07.050Z] <<< [apiv2][body] PATCH https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/tt-v1-c2a11/versions/d03f3cb867a05911 {"name":"projects/522162205753/sites/tt-v1-c2a11/versions/d03f3cb867a05911","status":"FINALIZED","config":{"rewrites":[{"glob":"**","path":"/index.html"}]},"labels":{"deployment-tool":"cli-firebase"},"createTime":"2026-04-22T16:02:39.451445Z","createUser":{"email":"davidthanu1006@gmail.com"},"finalizeTime":"2026-04-22T16:03:06.834846Z","finalizeUser":{"email":"davidthanu1006@gmail.com"}}
+[debug] [2026-04-22T16:03:07.050Z] [hosting] finalized version for tt-v1-c2a11:[object Object]
+[info] ✔  hosting[tt-v1-c2a11]: version finalized 
+[info] i  hosting[tt-v1-c2a11]: releasing new version... 
+[debug] [2026-04-22T16:03:07.050Z] Checked if tokens are valid: true, expires at: 1776875657385
+[debug] [2026-04-22T16:03:07.051Z] Checked if tokens are valid: true, expires at: 1776875657385
+[debug] [2026-04-22T16:03:07.051Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/tt-v1-c2a11/channels/live/releases versionName=projects%2F522162205753%2Fsites%2Ftt-v1-c2a11%2Fversions%2Fd03f3cb867a05911
+[debug] [2026-04-22T16:03:07.051Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/tt-v1-c2a11/channels/live/releases {}
+[debug] [2026-04-22T16:03:07.941Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/tt-v1-c2a11/channels/live/releases 200
+[debug] [2026-04-22T16:03:07.941Z] <<< [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/tt-v1-c2a11/channels/live/releases {"name":"projects/522162205753/sites/tt-v1-c2a11/channels/live/releases/1776873787034000","version":{"name":"projects/522162205753/sites/tt-v1-c2a11/versions/d03f3cb867a05911","status":"FINALIZED","config":{"rewrites":[{"glob":"**","path":"/index.html"}]},"labels":{"deployment-tool":"cli-firebase"},"createTime":"2026-04-22T16:02:39.451445Z","createUser":{"email":"davidthanu1006@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocLBkgqCBaPHccgsaHmcAmpmuhnLm7MF1A_QSC9NxfnPNxQ9oR8"},"finalizeTime":"2026-04-22T16:03:06.834846Z","finalizeUser":{"email":"davidthanu1006@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocLBkgqCBaPHccgsaHmcAmpmuhnLm7MF1A_QSC9NxfnPNxQ9oR8"}},"type":"DEPLOY","releaseTime":"2026-04-22T16:03:07.034Z","releaseUser":{"email":"davidthanu1006@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocLBkgqCBaPHccgsaHmcAmpmuhnLm7MF1A_QSC9NxfnPNxQ9oR8"}}
+[debug] [2026-04-22T16:03:07.941Z] [hosting] release: {"name":"projects/522162205753/sites/tt-v1-c2a11/channels/live/releases/1776873787034000","version":{"name":"projects/522162205753/sites/tt-v1-c2a11/versions/d03f3cb867a05911","status":"FINALIZED","config":{"rewrites":[{"glob":"**","path":"/index.html"}]},"labels":{"deployment-tool":"cli-firebase"},"createTime":"2026-04-22T16:02:39.451445Z","createUser":{"email":"davidthanu1006@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocLBkgqCBaPHccgsaHmcAmpmuhnLm7MF1A_QSC9NxfnPNxQ9oR8"},"finalizeTime":"2026-04-22T16:03:06.834846Z","finalizeUser":{"email":"davidthanu1006@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocLBkgqCBaPHccgsaHmcAmpmuhnLm7MF1A_QSC9NxfnPNxQ9oR8"}},"type":"DEPLOY","releaseTime":"2026-04-22T16:03:07.034Z","releaseUser":{"email":"davidthanu1006@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocLBkgqCBaPHccgsaHmcAmpmuhnLm7MF1A_QSC9NxfnPNxQ9oR8"}}
+[info] ✔  hosting[tt-v1-c2a11]: release complete 
+[info] 
+[info] ✔  Deploy complete! 
+[info] 
+[info] Project Console: https://console.firebase.google.com/project/tt-v1-c2a11/overview
+[info] Hosting URL: https://tt-v1-c2a11.web.app

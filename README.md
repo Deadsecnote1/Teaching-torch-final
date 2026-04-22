@@ -57,12 +57,12 @@ This project uses **Google Drive** as a simple, free file storage solution. No b
 ### Admin Access
 
 - URL: `/admin/login`
-- Default password: `admin123`
+- Access: Use your Firebase Authentication credentials.
 
 ## Development Notes
 
-- Resources are stored as Google Drive share links in localStorage
-- PDFs are embedded using Google Drive's preview viewer
+- Data is stored in **Firebase Firestore**
+- Resources are linked via Google Drive or YouTube URLs
 - All file operations work client-side (no backend needed)
 - Add your logo to `public/assets/images/T.png`
 

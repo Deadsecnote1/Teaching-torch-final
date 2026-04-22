@@ -23,17 +23,17 @@ export const resourceTranslations = {
         english: "Videos",
         sinhala: "වීඩියෝ",
         tamil: "காணொளிகள்"
-    }
+    },
 };
 
 /**
  * Helper to extract the correct string based on the active UI language.
- * Fallbacks to english if mapping is missing.
+ * Fallbacks to english if mapping is missing, or null if completely unknown.
  */
 export const getResourceTypeName = (type, currentLanguage) => {
     if (!resourceTranslations[type]) {
-        // Fallback capitalizing the first letter if it's completely unknown
-        return type.charAt(0).toUpperCase() + type.slice(1);
+        // Return null instead of a formatted ID, so components can fall back to db names
+        return null;
     }
     return resourceTranslations[type][currentLanguage] || resourceTranslations[type].english;
 };

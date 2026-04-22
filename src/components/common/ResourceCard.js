@@ -2,6 +2,7 @@ import React from 'react';
 import { getDownloadUrl, getEmbedUrl, isGoogleDriveLink } from '../../utils/googleDrive';
 import { useAuth } from '../../context/AuthContext';
 import { useData } from '../../context/DataContext';
+import { useLanguage } from '../../context/LanguageContext';
 import toast from 'react-hot-toast';
 
 /**
@@ -21,6 +22,9 @@ const ResourceCard = ({
 }) => {
   const { isManageMode } = useAuth();
   const { deleteResource } = useData();
+
+
+  const t = { languageLabel: 'Language', deleteConfirm: 'Are you sure you want to delete' };
 
   // Support both Google Drive links and regular URLs
   const driveLink = resource.driveLink || resource.downloadUrl || resource.url || resource.path;
@@ -51,22 +55,32 @@ const ResourceCard = ({
     <>
       <div className={`resource-card-item ${className}`}>
         <div className="d-flex align-items-center justify-content-between p-2 border rounded">
-          <div className="resource-info d-flex align-items-center flex-grow-1" style={{ minWidth: 0 }}>
-            <i className="bi bi-file-pdf text-danger me-2" style={{ fontSize: '1.25rem' }}></i>
-            <div className="flex-grow-1" style={{ minWidth: 0 }}>
-              <h6 className="mb-0 small text-truncate" style={{ maxWidth: '200px' }} title={title || resource.title || resource.filename || resource.name}>
+          <div className="resource-info d-flex align-items-center flex-grow-1" style={{ minWidth: 0, overflow: 'hidden' }}>
+            {(() => {
+              const type = resource.resourceType || '';
+              let iconClass = 'bi-file-pdf text-danger';
+              if (type === 'videos' || type === 'video') iconClass = 'bi-play-circle text-primary';
+              else if (type === 'papers' || type === 'paper' || type.includes('paper')) iconClass = 'bi-file-earmark-text text-info';
+              else if (type === 'notes' || type === 'note') iconClass = 'bi-journal-text text-warning';
+              else if (type === 'textbooks' || type === 'textbook') iconClass = 'bi-book text-success';
+              else if (type.includes('question')) iconClass = 'bi-patch-question text-warning';
+              
+              return <i className={`bi ${iconClass} me-3`} style={{ fontSize: '1.5rem', flexShrink: 0 }}></i>;
+            })()}
+            <div className="flex-grow-1" style={{ minWidth: 0, overflow: 'hidden' }}>
+              <h6 className="mb-0 small text-truncate w-100" title={title || resource.title || resource.filename || resource.name}>
                 {title || resource.title || resource.filename || resource.name}
               </h6>
               {description && (
-                <small className="text-muted d-block text-truncate" style={{ maxWidth: '200px' }}>{description}</small>
+                <small className="text-muted d-block text-truncate w-100" style={{ fontSize: '0.75rem' }}>{description}</small>
               )}
               {showLanguageLabel && language && (
-                <small className="text-muted d-block">Language: {language}</small>
+                <small className="text-muted d-block" style={{ fontSize: '0.7rem' }}>{t.languageLabel}: {language}</small>
               )}
             </div>
           </div>
 
-          <div className="resource-actions d-flex gap-1 ms-2 align-items-center">
+          <div className="resource-actions d-flex gap-1 ms-3 align-items-center" style={{ flexShrink: 0 }}>
             {/* Standard User Actions */}
             {showViewButton && (embedUrl || downloadUrl) && (
               <button

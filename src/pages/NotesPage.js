@@ -1,6 +1,7 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useParams, Link, useSearchParams } from 'react-router-dom';
 import { useData } from '../context/DataContext';
+import { useGradePage } from '../hooks/useGradePage';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import ResourceCard from '../components/common/ResourceCard';
@@ -12,11 +13,12 @@ import AdSenseComponent from '../components/common/AdSenseComponent';
 import toast from 'react-hot-toast';
 
 const NotesPage = () => {
-  const { gradeId } = useParams();
+  const { gradeId, streamId, subjectId: paramSubjectId } = useParams();
   const [searchParams] = useSearchParams();
-  const selectedSubjectId = searchParams.get('subject');
-  const { generateGradePageData, fetchResourcesForGrade, updateSubject, deleteSubject } = useData();
-  const { selectedLanguage, shouldShowResource } = useLanguage();
+  const selectedSubjectId = paramSubjectId || searchParams.get('subject');
+  const { grade: rawGrade, subjects, isLoading, isGradeMissing } = useGradePage(streamId || gradeId);
+  const { updateSubject, deleteSubject, grades } = useData();
+  const { selectedLanguage, setLanguage, shouldShowResource, languages } = useLanguage();
   const { isManageMode } = useAuth();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [addModalInitialData, setAddModalInitialData] = useState(null);
@@ -28,19 +30,21 @@ const NotesPage = () => {
     key: null
   });
 
-  // Lazy-load resources for this grade
-  useEffect(() => {
-    if (gradeId) {
-      fetchResourcesForGrade(gradeId);
-    }
-  }, [gradeId, fetchResourcesForGrade]);
+  const grade = rawGrade;
+  const parentGrade = streamId ? grades[gradeId] : null;
+  const subject = selectedSubjectId ? subjects[selectedSubjectId] : null;
 
-  // Generate page data
-  const pageData = useMemo(() => {
-    return generateGradePageData(gradeId);
-  }, [gradeId, generateGradePageData]);
+  if (isLoading) {
+    return (
+      <div className="container py-5 text-center">
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    );
+  }
 
-  if (!pageData.grade) {
+  if (isGradeMissing) {
     return (
       <div className="container py-5">
         <div className="text-center">
@@ -51,8 +55,6 @@ const NotesPage = () => {
       </div>
     );
   }
-
-  const { grade, subjects } = pageData;
 
   // Helper function to format chapter names
   const formatChapterName = (chapterKey) => {
@@ -74,7 +76,7 @@ const NotesPage = () => {
   };
 
   // Generate notes grid component
-  const NotesGrid = ({ notes, onEdit }) => {
+  const NotesGrid = ({ notes, onEdit, subjectData }) => {
     if (!notes || Object.keys(notes).length === 0) {
       return (
         <div className="text-center py-5">
@@ -87,7 +89,7 @@ const NotesPage = () => {
 
     // Filter notes by language
     const filteredNotes = Object.entries(notes).filter(([noteKey, note]) =>
-      shouldShowResource(note.language)
+      shouldShowResource(note)
     );
 
     if (filteredNotes.length === 0) {
@@ -123,6 +125,9 @@ const NotesPage = () => {
                     </div>
 
                     <div className="note-content flex-grow-1">
+                      <h4 className="subject-title mb-0">
+                        {subjectTranslations.getTranslatedName(null, subjectData, selectedLanguage)}
+                      </h4>
                       <h6 className="note-title mb-2">
                         {formatChapterName(note.chapter || noteKey)}
                       </h6>
@@ -166,13 +171,36 @@ const NotesPage = () => {
 
   return (
     <div className="notes-page">
-      {/* Page Header */}
+      {/* Header */}
       <header className="grade-header">
         <div className="container text-center">
-          <h1 className="display-4 fw-bold">{grade.display} {getResourceTypeName('notes', selectedLanguage)}</h1>
-          <p className="lead">Quick reference notes for all chapters</p>
+          <h1 className="display-4 fw-bold mb-0">{grade.display} Study Notes</h1>
+          <p className="lead mt-2">Chapter-wise summaries and study materials</p>
         </div>
       </header>
+
+      {/* Language Switcher Section */}
+      <section className="py-4 switcher-container border-bottom">
+        <div className="container">
+          <div className="d-flex flex-column flex-md-row align-items-center justify-content-center gap-3">
+            <span className="fw-bold text-uppercase tracking-wider small opacity-75">Select Content Medium:</span>
+            <div className="btn-group shadow-sm" role="group">
+              {['sinhala', 'tamil', 'english'].map(lang => (
+                <button
+                  key={lang}
+                  type="button"
+                  className={`btn px-4 py-2 content-medium-btn ${selectedLanguage === lang ? 'btn-primary active' : 'btn-outline-custom'}`}
+                  onClick={() => setLanguage(lang)}
+                  style={{ minWidth: '120px' }}
+                >
+                  <i className={`bi bi-circle-fill me-2`} style={{ color: languages[lang].color, fontSize: '0.7rem' }}></i>
+                  {languages[lang].display}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Header Ad Unit */}
       <AdSenseComponent slot="NOTES_HEADER_AD_SLOT" />
@@ -185,9 +213,19 @@ const NotesPage = () => {
               <li className="breadcrumb-item">
                 <Link to="/">Home</Link>
               </li>
+              {parentGrade && (
+                <li className="breadcrumb-item">
+                  <Link to={`/grade/${gradeId}`}>{parentGrade.display}</Link>
+                </li>
+              )}
               <li className="breadcrumb-item">
-                <Link to={`/grade/${gradeId}`}>{grade.display}</Link>
+                <Link to={streamId ? `/grade/${gradeId}/${streamId}` : `/grade/${gradeId}`}>{grade.display}</Link>
               </li>
+              {subject && (
+                <li className="breadcrumb-item">
+                  <Link to={`/grade/${gradeId}/${streamId}/${selectedSubjectId}`}>{subject.display}</Link>
+                </li>
+              )}
               <li className="breadcrumb-item active" aria-current="page">
                 {getResourceTypeName('notes', selectedLanguage)}
               </li>
@@ -218,6 +256,7 @@ const NotesPage = () => {
       <section className="py-5">
         <div className="container">
           {Object.keys(subjects).filter(subjectId => {
+            if (subjectId === 'standalone') return false;
             const subject = subjects[subjectId];
             if (subject.languages && subject.languages.length > 0) {
               return subject.languages.includes(selectedLanguage);
@@ -234,7 +273,7 @@ const NotesPage = () => {
             }
 
             // Check if any notes match the filter
-            const hasFilteredNotes = Object.values(mergedNotes).some(note => shouldShowResource(note.language));
+            const hasFilteredNotes = Object.values(mergedNotes).some(note => shouldShowResource(note));
 
             // Skip subject if no notes match filter
             if (!hasFilteredNotes) {
@@ -288,7 +327,7 @@ const NotesPage = () => {
                   )}
                 </div>
 
-                <NotesGrid notes={mergedNotes} onEdit={(r) => setEditingResource(r)} />
+                <NotesGrid notes={mergedNotes} onEdit={(r) => setEditingResource(r)} subjectData={subject} />
 
                 {isManageMode && (
                   <div className="mt-4 pt-3 border-top">
@@ -314,14 +353,7 @@ const NotesPage = () => {
             );
           })}
 
-          <ResourceEditorModal 
-            isOpen={isAddModalOpen}
-            onClose={() => {
-              setIsAddModalOpen(false);
-              setAddModalInitialData(null);
-            }}
-            resource={addModalInitialData}
-          />
+
 
           {/* No Subjects Message */}
           {Object.keys(subjects).length === 0 && (
@@ -338,7 +370,7 @@ const NotesPage = () => {
           {/* No Results for Filter */}
           {Object.keys(subjects).length > 0 &&
             !Object.values(subjects).some(subject =>
-              Object.values(subject.resources.notes || {}).some(note => shouldShowResource(note.language))
+              Object.values(subject.resources.notes || {}).some(note => shouldShowResource(note))
             ) && (
               <div className="text-center py-5">
                 <i className="bi bi-search text-muted" style={{ fontSize: '4rem' }}></i>
@@ -368,9 +400,13 @@ const NotesPage = () => {
       </section>
       {/* Resource Editor Modal (Centralized) */}
       <ResourceEditorModal
-        resource={editingResource}
-        isOpen={!!editingResource}
-        onClose={() => setEditingResource(null)}
+        resource={editingResource || addModalInitialData}
+        isOpen={!!editingResource || isAddModalOpen}
+        onClose={() => {
+          setEditingResource(null);
+          setIsAddModalOpen(false);
+          setAddModalInitialData(null);
+        }}
       />
 
       {/* Edit Subject Modal */}

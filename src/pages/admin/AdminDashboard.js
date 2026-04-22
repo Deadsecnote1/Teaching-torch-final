@@ -8,9 +8,10 @@ import { isGoogleDriveLink, extractFileId } from '../../utils/googleDrive';
 import { isYouTubeLink, extractYouTubeId } from '../../utils/youtube';
 import toast from 'react-hot-toast';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
-import ResourceEditorModal from '../../components/admin/ResourceEditorModal';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 
 const AdminDashboard = () => {
+  useDocumentTitle('Admin Dashboard');
   const navigate = useNavigate();
   const { currentUser, logout, isManageMode, toggleManageMode } = useAuth();
   const { selectedLanguage } = useLanguage();

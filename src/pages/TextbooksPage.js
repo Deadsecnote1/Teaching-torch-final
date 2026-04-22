@@ -1,6 +1,7 @@
-import React, { useMemo, useState, useEffect } from 'react';
-import { useParams, Link, useSearchParams } from 'react-router-dom';
+import React, { useMemo, useState } from 'react';
+import { useParams, Link } from 'react-router-dom';
 import { useData } from '../context/DataContext';
+import { useGradePage } from '../hooks/useGradePage';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import ResourceCard from '../components/common/ResourceCard';
@@ -15,8 +16,10 @@ import toast from 'react-hot-toast';
 // Removed API_BASE_URL - using Google Drive links instead
 
 const TextbooksPage = () => {
-  const { gradeId } = useParams();
-  const { generateGradePageData, fetchResourcesForGrade, loading: isLoading, updateSubject, deleteSubject, grades } = useData();
+  const { gradeId, streamId, subjectId: paramSubjectId } = useParams();
+  const selectedSubjectId = paramSubjectId;
+  const { grade: rawGrade, subjects, isLoading, isGradeMissing } = useGradePage(streamId || gradeId);
+  const { updateSubject, deleteSubject, grades } = useData();
   const { isManageMode } = useAuth();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [addModalInitialData, setAddModalInitialData] = useState(null);
@@ -27,28 +30,19 @@ const TextbooksPage = () => {
     type: 'subject',
     key: null
   });
-  const [searchParams] = useSearchParams();
 
-  // Lazy-load resources for this grade
-  useEffect(() => {
-    if (gradeId) {
-      fetchResourcesForGrade(gradeId);
-    }
-  }, [gradeId, fetchResourcesForGrade]);
+  const grade = rawGrade;
+  const parentGrade = streamId ? grades[gradeId] : null;
+  const subject = selectedSubjectId ? subjects[selectedSubjectId] : null;
+  const { selectedLanguage, setLanguage, shouldShowResource, isShowingAll, languages } = useLanguage();
 
-  // Generate page data
-  const pageData = useMemo(() => {
-    return generateGradePageData(gradeId);
-  }, [gradeId, generateGradePageData]);
-  const { selectedLanguage, shouldShowResource, isShowingAll } = useLanguage();
-
-  // Flatten resources from pageData for backward compatibility or direct usage
+  // Flatten resources from subjects for backward compatibility or direct usage
   const uploadedFiles = useMemo(() => {
-    if (!pageData || !pageData.subjects) return [];
+    if (!subjects) return [];
 
     // Aggregate all textbooks from all subjects in this grade
     const allTextbooks = [];
-    Object.values(pageData.subjects).forEach(subject => {
+    Object.values(subjects).forEach(subject => {
       if (subject.resources && subject.resources.textbooks) {
         Object.values(subject.resources.textbooks).forEach(tbArray => {
           if (Array.isArray(tbArray)) {
@@ -60,14 +54,14 @@ const TextbooksPage = () => {
       }
     });
     return allTextbooks;
-  }, [pageData]);
+  }, [subjects]);
 
   // Group uploaded textbooks by subject and language
   const getTextbooksBySubject = () => {
     const groupedTextbooks = {};
 
-    if (pageData && pageData.subjects) {
-      Object.entries(pageData.subjects).forEach(([subjectId, subjectData]) => {
+    if (subjects) {
+      Object.entries(subjects).forEach(([subjectId, subjectData]) => {
         if (subjectData.resources && subjectData.resources.textbooks) {
           const textbooksObj = subjectData.resources.textbooks;
           // textbooksObj is { english: {...}, sinhala: {...} }
@@ -85,7 +79,19 @@ const TextbooksPage = () => {
     return groupedTextbooks;
   };
 
-  if (!pageData.grade) {
+  const uploadedTextbooks = getTextbooksBySubject();
+
+  if (isLoading) {
+    return (
+      <div className="container py-5 text-center">
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (isGradeMissing) {
     return (
       <div className="container py-5">
         <div className="text-center">
@@ -96,9 +102,6 @@ const TextbooksPage = () => {
       </div>
     );
   }
-
-  const { grade, subjects } = pageData;
-  const uploadedTextbooks = getTextbooksBySubject();
 
   // Generate uploaded textbook component
   const UploadedTextbookDownload = ({ files, language, onEdit }) => {
@@ -133,6 +136,8 @@ const TextbooksPage = () => {
 
   const allSubjects = Object.fromEntries(
     Object.entries(subjects).filter(([subjectId, subject]) => {
+      if (subjectId === 'standalone') return false;
+      if (selectedSubjectId && subjectId !== selectedSubjectId) return false;
       if (subject.languages && subject.languages.length > 0) {
         return isShowingAll() || subject.languages.includes(selectedLanguage);
       }
@@ -155,15 +160,36 @@ const TextbooksPage = () => {
 
   return (
     <div className="textbooks-page">
-      {/* Page Header */}
+      {/* Header */}
       <header className="grade-header">
         <div className="container text-center">
-          <h1 className="display-4 fw-bold">{grade.display} {getResourceTypeName('textbooks', selectedLanguage)}</h1>
-          <p className="lead">
-            {gradeId === 'al' ? 'Download A/L textbooks by stream' : 'Download textbooks in Sinhala, Tamil, and English'}
-          </p>
+          <h1 className="display-4 fw-bold mb-0">{grade.display} Textbooks</h1>
+          <p className="lead mt-2">Official Government textbooks in your preferred medium</p>
         </div>
       </header>
+
+      {/* Language Switcher Section */}
+      <section className="py-4 switcher-container border-bottom">
+        <div className="container">
+          <div className="d-flex flex-column flex-md-row align-items-center justify-content-center gap-3">
+            <span className="fw-bold text-uppercase tracking-wider small opacity-75">Select Content Medium:</span>
+            <div className="btn-group shadow-sm" role="group">
+              {['sinhala', 'tamil', 'english'].map(lang => (
+                <button
+                  key={lang}
+                  type="button"
+                  className={`btn px-4 py-2 content-medium-btn ${selectedLanguage === lang ? 'btn-primary active' : 'btn-outline-custom'}`}
+                  onClick={() => setLanguage(lang)}
+                  style={{ minWidth: '120px' }}
+                >
+                  <i className={`bi bi-circle-fill me-2`} style={{ color: languages[lang].color, fontSize: '0.7rem' }}></i>
+                  {languages[lang].display}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Breadcrumb */}
       <section className="py-3 bg-light">
@@ -173,9 +199,19 @@ const TextbooksPage = () => {
               <li className="breadcrumb-item">
                 <Link to="/">Home</Link>
               </li>
+              {parentGrade && (
+                <li className="breadcrumb-item">
+                  <Link to={`/grade/${gradeId}`}>{parentGrade.display}</Link>
+                </li>
+              )}
               <li className="breadcrumb-item">
-                <Link to={`/grade/${gradeId}`}>{grade.display}</Link>
+                <Link to={streamId ? `/grade/${gradeId}/${streamId}` : `/grade/${gradeId}`}>{grade.display}</Link>
               </li>
+              {subject && (
+                <li className="breadcrumb-item">
+                  <Link to={`/grade/${gradeId}/${streamId}/${selectedSubjectId}`}>{subject.display}</Link>
+                </li>
+              )}
               <li className="breadcrumb-item active" aria-current="page">
                 {getResourceTypeName('textbooks', selectedLanguage)}
               </li>
@@ -218,9 +254,9 @@ const TextbooksPage = () => {
                           <i className={subject.icon} style={{ fontSize: '2rem', color: 'var(--primary)' }}></i>
                         </div>
                         <div>
-                          <h3 className="mb-0">
+                          <h4 className="subject-title mb-0">
                             {subjectTranslations.getTranslatedName(subjectId, subject, selectedLanguage)}
-                          </h3>
+                          </h4>
                         </div>
                       </div>
 
@@ -354,7 +390,7 @@ const TextbooksPage = () => {
                             setAddModalInitialData({
                               grade: gradeId,
                               subject: subjectId,
-                              resourceType: 'textbook',
+                              resourceType: 'textbooks',
                               languages: ['sinhala', 'tamil', 'english']
                             });
                             setIsAddModalOpen(true);
@@ -384,14 +420,7 @@ const TextbooksPage = () => {
 
       </section>
 
-      <ResourceEditorModal 
-        isOpen={isAddModalOpen}
-        onClose={() => {
-          setIsAddModalOpen(false);
-          setAddModalInitialData(null);
-        }}
-        resource={addModalInitialData}
-      />
+
 
       {/* Back to Grade Button */}
       <section className="py-3 bg-light">
@@ -445,9 +474,13 @@ const TextbooksPage = () => {
       `}</style>
       {/* Resource Editor Modal (Centralized) */}
       <ResourceEditorModal
-        resource={editingResource}
-        isOpen={!!editingResource}
-        onClose={() => setEditingResource(null)}
+        resource={editingResource || addModalInitialData}
+        isOpen={!!editingResource || isAddModalOpen}
+        onClose={() => {
+          setEditingResource(null);
+          setIsAddModalOpen(false);
+          setAddModalInitialData(null);
+        }}
       />
 
       {/* Edit Subject Modal */}

@@ -1,34 +1,102 @@
 import React, { useState, useEffect } from 'react';
+import { useData } from '../../context/DataContext';
 
 /**
  * A specialized modal for editing Metadata (Grades and Subjects)
  * Replaces the basic window.prompt with a premium UI.
  */
 const MetadataEditorModal = ({ isOpen, onClose, onSave, title, initialData, type = 'grade' }) => {
+  const { resourceTypes, grades } = useData();
   const [formData, setFormData] = useState({
     display: '',
-    order: ''
+    shortName: '',
+    order: '',
+    icon: '',
+    color: '',
+    description: '',
+    subCategories: '',
+    isStandalone: false,
+    visibleResourceTypes: [],
+    parentGradeId: '',
+    resourceTypeOrder: ''
   });
 
   useEffect(() => {
     if (isOpen && initialData) {
-      setFormData({
-        display: initialData.display || initialData.name || '',
-        order: initialData.order !== undefined ? initialData.order : ''
-      });
+      if (type === 'resourceType') {
+        setFormData({
+          display: initialData.name?.english || initialData.id || '',
+          order: initialData.order !== undefined ? initialData.order : '',
+          icon: initialData.icon || '',
+          color: initialData.color || '',
+          description: initialData.description?.english || '',
+          subCategories: initialData.subCategories 
+            ? initialData.subCategories.map(sc => typeof sc === 'string' ? sc : (sc.name?.english || sc.id)).join(', ') 
+            : '',
+          isStandalone: initialData.isStandalone || false
+        });
+      } else if (type === 'subject') {
+        setFormData({
+          display: initialData.display || initialData.name || '',
+          order: initialData.order !== undefined ? initialData.order : '',
+          icon: initialData.icon || '',
+          resourceTypeOrder: initialData.resourceTypeOrder ? initialData.resourceTypeOrder.join(', ') : ''
+        });
+      } else {
+        setFormData({
+          display: initialData.display || initialData.name || '',
+          shortName: initialData.shortName || '',
+          order: initialData.order !== undefined ? initialData.order : '',
+          visibleResourceTypes: initialData.visibleResourceTypes || [],
+          parentGradeId: initialData.parentGradeId || ''
+        });
+      }
     }
-  }, [isOpen, initialData]);
+  }, [isOpen, initialData, type]);
 
   if (!isOpen) return null;
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave({
-      ...initialData,
-      display: formData.display,
-      name: formData.display, // Keep both for safety
-      order: formData.order
-    });
+    if (type === 'resourceType') {
+      const subCats = formData.subCategories
+        ? formData.subCategories.split(',').map(s => s.trim()).filter(s => s)
+        : [];
+        
+      onSave({
+        ...initialData,
+        name: { ...initialData.name, english: formData.display },
+        icon: formData.icon,
+        color: formData.color,
+        description: { ...initialData.description, english: formData.description },
+        subCategories: subCats.length > 0 ? subCats : null,
+        isStandalone: formData.isStandalone,
+        order: formData.order
+      });
+    } else if (type === 'subject') {
+      const orderArray = formData.resourceTypeOrder
+        ? formData.resourceTypeOrder.split(',').map(s => s.trim()).filter(s => s)
+        : null;
+      
+      onSave({
+        ...initialData,
+        display: formData.display,
+        name: formData.display,
+        order: formData.order,
+        icon: formData.icon,
+        resourceTypeOrder: orderArray
+      });
+    } else {
+      onSave({
+        ...initialData,
+        display: formData.display,
+        name: formData.display, // Keep both for safety
+        shortName: formData.shortName,
+        order: formData.order,
+        visibleResourceTypes: formData.visibleResourceTypes,
+        parentGradeId: formData.parentGradeId || null
+      });
+    }
     onClose();
   };
 
@@ -55,18 +123,143 @@ const MetadataEditorModal = ({ isOpen, onClose, onSave, title, initialData, type
               <div className="section-container p-4 rounded-4 dark-panel border-glow mb-4">
                 <div className="mb-4 custom-form-group">
                   <label className="form-label ms-1">
-                    {type === 'grade' ? 'Grade Name' : 'Subject Name'}
+                    {type === 'grade' ? 'Grade Name' : type === 'resourceType' ? 'Module Name' : 'Subject Name'}
                   </label>
                   <input 
                     type="text" 
                     className="form-control form-control-lg dark-input" 
-                    placeholder={type === 'grade' ? 'e.g. Grade 11' : 'e.g. Mathematics'}
+                    placeholder={type === 'grade' ? 'e.g. Grade 11' : type === 'resourceType' ? 'e.g. Physics Chamber' : 'e.g. Mathematics'}
                     value={formData.display} 
                     onChange={e => setFormData({ ...formData, display: e.target.value })}
                     required 
                     autoFocus
                   />
                 </div>
+
+                {type === 'resourceType' && (
+                  <>
+                    <div className="row g-3 mb-4">
+                      <div className="col-6">
+                        <label className="form-label ms-1">Icon Class</label>
+                        <input type="text" className="form-control dark-input" placeholder="bi-archive" value={formData.icon} onChange={e => setFormData({ ...formData, icon: e.target.value })} />
+                      </div>
+                      <div className="col-6">
+                        <label className="form-label ms-1">Color Class</label>
+                        <input type="text" className="form-control dark-input" placeholder="text-primary" value={formData.color} onChange={e => setFormData({ ...formData, color: e.target.value })} />
+                      </div>
+                    </div>
+                    <div className="mb-4 custom-form-group">
+                      <label className="form-label ms-1">Description</label>
+                      <input type="text" className="form-control dark-input" placeholder="Quick description for cards" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} />
+                    </div>
+                    <div className="mb-4 custom-form-group">
+                      <label className="form-label ms-1">Sub-Categories <span className="text-secondary fw-normal">(Optional)</span></label>
+                      <input type="text" className="form-control dark-input" placeholder="e.g. Audio, Video, Theory" value={formData.subCategories} onChange={e => setFormData({ ...formData, subCategories: e.target.value })} />
+                      <small className="text-muted mt-2 d-block ms-1" style={{ fontSize: '0.75rem', color: '#64748b !important' }}>Comma-separated list</small>
+                    </div>
+                    <div className="mb-4 custom-form-group">
+                      <div className="form-check form-switch pt-1 ms-1">
+                        <input className="form-check-input" type="checkbox" id="modalSwitchStandalone" checked={formData.isStandalone} onChange={e => setFormData({ ...formData, isStandalone: e.target.checked })} />
+                        <label className="form-check-label text-white" htmlFor="modalSwitchStandalone">Is Standalone Module?</label>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {type === 'grade' && (
+                  <div className="mb-4 custom-form-group">
+                    <label className="form-label ms-1">Parent Grade <span className="text-secondary fw-normal">(Optional)</span></label>
+                    <select 
+                      className="form-select dark-input" 
+                      value={formData.parentGradeId || ''} 
+                      onChange={e => setFormData({ ...formData, parentGradeId: e.target.value })}
+                    >
+                      <option value="">None (Top Level)</option>
+                      {Object.values(grades).filter(g => g.id !== initialData?.id && !g.parentGradeId).map(g => (
+                        <option key={g.id} value={g.id}>{g.display}</option>
+                      ))}
+                    </select>
+                    <small className="text-muted mt-2 d-block ms-1" style={{ fontSize: '0.75rem', color: '#64748b !important' }}>
+                      <i className="bi bi-info-circle me-1"></i>
+                      Select a parent to nest this grade (e.g. Science Stream under A/L).
+                    </small>
+                  </div>
+                )}
+
+                {type === 'subject' && (
+                  <div className="mb-4 custom-form-group">
+                    <label className="form-label ms-1">Module Priority / Order</label>
+                    <input 
+                      type="text" 
+                      className="form-control dark-input" 
+                      placeholder="e.g. textbooks, papers, physics_chamber"
+                      value={formData.resourceTypeOrder || ''} 
+                      onChange={e => setFormData({ ...formData, resourceTypeOrder: e.target.value })}
+                    />
+                    <small className="text-muted mt-2 d-block ms-1" style={{ fontSize: '0.75rem', color: '#64748b !important' }}>
+                      <i className="bi bi-info-circle me-1"></i>
+                      Comma-separated IDs to define priority and visibility for this subject.
+                    </small>
+                  </div>
+                )}
+
+                {type === 'grade' && (
+                  <div className="mb-4 custom-form-group">
+                    <label className="form-label ms-1">Short Name / Initials <span className="text-secondary fw-normal">(Optional)</span></label>
+                    <input 
+                      type="text" 
+                      className="form-control dark-input" 
+                      placeholder="e.g. AL or SC"
+                      value={formData.shortName || ''} 
+                      onChange={e => setFormData({ ...formData, shortName: e.target.value })}
+                    />
+                    <small className="text-muted mt-2 d-block ms-1" style={{ fontSize: '0.75rem', color: '#64748b !important' }}>
+                      <i className="bi bi-info-circle me-1"></i>
+                      This appears in the colored box on the Home page. Leaves blank to auto-generate.
+                    </small>
+                  </div>
+                )}
+
+                {type === 'grade' && (
+                  <div className="mb-4 custom-form-group">
+                    <label className="form-label ms-1 d-block mb-3">Visible Resource Types</label>
+                    <div className="row g-2">
+                      {resourceTypes.map(rt => (
+                        <div key={rt.id} className="col-6">
+                          <div className="form-check form-switch p-2 rounded bg-dark border-secondary border opacity-75">
+                            <input 
+                              className="form-check-input ms-0" 
+                              type="checkbox" 
+                              id={`check_rt_${rt.id}`} 
+                              checked={!formData.visibleResourceTypes || formData.visibleResourceTypes.length === 0 || formData.visibleResourceTypes.includes(rt.id)}
+                              onChange={e => {
+                                let newVisible = formData.visibleResourceTypes || [];
+                                // If it was "all" (empty array), populate it first
+                                if (newVisible.length === 0) {
+                                  newVisible = resourceTypes.map(t => t.id);
+                                }
+                                
+                                if (e.target.checked) {
+                                  newVisible = [...newVisible, rt.id];
+                                } else {
+                                  newVisible = newVisible.filter(id => id !== rt.id);
+                                }
+                                setFormData({ ...formData, visibleResourceTypes: newVisible });
+                              }}
+                            />
+                            <label className="form-check-label text-white small ms-2" htmlFor={`check_rt_${rt.id}`}>
+                              {rt.name?.english || rt.id}
+                            </label>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <small className="text-muted mt-2 d-block ms-1" style={{ fontSize: '0.7rem' }}>
+                      <i className="bi bi-info-circle me-1"></i>
+                      Uncheck types you want to hide from this specific grade.
+                    </small>
+                  </div>
+                )}
 
                 <div className="mb-0 custom-form-group">
                   <label className="form-label ms-1">Display Order</label>

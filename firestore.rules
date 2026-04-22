@@ -15,6 +15,9 @@ service cloud.firestore {
     match /settings/{document=**} {
       allow read: if true;
     }
+    match /resource_types/{document=**} {
+      allow read: if true;
+    }
 
     // 2. Only LOGGED IN ADMINS can WRITE (Create, Update, Delete)
     match /{document=**} {
