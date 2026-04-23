@@ -1,13 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
-import { useLanguage } from '../../context/LanguageContext';
 import { useData } from '../../context/DataContext';
 import { useAuth } from '../../context/AuthContext';
 
 const Navbar = () => {
   const { theme, toggleTheme } = useTheme();
-  const { getAvailableLanguages } = useLanguage();
   const { grades, gradesLoading } = useData();
   const { user, logout } = useAuth();
   const location = useLocation();
