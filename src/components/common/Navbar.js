@@ -7,11 +7,10 @@ import { useAuth } from '../../context/AuthContext';
 
 const Navbar = () => {
   const { theme, toggleTheme } = useTheme();
-  const { selectedLanguage, setLanguage, getAvailableLanguages, getCurrentLanguage } = useLanguage();
+  const { getAvailableLanguages } = useLanguage();
   const { grades, gradesLoading } = useData();
   const { user, logout } = useAuth();
   const location = useLocation();
-  const languages = getAvailableLanguages();
 
   const [showGradesDropdown, setShowGradesDropdown] = useState(false);
 
