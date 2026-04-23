@@ -3,11 +3,13 @@ import { Link, useLocation } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useData } from '../../context/DataContext';
+import { useAuth } from '../../context/AuthContext';
 
 const Navbar = () => {
   const { theme, toggleTheme } = useTheme();
   const { selectedLanguage, setLanguage, getAvailableLanguages, getCurrentLanguage } = useLanguage();
   const { grades, gradesLoading } = useData();
+  const { user, logout } = useAuth();
   const location = useLocation();
   const languages = getAvailableLanguages();
 
@@ -130,6 +132,26 @@ const Navbar = () => {
 
           {/* Right Side Controls */}
           <ul className="navbar-nav">
+            {/* Admin Link (Only visible when logged in) */}
+            {user && (
+              <li className="nav-item">
+                <div className="dropdown">
+                  <button 
+                    className="nav-link btn btn-link text-white border-0 dropdown-toggle" 
+                    type="button" 
+                    data-bs-toggle="dropdown"
+                  >
+                    <i className="bi bi-person-circle me-1"></i> Admin
+                  </button>
+                  <ul className="dropdown-menu dropdown-menu-end">
+                    <li><Link className="dropdown-item" to="/admin">Dashboard</Link></li>
+                    <li><hr className="dropdown-divider" /></li>
+                    <li><button className="dropdown-item text-danger" onClick={logout}>Logout</button></li>
+                  </ul>
+                </div>
+              </li>
+            )}
+
             {/* Theme Toggle */}
             <li className="nav-item">
               <button

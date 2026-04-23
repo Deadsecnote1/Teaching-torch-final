@@ -9,6 +9,7 @@ import { isYouTubeLink, extractYouTubeId } from '../../utils/youtube';
 import toast from 'react-hot-toast';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
+import ALAdminTab from '../../components/admin/ALAdminTab';
 
 const AdminDashboard = () => {
   useDocumentTitle('Admin Dashboard');
@@ -376,16 +377,6 @@ const AdminDashboard = () => {
     }
   };
 
-  const [resourceToEdit, setResourceToEdit] = useState(null);
-
-  const handleEditResourceClick = (resource) => {
-    setResourceToEdit(resource);
-  };
-
-  const handleCloseModal = () => {
-    setResourceToEdit(null);
-  };
-
   const handleCancelEditResource = () => {
     setEditingResource(null);
   };
@@ -607,12 +598,9 @@ const AdminDashboard = () => {
       {/* Navigation Tabs */}
       <section className="py-3">
         <div className="container">
-          <ul className="nav nav-tabs">
+          <ul className="nav nav-tabs card-header-tabs flex-column flex-sm-row" role="tablist">
             <li className="nav-item">
-              <button
-                className={`nav-link ${activeTab === 'overview' ? 'active' : ''}`}
-                onClick={() => setActiveTab('overview')}
-              >
+              <button className={`nav-link ${activeTab === 'dashboard' ? 'active fw-bold text-primary' : 'text-muted'}`} onClick={() => setActiveTab('dashboard')}>
                 <i className="bi bi-speedometer2 me-2"></i>
                 Overview
               </button>
@@ -651,6 +639,14 @@ const AdminDashboard = () => {
               >
                 <i className="bi bi-gear me-2"></i>
                 Settings
+              </button>
+            </li>
+            <li className="nav-item ms-sm-auto mt-2 mt-sm-0">
+              <button 
+                className={`nav-link fw-bold border rounded d-inline-flex align-items-center ${activeTab === 'al' ? 'active bg-success text-white border-success' : 'text-success border-success'}`}
+                onClick={() => setActiveTab('al')}
+              >
+                <i className="bi bi-layers me-2"></i> A/L Center
               </button>
             </li>
           </ul>
@@ -1237,7 +1233,7 @@ const AdminDashboard = () => {
                                   <div className="d-flex gap-1 ms-2">
                                     <button
                                       className="btn btn-sm btn-outline-primary"
-                                      onClick={() => handleEditResourceClick(file)}
+                                      onClick={() => setEditingResource(file)}
                                       title="Edit resource"
                                     >
                                       <i className="bi bi-pencil"></i>
@@ -1705,6 +1701,10 @@ const AdminDashboard = () => {
                 </div>
               </div>
             </div>
+          )}
+
+          {activeTab === 'al' && (
+            <ALAdminTab />
           )}
 
           {/* Info Section */}

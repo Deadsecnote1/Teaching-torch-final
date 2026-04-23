@@ -34,7 +34,7 @@ const Home = () => {
     <div className="home-page">
       {/* Hero Section */}
       <header className="hero-section" style={{
-        backgroundImage: `url('${process.env.PUBLIC_URL}/bg1.jpg')`,
+        backgroundImage: `var(--hero-gradient), url('${process.env.PUBLIC_URL}/bg1.jpg')`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
@@ -119,7 +119,7 @@ const Home = () => {
                       </button>
                     </div>
                   )}
-                  <Link to={`/grade/${key}`} className={`grade-card ${key === 'al' ? 'advanced-level' : ''}`}>
+                  <Link to={key === 'al' ? '/al' : `/grade/${key}`} className={`grade-card ${key === 'al' ? 'advanced-level' : ''}`}>
                     <div className="grade-icon" style={gradeData.color ? { backgroundColor: `var(--${gradeData.color})` } : {}}>
                       {iconText}
                     </div>
@@ -129,8 +129,19 @@ const Home = () => {
                 </div>
               );
             })}
+              {/* Static A/L Card */}
+              <div className="col-md-4 col-sm-6 position-relative">
+                <Link to="/al" className="grade-card advanced-level">
+                  <div className="grade-icon" style={{ backgroundColor: 'var(--primary)' }}>
+                    A/L
+                  </div>
+                  <h5>Advanced Level</h5>
+                  <div className="btn btn-primary mt-2">View Resources</div>
+                </Link>
+              </div>
+
+            </div>
           </div>
-        </div>
       </section>
 
       {/* Features Section */}

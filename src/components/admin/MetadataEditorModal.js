@@ -6,7 +6,14 @@ import { useData } from '../../context/DataContext';
  * Replaces the basic window.prompt with a premium UI.
  */
 const MetadataEditorModal = ({ isOpen, onClose, onSave, title, initialData, type = 'grade' }) => {
-  const { resourceTypes, grades } = useData();
+  const { grades } = useData();
+  
+  const resourceTypes = [
+    { id: 'textbooks', name: 'Textbooks' },
+    { id: 'papers', name: 'Past Papers' },
+    { id: 'notes', name: 'Short Notes' },
+    { id: 'videos', name: 'Videos' }
+  ];
   const [formData, setFormData] = useState({
     display: '',
     shortName: '',

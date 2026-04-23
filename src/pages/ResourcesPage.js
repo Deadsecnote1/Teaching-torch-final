@@ -27,7 +27,6 @@ const ResourcesPage = () => {
 
   const grade = rawGrade;
   const parentGrade = streamId ? grades[gradeId] : null;
-  const stream = streamId ? grades[streamId] : null;
   const subject = selectedSubjectId ? subjects[selectedSubjectId] : null;
   const { selectedLanguage, setLanguage, shouldShowResource, languages } = useLanguage();
   const { isManageMode } = useAuth();

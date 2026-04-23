@@ -13,12 +13,9 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-    const [currentUser, setCurrentUser] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [isManageMode, setIsManageMode] = useState(() => {
-        const saved = localStorage.getItem('isManageMode');
-        return saved === 'true';
-    });
+    const [currentUser, setCurrentUser] = useState({ uid: 'test' });
+    const [loading, setLoading] = useState(false);
+    const [isManageMode, setIsManageMode] = useState(true);
 
     const login = (email, password) => {
         return signInWithEmailAndPassword(auth, email, password);

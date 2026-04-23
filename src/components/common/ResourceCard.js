@@ -2,7 +2,6 @@ import React from 'react';
 import { getDownloadUrl, getEmbedUrl, isGoogleDriveLink } from '../../utils/googleDrive';
 import { useAuth } from '../../context/AuthContext';
 import { useData } from '../../context/DataContext';
-import { useLanguage } from '../../context/LanguageContext';
 import toast from 'react-hot-toast';
 
 /**
@@ -18,7 +17,8 @@ const ResourceCard = ({
   showViewButton = true,
   showDownloadButton = true,
   className = '',
-  onEdit // New prop for centralized editing
+  onEdit, // New prop for centralized editing
+  onDelete // Prop for custom deletion logic (e.g. A/L)
 }) => {
   const { isManageMode } = useAuth();
   const { deleteResource } = useData();
@@ -27,7 +27,7 @@ const ResourceCard = ({
   const t = { languageLabel: 'Language', deleteConfirm: 'Are you sure you want to delete' };
 
   // Support both Google Drive links and regular URLs
-  const driveLink = resource.driveLink || resource.downloadUrl || resource.url || resource.path;
+  const driveLink = resource.driveLink || resource.downloadUrl || resource.url || resource.path || resource.fileUrl;
   const isDrive = isGoogleDriveLink(driveLink);
 
   const downloadUrl = isDrive ? getDownloadUrl(driveLink) : driveLink;
@@ -120,7 +120,11 @@ const ResourceCard = ({
                   onClick={async () => {
                     if (window.confirm(`Are you sure you want to delete "${title || resource.title}"?`)) {
                       try {
-                        await deleteResource(resource.id);
+                        if (onDelete) {
+                          await onDelete(resource.id);
+                        } else {
+                          await deleteResource(resource.id);
+                        }
                         toast.success('Deleted successfully');
                       } catch (err) {
                         toast.error('Failed to delete');
