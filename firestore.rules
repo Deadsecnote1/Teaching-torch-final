@@ -38,7 +38,7 @@ service cloud.firestore {
 
     // 2. Only LOGGED IN ADMINS can WRITE (Create, Update, Delete)
     match /{document=**} {
-      allow write: if request.auth != null;
+      allow write: if request.auth != null && request.auth.token.email == 'admin@teachingtorch.lk';
     }
   }
 }

@@ -17,20 +17,21 @@ const ALResourceTypesPage = () => {
   const subject = alSubjects.find(s => s.id === subjectId);
 
   const filteredResourceTypes = alResourceTypes.filter(rt => 
-    !rt.subjectIds || rt.subjectIds.length === 0 || rt.subjectIds.includes(subjectId)
+    rt.subjectIds && rt.subjectIds.includes(subjectId)
   );
 
   useDocumentTitle(subject ? `${subject.name} Resources` : 'Subject Hub');
 
-  const handleDeleteType = async (e, id) => {
+  const handleDeleteType = async (e, rt) => {
     e.preventDefault();
     e.stopPropagation();
-    if (window.confirm('Are you sure you want to delete this resource type? This will not delete the files inside.')) {
+    if (window.confirm(`Hide "${rt.name}" from ${subject.name}? This will not delete the resources inside.`)) {
       try {
-        await deleteDocument('al_resource_types', id);
-        toast.success('Resource type deleted');
+        const newSubjectIds = rt.subjectIds.filter(id => id !== subjectId);
+        await updateDocument('al_resource_types', rt.id, { ...rt, subjectIds: newSubjectIds });
+        toast.success(`Hidden from ${subject.name}`);
       } catch (err) {
-        toast.error('Failed to delete');
+        toast.error('Failed to update');
       }
     }
   };
@@ -83,7 +84,7 @@ const ALResourceTypesPage = () => {
       <header className="grade-header text-center py-5" style={{ background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', color: 'white' }}>
         <div className="container mt-5">
           <h1 className="display-4 fw-bold">{subject.name}</h1>
-          <p className="lead">{stream.name} Stream</p>
+          <p className="lead">{stream.name.endsWith('Stream') ? stream.name : `${stream.name} Stream`}</p>
           {isManageMode && (
             <Link to="/admin" className="btn btn-sm btn-outline-light mt-2">
               <i className="bi bi-pencil-square me-2"></i>Edit in Admin
@@ -115,8 +116,29 @@ const ALResourceTypesPage = () => {
                 className="card h-100 shadow-sm border-0 text-decoration-none resource-type-card"
               >
                 <div className="card-body text-center p-4">
-                  <div className="mb-3 bg-light rounded-circle d-inline-flex align-items-center justify-content-center" style={{ width: '80px', height: '80px', color: rt.color || 'var(--primary)' }}>
-                    <i className={`bi ${rt.icon || 'bi-archive'} fs-1`}></i>
+                  <div 
+                    className={`mb-3 rounded-circle d-inline-flex align-items-center justify-content-center overflow-hidden ${rt.name && rt.name.trim() === 'Physics Chamber' ? '' : 'bg-light'}`} 
+                    style={{ 
+                      width: '80px', 
+                      height: '80px', 
+                      color: rt.color || 'var(--primary)',
+                      backgroundColor: rt.name && rt.name.trim() === 'Physics Chamber' ? 'transparent' : undefined
+                    }}
+                  >
+                    {rt.name && rt.name.trim() === 'Physics Chamber' ? (
+                      <img 
+                        src="/assets/logos/physics-chamber.jpg" 
+                        alt="Physics Chamber" 
+                        style={{ 
+                          width: '100%', 
+                          height: '100%', 
+                          objectFit: 'contain',
+                          transform: 'scale(1.1)' // Slightly scale up to fill space better
+                        }} 
+                      />
+                    ) : (
+                      <i className={`bi ${rt.icon || 'bi-archive'} fs-1`}></i>
+                    )}
                   </div>
                   <h4 className="fw-bold mb-2">{rt.name}</h4>
                   <p className="text-muted small mb-0">{rt.description || 'Access materials'}</p>
@@ -131,7 +153,8 @@ const ALResourceTypesPage = () => {
                       </button>
                       <button 
                         className="btn btn-sm btn-outline-danger" 
-                        onClick={(e) => handleDeleteType(e, rt.id)}
+                        onClick={(e) => handleDeleteType(e, rt)}
+                        title={`Hide from ${subject.name}`}
                       >
                         <i className="bi bi-trash"></i>
                       </button>
@@ -142,9 +165,11 @@ const ALResourceTypesPage = () => {
             </div>
           ))}
 
-          {alResourceTypes.length === 0 && (
+          {filteredResourceTypes.length === 0 && (
             <div className="col-12 text-center text-muted py-5">
+              <i className="bi bi-folder-x display-1 d-block mb-3 opacity-25"></i>
               <h4>No Resource Types Available</h4>
+              <p>There are no resource types configured for this subject yet.</p>
             </div>
           )}
         </div>

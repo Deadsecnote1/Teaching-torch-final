@@ -39,6 +39,7 @@ const ALResourcesPage = () => {
           alResourceTypeId: resourceTypeId,
           alSubCategoryId: editFormData.alSubCategoryId,
           languages: [selectedLanguage],
+          order: parseInt(editFormData.order) || 0,
           uploadDate: new Date().toISOString()
         });
       }
@@ -66,13 +67,14 @@ const ALResourcesPage = () => {
     }
   };
 
-  const handleDeleteSubCat = async (id) => {
-    if (window.confirm('Are you sure you want to delete this sub-category? All resources inside will be hidden.')) {
+  const handleDeleteSubCat = async (subCat) => {
+    if (window.confirm(`Hide "${subCat.name}" from ${subject.name}? This will not delete the resources inside.`)) {
       try {
-        await deleteDocument('al_sub_categories', id);
-        toast.success('Sub-category deleted');
+        const newSubjectIds = subCat.subjectIds.filter(id => id !== subjectId);
+        await updateDocument('al_sub_categories', subCat.id, { ...subCat, subjectIds: newSubjectIds });
+        toast.success(`Hidden from ${subject.name}`);
       } catch (err) {
-        toast.error('Delete failed');
+        toast.error('Failed to hide');
       }
     }
   };
@@ -105,7 +107,7 @@ const ALResourcesPage = () => {
   // Filter SubCategories for this Resource Type
   const relevantSubCats = alSubCategories
     .filter(sc => sc.resourceTypeId === resourceTypeId)
-    .filter(sc => !sc.subjectIds || sc.subjectIds.length === 0 || sc.subjectIds.includes(subjectId))
+    .filter(sc => sc.subjectIds && sc.subjectIds.includes(subjectId))
     .sort((a, b) => (a.order || 0) - (b.order || 0));
 
   // Filter Resources for this specific context
@@ -122,7 +124,7 @@ const ALResourcesPage = () => {
       <header className="grade-header text-center py-5" style={{ background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', color: 'white' }}>
         <div className="container mt-5">
           <h1 className="display-4 fw-bold">{resourceType.name}</h1>
-          <p className="lead">{subject.name} - {stream.name}</p>
+          <p className="lead">{subject.name} - {stream.name.endsWith('Stream') ? stream.name : `${stream.name} Stream`}</p>
         </div>
       </header>
 
@@ -192,8 +194,9 @@ const ALResourcesPage = () => {
                           <i className="bi bi-pencil"></i>
                         </button>
                         <button 
-                          className="btn btn-sm btn-outline-danger"
-                          onClick={() => handleDeleteSubCat(subCat.id)}
+                          className="btn btn-sm btn-outline-danger" 
+                          onClick={() => handleDeleteSubCat(subCat)}
+                          title={`Hide from ${subject.name}`}
                         >
                           <i className="bi bi-trash"></i>
                         </button>
@@ -201,7 +204,7 @@ const ALResourcesPage = () => {
                           className="btn btn-sm btn-success ms-2"
                           onClick={() => {
                             setEditingResource(null);
-                            setEditFormData({ title: '', description: '', fileUrl: '', alSubCategoryId: subCat.id });
+                            setEditFormData({ title: '', description: '', fileUrl: '', alSubCategoryId: subCat.id, order: 0 });
                             setIsModalOpen(true);
                           }}
                         >
@@ -211,7 +214,7 @@ const ALResourcesPage = () => {
                     )}
                   </h5>
                   
-                  <div className="resources-list">
+                  <div className="resources-list" style={{ maxHeight: '280px', overflowY: 'auto', paddingRight: '8px' }}>
                     {subCatResources.length > 0 ? (
                       subCatResources.map(resource => (
                         <ResourceCard
@@ -229,7 +232,8 @@ const ALResourcesPage = () => {
                             setEditFormData({
                               title: r.title || '',
                               description: r.description || '',
-                              fileUrl: r.fileUrl || ''
+                              fileUrl: r.fileUrl || '',
+                              order: r.order || 0
                             });
                             setIsModalOpen(true);
                           }}
@@ -248,7 +252,7 @@ const ALResourcesPage = () => {
             );
           })}
 
-          {relevantSubCats.length === 0 && (
+          {relevantSubCats.length === 0 ? (
             <div className="col-12">
               <div className="alert alert-info text-center py-5">
                 <i className="bi bi-info-circle fs-1 d-block mb-3"></i>
@@ -256,6 +260,28 @@ const ALResourcesPage = () => {
                 <p>There are no sub-categories defined for this resource type yet.</p>
               </div>
             </div>
+          ) : (
+            // Check if any sub-category actually rendered something
+            (() => {
+              const hasVisibleContent = relevantSubCats.some(subCat => {
+                const subCatResources = contextResources.filter(r => r.alSubCategoryId === subCat.id);
+                return subCatResources.length > 0 || isManageMode;
+              });
+
+              if (!hasVisibleContent) {
+                return (
+                  <div className="col-12 text-center py-5 text-muted">
+                    <i className="bi bi-inbox display-1 d-block mb-3 opacity-25"></i>
+                    <h4>No Resources Available</h4>
+                    <p>There are no resources uploaded for {resourceType.name} in {selectedLanguage} yet.</p>
+                    {isManageMode && (
+                      <p className="small">Tip: Use the Admin Dashboard to upload resources or add them directly here.</p>
+                    )}
+                  </div>
+                );
+              }
+              return null;
+            })()
           )}
         </div>
       </div>
@@ -268,6 +294,19 @@ const ALResourcesPage = () => {
         .subject-section:hover {
           transform: translateY(-3px);
           box-shadow: 0 10px 25px rgba(0,0,0,0.05) !important;
+        }
+        .resources-list::-webkit-scrollbar {
+          width: 5px;
+        }
+        .resources-list::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .resources-list::-webkit-scrollbar-thumb {
+          background: #cbd5e1;
+          border-radius: 10px;
+        }
+        .resources-list::-webkit-scrollbar-thumb:hover {
+          background: #94a3b8;
         }
       `}</style>
 
@@ -309,6 +348,15 @@ const ALResourcesPage = () => {
                       value={editFormData.fileUrl} 
                       onChange={(e) => setEditFormData({...editFormData, fileUrl: e.target.value})} 
                       required 
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">Priority / Order</label>
+                    <input 
+                      type="number" 
+                      className="form-control" 
+                      value={editFormData.order || 0} 
+                      onChange={(e) => setEditFormData({...editFormData, order: parseInt(e.target.value)})} 
                     />
                   </div>
                 </div>

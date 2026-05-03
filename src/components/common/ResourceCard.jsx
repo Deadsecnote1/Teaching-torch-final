@@ -2,6 +2,8 @@ import React from 'react';
 import { getDownloadUrl, getEmbedUrl, isGoogleDriveLink } from '../../utils/googleDrive';
 import { useAuth } from '../../context/AuthContext';
 import { useData } from '../../context/DataContext';
+import { analytics } from '../../firebase';
+import { logEvent } from 'firebase/analytics';
 import toast from 'react-hot-toast';
 
 /**
@@ -30,20 +32,50 @@ const ResourceCard = ({
   const driveLink = resource.driveLink || resource.downloadUrl || resource.url || resource.path || resource.fileUrl;
   const isDrive = isGoogleDriveLink(driveLink);
 
-  const downloadUrl = isDrive ? getDownloadUrl(driveLink) : driveLink;
+  const downloadUrl = (isDrive ? getDownloadUrl(driveLink) : driveLink) || '';
+  
+  // Security: Prevent javascript: protocol XSS
+  const safeDownloadUrl = downloadUrl.toLowerCase().startsWith('javascript:') ? '#' : downloadUrl;
+  
   const embedUrl = isDrive ? getEmbedUrl(driveLink) : null;
 
   const handleDownload = (e) => {
+    try {
+      logEvent(analytics, 'resource_download', {
+        resource_id: resource.id || 'unknown',
+        resource_title: title || resource.title || resource.filename || 'unknown',
+        resource_type: resource.resourceType || 'unknown',
+        grade: resource.grade || 'unknown',
+        subject: resource.subject || 'unknown',
+        language: language || 'unknown'
+      });
+    } catch (err) {
+      console.error("Analytics error:", err);
+    }
+
     if (!isDrive) {
-      // For non-Drive links, let browser handle it
+      // For non-Drive links, let browser handle it (we still log the click above)
       return;
     }
     // For Drive links, open in new tab
     e.preventDefault();
-    window.open(downloadUrl, '_blank');
+    window.open(safeDownloadUrl, '_blank');
   };
 
   const handleView = () => {
+    try {
+      logEvent(analytics, 'resource_view', {
+        resource_id: resource.id || 'unknown',
+        resource_title: title || resource.title || resource.filename || 'unknown',
+        resource_type: resource.resourceType || 'unknown',
+        grade: resource.grade || 'unknown',
+        subject: resource.subject || 'unknown',
+        language: language || 'unknown'
+      });
+    } catch (err) {
+      console.error("Analytics error:", err);
+    }
+
     if (embedUrl) {
       window.open(embedUrl, '_blank', 'noopener,noreferrer');
     } else if (downloadUrl) {
@@ -93,7 +125,7 @@ const ResourceCard = ({
             )}
             {showDownloadButton && (
               <a
-                href={downloadUrl}
+                href={safeDownloadUrl}
                 className={`btn btn-sm ${isManageMode ? 'btn-outline-secondary' : 'btn-primary'}`}
                 onClick={handleDownload}
                 target="_blank"

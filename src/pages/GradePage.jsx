@@ -39,7 +39,7 @@ const GradePage = () => {
   ];
 
   return (
-    <div className="grade-page" style={{ backgroundImage: `url('${process.env.PUBLIC_URL}/bg3.jpg')`, backgroundAttachment: 'fixed', backgroundSize: 'cover', minHeight: '100vh' }}>
+    <div className="grade-page" style={{ backgroundImage: "url('/bg3.jpg')", backgroundAttachment: 'fixed', backgroundSize: 'cover', minHeight: '100vh' }}>
       {/* Grade Header */}
       <header className="grade-header">
         <div className="container text-center">
@@ -109,6 +109,7 @@ const GradePage = () => {
         .hover-card {
           transition: all 0.3s ease;
           border: 2px solid transparent;
+          border-radius: 15px;
         }
         .hover-card:hover {
           transform: translateY(-5px);

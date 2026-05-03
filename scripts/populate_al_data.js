@@ -72,6 +72,17 @@ const data = {
     { id: 'sft', name: 'Science for Technology', streamId: 'technology', icon: 'bi-microscope', order: 2 },
     { id: 'bio-tech', name: 'Bio-system Technology', streamId: 'technology', icon: 'bi-dna', order: 3 },
     { id: 'maths-tech', name: 'Mathematics', streamId: 'technology', icon: 'bi-calculator', order: 4 }
+  ],
+  resourceTypes: [
+    { id: 'text-books', name: 'Text Books', icon: 'bi-book', order: 1, subjectIds: [] },
+    { id: 'past-papers', name: 'Past Papers', icon: 'bi-file-earmark-text', order: 2, subjectIds: [] },
+    { id: 'notes', name: 'Notes', icon: 'bi-journal-text', order: 3, subjectIds: [] },
+    { id: 'videos', name: 'Videos', icon: 'bi-play-circle', order: 4, subjectIds: [] }
+  ],
+  subCategories: [
+    { id: 'resource-books', name: 'Resource Books', resourceTypeId: 'text-books', order: 1, subjectIds: [] },
+    { id: 'term-papers', name: 'Term Papers', resourceTypeId: 'past-papers', order: 1, subjectIds: [] },
+    { id: 'unit-notes', name: 'Unit Notes', resourceTypeId: 'notes', order: 1, subjectIds: [] }
   ]
 };
 
@@ -80,7 +91,7 @@ async function populate() {
   
   try {
     console.log('Authenticating...');
-    await signInWithEmailAndPassword(auth, 'admin@teachingtorch.lk', '14m4dm1n4tt');
+    await signInWithEmailAndPassword(auth, process.env.ADMIN_EMAIL, process.env.ADMIN_PASSWORD);
     console.log('Authenticated successfully!');
   } catch (err) {
     console.error('Authentication failed:', err.message);
@@ -95,6 +106,16 @@ async function populate() {
   for (const subject of data.subjects) {
     await setDoc(doc(db, 'al_subjects', subject.id), subject);
     console.log(`Added Subject: ${subject.name} (${subject.streamId})`);
+  }
+
+  for (const type of data.resourceTypes) {
+    await setDoc(doc(db, 'al_resource_types', type.id), type);
+    console.log(`Added Resource Type: ${type.name}`);
+  }
+
+  for (const subCat of data.subCategories) {
+    await setDoc(doc(db, 'al_sub_categories', subCat.id), subCat);
+    console.log(`Added Sub Category: ${subCat.name}`);
   }
   
   console.log('Population complete!');

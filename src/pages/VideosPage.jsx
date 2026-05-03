@@ -11,6 +11,8 @@ import { extractYouTubeId, getYouTubeThumbnail, isYouTubeLink } from '../utils/y
 import { getEmbedUrl, isGoogleDriveLink } from '../utils/googleDrive';
 import { subjectTranslations } from '../utils/subjectTranslations';
 import { getResourceTypeName } from '../utils/resourceTranslations';
+import { analytics } from '../firebase';
+import { logEvent } from 'firebase/analytics';
 import toast from 'react-hot-toast';
 
 const VideosPage = () => {
@@ -60,6 +62,17 @@ const VideosPage = () => {
   }
 
   const handlePlayVideo = (video, videoUrl) => {
+    try {
+      logEvent(analytics, 'video_play', {
+        video_id: video.id || 'unknown',
+        video_title: video.title || 'unknown',
+        grade: gradeId || 'unknown',
+        language: video.language || 'unknown'
+      });
+    } catch (err) {
+      console.error("Analytics error:", err);
+    }
+
     const youtubeId = extractYouTubeId(videoUrl);
     if (youtubeId) {
       setActiveVideo({
@@ -405,9 +418,6 @@ const VideosPage = () => {
               <i className="bi bi-youtube text-muted" style={{ fontSize: '4rem' }}></i>
               <h4 className="mt-3 text-muted">No video lessons available</h4>
               <p className="text-muted">Video lessons for this grade haven't been added yet.</p>
-              <Link to={`/grade/${gradeId}`} className="btn btn-primary">
-                <i className="bi bi-arrow-left me-1"></i>Back to Grade Overview
-              </Link>
             </div>
           )}
 
@@ -426,9 +436,6 @@ const VideosPage = () => {
                   {selectedLanguage === 'english' && 'English'}
                   {' '}for this grade.
                 </p>
-                <Link to={`/grade/${gradeId}`} className="btn btn-primary">
-                  <i className="bi bi-arrow-left me-1"></i>Back to Grade Overview
-                </Link>
               </div>
             )}
         </div>

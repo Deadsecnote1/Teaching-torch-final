@@ -30,8 +30,6 @@ export const ALProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    let unsubStreams, unsubSubjects, unsubResourceTypes, unsubSubCats, unsubResources;
-
     const processDoc = (doc) => {
       const d = doc.data();
       const obj = {
@@ -44,45 +42,35 @@ export const ALProvider = ({ children }) => {
       return obj;
     };
 
-    try {
-      unsubStreams = onSnapshot(query(collection(db, "al_streams")), (snapshot) => {
-        const data = snapshot.docs.map(processDoc).sort((a, b) => (a.order || 0) - (b.order || 0));
-        setAlStreams(data);
-      });
-
-      unsubSubjects = onSnapshot(query(collection(db, "al_subjects")), (snapshot) => {
-        const data = snapshot.docs.map(processDoc).sort((a, b) => (a.order || 0) - (b.order || 0));
-        setAlSubjects(data);
-      });
-
-      unsubResourceTypes = onSnapshot(query(collection(db, "al_resource_types")), (snapshot) => {
-        const data = snapshot.docs.map(processDoc).sort((a, b) => (a.order || 0) - (b.order || 0));
-        setAlResourceTypes(data);
-      });
-
-      unsubSubCats = onSnapshot(query(collection(db, "al_sub_categories")), (snapshot) => {
-        const data = snapshot.docs.map(processDoc).sort((a, b) => (a.order || 0) - (b.order || 0));
-        setAlSubCategories(data);
-      });
-
-      unsubResources = onSnapshot(query(collection(db, "al_resources")), (snapshot) => {
-        const data = snapshot.docs.map(processDoc);
-        setAlResources(data);
-        setLoading(false); // Consider loaded when resources are loaded
-      });
-
-    } catch (e) {
-      console.error("AL Context Setup Error", e);
-      setLoading(false);
-    }
-
-    return () => {
-      if(unsubStreams) unsubStreams();
-      if(unsubSubjects) unsubSubjects();
-      if(unsubResourceTypes) unsubResourceTypes();
-      if(unsubSubCats) unsubSubCats();
-      if(unsubResources) unsubResources();
+    const collections = ['al_streams', 'al_subjects', 'al_resource_types', 'al_sub_categories', 'al_resources'];
+    const setters = {
+      al_streams: setAlStreams,
+      al_subjects: setAlSubjects,
+      al_resource_types: setAlResourceTypes,
+      al_sub_categories: setAlSubCategories,
+      al_resources: setAlResources
     };
+    const loadedCollections = new Set();
+
+    const setupListener = (colName) => {
+      return onSnapshot(query(collection(db, colName)), (snapshot) => {
+        const data = snapshot.docs.map(processDoc);
+        data.sort((a, b) => (a.order || 0) - (b.order || 0));
+        setters[colName](data);
+        loadedCollections.add(colName);
+        if (loadedCollections.size === collections.length) {
+          setLoading(false);
+        }
+      }, (err) => {
+        console.error(`Error loading ${colName}:`, err);
+        loadedCollections.add(colName); // Still count as attempt
+        if (loadedCollections.size === collections.length) setLoading(false);
+      });
+    };
+
+    const unsubs = collections.map(setupListener);
+
+    return () => unsubs.forEach(unsub => unsub());
   }, []);
 
   // Generic generic functions

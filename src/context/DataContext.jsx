@@ -11,7 +11,9 @@ import {
   setDoc,
   updateDoc,
   getDocs,
-  where
+  where,
+  limit,
+  startAfter
 } from 'firebase/firestore';
 
 // Create Data Context
@@ -27,6 +29,8 @@ const initialState = {
   fetchedGrades: {}, // Tracks which grades have been lazy-loaded
   allResourcesFetched: false,
   settings: {},
+  lastVisible: null,
+  hasMore: true,
   loading: true, // Start loading as true
   gradesLoading: true,
   subjectsLoading: true,
@@ -146,6 +150,16 @@ const dataReducer = (state, action) => {
         videos: action.payload.videos,
         allResources: action.payload.allResources,
         allResourcesFetched: true
+      };
+
+    case 'SET_PAGINATED_RESOURCES':
+      return {
+        ...state,
+        allResources: action.payload.isFirstPage 
+          ? action.payload.allResources 
+          : [...state.allResources, ...action.payload.allResources],
+        lastVisible: action.payload.lastVisible,
+        hasMore: action.payload.hasMore
       };
 
     case 'UPDATE_GRADES':
@@ -333,6 +347,46 @@ export const DataProvider = ({ children }) => {
       console.error("Error fetching all resources:", error);
     }
   }, [state.allResourcesFetched]);
+  
+  const fetchResourcesPaginated = useCallback(async (isFirstPage = false, pageSize = 20) => {
+    try {
+      let q;
+      if (isFirstPage) {
+        q = query(
+          collection(db, "resources"), 
+          orderBy("uploadDate", "desc"), 
+          limit(pageSize)
+        );
+      } else if (state.lastVisible) {
+        q = query(
+          collection(db, "resources"), 
+          orderBy("uploadDate", "desc"), 
+          startAfter(state.lastVisible), 
+          limit(pageSize)
+        );
+      } else {
+        return; // No more to fetch
+      }
+
+      const snapshot = await getDocs(q);
+      const lastVisible = snapshot.docs[snapshot.docs.length - 1];
+      const hasMore = snapshot.docs.length === pageSize;
+
+      const { allResources } = processResources(snapshot.docs);
+
+      dispatch({
+        type: 'SET_PAGINATED_RESOURCES',
+        payload: {
+          allResources,
+          lastVisible,
+          hasMore,
+          isFirstPage
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching paginated resources:", error);
+    }
+  }, [state.lastVisible]);
 
   // Action creators (Modified to write to Firestore)
   const updateSettings = useCallback(async (newSettings) => {
@@ -600,6 +654,7 @@ export const DataProvider = ({ children }) => {
     generateGradePageData,
     fetchResourcesForGrade,
     fetchAllResources,
+    fetchResourcesPaginated,
     updateSettings,
     dispatch
   };

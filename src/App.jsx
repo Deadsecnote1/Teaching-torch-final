@@ -11,6 +11,7 @@ import { Toaster } from 'react-hot-toast';
 import Navbar from './components/common/Navbar';
 import Footer from './components/common/Footer';
 import ScrollToTop from './components/common/ScrollToTop';
+import ErrorBoundary from './components/common/ErrorBoundary';
 
 // Pages
 import Home from './pages/Home';
@@ -69,34 +70,36 @@ function App() {
                 <div className="App">
                   <Navbar />
                   <main className="main-content">
-                    <Routes>
-                      <Route path="/" element={<Home />} />
-                      <Route path="/about" element={<About />} />
-                      <Route path="/contact" element={<Contact />} />
-                      <Route path="/grade/:gradeId" element={<GradePage />} />
-                      <Route path="/grade/:gradeId/:streamId" element={<GradePage />} />
-                      <Route path="/grade/:gradeId/:streamId/:subjectId" element={<SubjectHubPage />} />
-                      <Route path="/grade/:gradeId/:streamId/:subjectId/textbooks" element={<TextbooksPage />} />
-                      <Route path="/grade/:gradeId/:streamId/:subjectId/papers" element={<PapersPage />} />
-                      <Route path="/grade/:gradeId/:streamId/:subjectId/notes" element={<NotesPage />} />
-                      <Route path="/grade/:gradeId/:streamId/:subjectId/videos" element={<VideosPage />} />
-                      <Route path="/grade/:gradeId/:streamId/:subjectId/:resourceType" element={<ResourcesPage />} />
-                      <Route path="/grade/:gradeId/textbooks" element={<TextbooksPage />} />
-                      <Route path="/grade/:gradeId/papers" element={<PapersPage />} />
-                      <Route path="/grade/:gradeId/notes" element={<NotesPage />} />
-                      <Route path="/grade/:gradeId/videos" element={<VideosPage />} />
-                      <Route path="/grade/:gradeId/:resourceType" element={<ResourcesPage />} />
-                      
-                      {/* AL Independent Routes */}
-                      <Route path="/al" element={<ALStreamsPage />} />
-                      <Route path="/al/:streamId/:subjectId" element={<ALResourceTypesPage />} />
-                      <Route path="/al/:streamId/:subjectId/:resourceTypeId" element={<ALResourcesPage />} />
-
-                      <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                      <Route path="/admin/login" element={<AdminLogin />} />
-                      <Route path="/admin" element={<AdminDashboard />} />
-                      <Route path="*" element={<NotFound />} />
-                    </Routes>
+                    <ErrorBoundary>
+                      <Routes>
+                        <Route path="/" element={<Home />} />
+                        <Route path="/about" element={<About />} />
+                        <Route path="/contact" element={<Contact />} />
+                        <Route path="/grade/:gradeId" element={<GradePage />} />
+                        <Route path="/grade/:gradeId/:streamId" element={<GradePage />} />
+                        <Route path="/grade/:gradeId/:streamId/:subjectId" element={<SubjectHubPage />} />
+                        <Route path="/grade/:gradeId/:streamId/:subjectId/textbooks" element={<TextbooksPage />} />
+                        <Route path="/grade/:gradeId/:streamId/:subjectId/papers" element={<PapersPage />} />
+                        <Route path="/grade/:gradeId/:streamId/:subjectId/notes" element={<NotesPage />} />
+                        <Route path="/grade/:gradeId/:streamId/:subjectId/videos" element={<VideosPage />} />
+                        <Route path="/grade/:gradeId/:streamId/:subjectId/:resourceType" element={<ResourcesPage />} />
+                        <Route path="/grade/:gradeId/textbooks" element={<TextbooksPage />} />
+                        <Route path="/grade/:gradeId/papers" element={<PapersPage />} />
+                        <Route path="/grade/:gradeId/notes" element={<NotesPage />} />
+                        <Route path="/grade/:gradeId/videos" element={<VideosPage />} />
+                        <Route path="/grade/:gradeId/:resourceType" element={<ResourcesPage />} />
+                        
+                        {/* AL Independent Routes */}
+                        <Route path="/al" element={<ALStreamsPage />} />
+                        <Route path="/al/:streamId/:subjectId" element={<ALResourceTypesPage />} />
+                        <Route path="/al/:streamId/:subjectId/:resourceTypeId" element={<ALResourcesPage />} />
+  
+                        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                        <Route path="/admin/login" element={<AdminLogin />} />
+                        <Route path="/admin" element={<AdminDashboard />} />
+                        <Route path="*" element={<NotFound />} />
+                      </Routes>
+                    </ErrorBoundary>
                   </main>
                   <Footer />
                 </div>

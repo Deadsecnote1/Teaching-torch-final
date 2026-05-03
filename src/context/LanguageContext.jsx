@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-
+import { analytics } from '../firebase';
+import { logEvent } from 'firebase/analytics';
 // Create Language Context
 const LanguageContext = createContext();
 
@@ -45,6 +46,14 @@ export const LanguageProvider = ({ children }) => {
   const setLanguage = (language) => {
     setSelectedLanguage(language);
     localStorage.setItem('selectedLanguage', language);
+    
+    try {
+      logEvent(analytics, 'language_filter_changed', {
+        language: language
+      });
+    } catch (err) {
+      console.error("Analytics error:", err);
+    }
     
     // Dispatch custom event for other components
     window.dispatchEvent(new CustomEvent('languageChanged', { 

@@ -7,7 +7,7 @@ import { useAuth } from '../../context/AuthContext';
 const Navbar = () => {
   const { theme, toggleTheme } = useTheme();
   const { grades, gradesLoading } = useData();
-  const { user, logout } = useAuth();
+  const { currentUser: user, logout, isManageMode, toggleManageMode } = useAuth();
   const location = useLocation();
 
   const [showGradesDropdown, setShowGradesDropdown] = useState(false);
@@ -43,7 +43,7 @@ const Navbar = () => {
         {/* Brand */}
         <Link className="navbar-brand d-flex align-items-center" to="/">
           <img
-            src={`${process.env.PUBLIC_URL}/logo192.png`}
+            src="/logo192.png"
             alt="Teaching Torch Logo"
             className="me-3"
             style={{ width: '60px', height: '60px', objectFit: 'contain' }}
@@ -110,19 +110,32 @@ const Navbar = () => {
                 {gradesLoading ? (
                   <li><span className="dropdown-item text-muted">Loading grades...</span></li>
                 ) : (
-                  Object.entries(grades).map(([key, gradeData]) => (
+                  Object.entries(grades)
+                    .sort((a, b) => (a[1].order || 0) - (b[1].order || 0))
+                    .map(([key, gradeData]) => (
                     <li key={key}>
                       <Link
-                        className="dropdown-item"
+                        className="dropdown-item fw-bold"
                         to={`/grade/${key}`}
                         onClick={() => setShowGradesDropdown(false)}
                       >
-                        {key === 'al' && <i className="bi bi-mortarboard-fill me-2 text-success"></i>}
+                        <i className="bi bi-chevron-right me-2 text-primary" style={{ fontSize: '0.8rem' }}></i>
                         {gradeData.display}
                       </Link>
                     </li>
                   ))
                 )}
+                <li><hr className="dropdown-divider" /></li>
+                <li>
+                  <Link
+                    className="dropdown-item fw-bold text-success"
+                    to="/al"
+                    onClick={() => setShowGradesDropdown(false)}
+                  >
+                    <i className="bi bi-mortarboard-fill me-2"></i>
+                    Advanced Level (A/L)
+                  </Link>
+                </li>
               </ul>
             </li>
           </ul>
@@ -141,9 +154,26 @@ const Navbar = () => {
                     <i className="bi bi-person-circle me-1"></i> Admin
                   </button>
                   <ul className="dropdown-menu dropdown-menu-end">
-                    <li><Link className="dropdown-item" to="/admin">Dashboard</Link></li>
+                    <li><Link className="dropdown-item" to="/admin"><i className="bi bi-speedometer2 me-2"></i>Dashboard</Link></li>
+                    <li>
+                      <button 
+                        className="dropdown-item d-flex align-items-center justify-content-between"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          toggleManageMode();
+                        }}
+                      >
+                        <span>
+                          <i className={`bi ${isManageMode ? 'bi-toggle-on' : 'bi-toggle-off'} me-2 ${isManageMode ? 'text-success' : ''}`}></i>
+                          Manage Mode
+                        </span>
+                        <span className={`badge ${isManageMode ? 'bg-success' : 'bg-secondary'} ms-2`}>
+                          {isManageMode ? 'ON' : 'OFF'}
+                        </span>
+                      </button>
+                    </li>
                     <li><hr className="dropdown-divider" /></li>
-                    <li><button className="dropdown-item text-danger" onClick={logout}>Logout</button></li>
+                    <li><button className="dropdown-item text-danger" onClick={logout}><i className="bi bi-box-arrow-right me-2"></i>Logout</button></li>
                   </ul>
                 </div>
               </li>
@@ -152,7 +182,7 @@ const Navbar = () => {
             {/* Theme Toggle */}
             <li className="nav-item">
               <button
-                className="nav-link btn btn-link text-white border-0"
+                className="nav-link btn btn-link border-0"
                 id="themeToggle"
                 title="Toggle Dark Mode"
                 onClick={toggleTheme}

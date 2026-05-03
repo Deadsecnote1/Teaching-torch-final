@@ -4,6 +4,7 @@ import { useData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';
 import AdSenseComponent from '../components/common/AdSenseComponent';
 import MetadataEditorModal from '../components/admin/MetadataEditorModal';
+import SplashScreen from '../components/common/SplashScreen';
 import toast from 'react-hot-toast';
 import useDocumentTitle from '../hooks/useDocumentTitle';
 
@@ -20,21 +21,14 @@ const Home = () => {
   });
 
   if (gradesLoading) {
-    return (
-      <div className="container py-5 text-center">
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
-        <p className="mt-3">Loading grades...</p>
-      </div>
-    );
+    return <SplashScreen />;
   }
 
   return (
     <div className="home-page">
       {/* Hero Section */}
       <header className="hero-section" style={{
-        backgroundImage: `var(--hero-gradient), url('${process.env.PUBLIC_URL}/bg1.jpg')`,
+        backgroundImage: `var(--hero-gradient), url('/bg1.jpg')`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
@@ -182,37 +176,7 @@ const Home = () => {
 
 
 
-      {/* Statistics Section */}
-      <section className="py-5">
-        <div className="container">
-          <div className="row text-center">
-            <div className="col-md-3">
-              <div className="stat-item">
-                <h3 className="text-primary">{Object.keys(grades).length}</h3>
-                <span>Grade Levels</span>
-              </div>
-            </div>
-            <div className="col-md-3">
-              <div className="stat-item">
-                <h3 className="text-primary">3</h3>
-                <span>Languages</span>
-              </div>
-            </div>
-            <div className="col-md-3">
-              <div className="stat-item">
-                <h3 className="text-primary">100%</h3>
-                <span>Free Content</span>
-              </div>
-            </div>
-            <div className="col-md-3">
-              <div className="stat-item">
-                <h3 className="text-primary">24/7</h3>
-                <span>Access</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+
 
       {/* Footer Ad Unit */}
       <AdSenseComponent slot="HOME_FOOTER_AD_SLOT" />

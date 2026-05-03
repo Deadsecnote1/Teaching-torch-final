@@ -10,7 +10,7 @@ import { useData } from '../../context/DataContext';
  * @param {object} style - Optional custom styles
  * @param {string} minHeight - Minimum height to reserve (default: '250px')
  */
-const AdSenseComponent = ({ slot, format = 'auto', responsive = true, style = {}, minHeight = '250px' }) => {
+const AdSenseComponent = ({ slot, format = 'auto', responsive = true, style = {}, minHeight = '0' }) => {
   const { settings } = useData();
 
   useEffect(() => {
@@ -45,7 +45,7 @@ const AdSenseComponent = ({ slot, format = 'auto', responsive = true, style = {}
 
   return (
     <div 
-      className="adsense-container my-4" 
+      className="adsense-container" 
       style={{ 
         textAlign: 'center', 
         overflow: 'hidden',
@@ -53,7 +53,6 @@ const AdSenseComponent = ({ slot, format = 'auto', responsive = true, style = {}
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: 'rgba(0,0,0,0.02)',
         borderRadius: '8px'
       }}
     >

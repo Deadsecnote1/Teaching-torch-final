@@ -44,7 +44,7 @@ const SubjectHubPage = () => {
 
   return (
     <div className="subject-hub-page" style={{ 
-      backgroundImage: `url('${process.env.PUBLIC_URL}/bg3.jpg')`, 
+      backgroundImage: "url('/bg3.jpg')", 
       backgroundAttachment: 'fixed', 
       backgroundSize: 'cover', 
       minHeight: '100vh' 

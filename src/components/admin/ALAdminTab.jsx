@@ -156,6 +156,7 @@ const ALAdminTab = () => {
         alResourceTypeId: formData.alResourceTypeId,
         alSubCategoryId: formData.alSubCategoryId,
         languages: [formData.language], // Support single language selection for now
+        order: parseInt(formData.order) || 0,
         uploadDate: new Date().toISOString()
       };
       
@@ -177,6 +178,14 @@ const ALAdminTab = () => {
       setFormData({ ...formData, subjectIds: currentIds.filter(id => id !== subjectId) });
     } else {
       setFormData({ ...formData, subjectIds: [...currentIds, subjectId] });
+    }
+  };
+
+  const handleSelectAllSubjects = (checked) => {
+    if (checked) {
+      setFormData({ ...formData, subjectIds: alSubjects.map(s => s.id) });
+    } else {
+      setFormData({ ...formData, subjectIds: [] });
     }
   };
 
@@ -292,7 +301,7 @@ const ALAdminTab = () => {
                 <div className="col-md-7">
                   <h4 className="mb-4">Current Subjects</h4>
                   <ul className="list-group">
-                    {alSubjects.map(s => {
+                    {alSubjects.filter(s => alStreams.some(st => st.id === s.streamId)).map(s => {
                       const stream = alStreams.find(st => st.id === s.streamId);
                       return (
                         <li key={s.id} className="list-group-item d-flex justify-content-between align-items-center">
@@ -335,9 +344,21 @@ const ALAdminTab = () => {
                     </div>
                     {/* Inline Checklist to avoid focus loss */}
                     <div className="mb-3">
-                      <label className="form-label d-block">Applicable Subjects</label>
+                      <div className="d-flex justify-content-between align-items-center mb-2">
+                        <label className="form-label mb-0">Applicable Subjects</label>
+                        <div className="form-check form-switch mb-0">
+                          <input 
+                            className="form-check-input" 
+                            type="checkbox" 
+                            id="selectAllResourceTypes"
+                            checked={formData.subjectIds?.length === alSubjects.length && alSubjects.length > 0}
+                            onChange={(e) => handleSelectAllSubjects(e.target.checked)}
+                          />
+                          <label className="form-check-label small" htmlFor="selectAllResourceTypes">Select All (Global)</label>
+                        </div>
+                      </div>
                       <div className="border rounded p-3 bg-light" style={{ maxHeight: '200px', overflowY: 'auto' }}>
-                        {alSubjects.map(sub => (
+                        {alSubjects.filter(s => alStreams.some(st => st.id === s.streamId)).map(sub => (
                           <div key={sub.id} className="form-check">
                             <input 
                               className="form-check-input" 
@@ -398,9 +419,21 @@ const ALAdminTab = () => {
                     </div>
                     {/* Inline Checklist to avoid focus loss */}
                     <div className="mb-3">
-                      <label className="form-label d-block">Applicable Subjects</label>
+                      <div className="d-flex justify-content-between align-items-center mb-2">
+                        <label className="form-label mb-0">Applicable Subjects</label>
+                        <div className="form-check form-switch mb-0">
+                          <input 
+                            className="form-check-input" 
+                            type="checkbox" 
+                            id="selectAllSubCats"
+                            checked={formData.subjectIds?.length === alSubjects.length && alSubjects.length > 0}
+                            onChange={(e) => handleSelectAllSubjects(e.target.checked)}
+                          />
+                          <label className="form-check-label small" htmlFor="selectAllSubCats">Select All (Global)</label>
+                        </div>
+                      </div>
                       <div className="border rounded p-3 bg-light" style={{ maxHeight: '200px', overflowY: 'auto' }}>
-                        {alSubjects.map(sub => (
+                        {alSubjects.filter(s => alStreams.some(st => st.id === s.streamId)).map(sub => (
                           <div key={sub.id} className="form-check">
                             <input 
                               className="form-check-input" 
@@ -461,7 +494,10 @@ const ALAdminTab = () => {
                         <label className="form-label">Select Subject</label>
                         <select className="form-select" name="alSubjectId" value={formData.alSubjectId || ''} onChange={handleInputChange} required disabled={!formData.alStreamId}>
                           <option value="">-- Choose --</option>
-                          {alSubjects.filter(s => s.streamId === formData.alStreamId).map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                          {alSubjects
+                            .filter(s => s.streamId === formData.alStreamId)
+                            .map(s => <option key={s.id} value={s.id}>{s.name}</option>)
+                          }
                         </select>
                       </div>
                     </div>
@@ -478,7 +514,11 @@ const ALAdminTab = () => {
                         <label className="form-label">Sub Category</label>
                         <select className="form-select" name="alSubCategoryId" value={formData.alSubCategoryId || ''} onChange={handleInputChange} required disabled={!formData.alResourceTypeId}>
                           <option value="">-- Choose --</option>
-                          {alSubCategories.filter(sc => sc.resourceTypeId === formData.alResourceTypeId).map(sc => <option key={sc.id} value={sc.id}>{sc.name}</option>)}
+                          {alSubCategories
+                            .filter(sc => sc.resourceTypeId === formData.alResourceTypeId)
+                            .filter(sc => !sc.subjectIds || sc.subjectIds.length === 0 || (formData.alSubjectId && sc.subjectIds.includes(formData.alSubjectId)))
+                            .map(sc => <option key={sc.id} value={sc.id}>{sc.name}</option>)
+                          }
                         </select>
                       </div>
                     </div>
@@ -501,6 +541,11 @@ const ALAdminTab = () => {
                     <div className="mb-3">
                       <label className="form-label">File/Google Drive URL</label>
                       <input type="url" className="form-control" name="fileUrl" value={formData.fileUrl || ''} onChange={handleInputChange} required placeholder="https://..." />
+                    </div>
+
+                    <div className="mb-3">
+                      <label className="form-label">Priority / Order</label>
+                      <input type="number" className="form-control" name="order" value={formData.order || 0} onChange={handleInputChange} />
                     </div>
 
                     <button type="submit" className="btn btn-primary w-100">{editingId ? 'Update Resource' : 'Upload Resource'}</button>
