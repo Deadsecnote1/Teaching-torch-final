@@ -15,10 +15,13 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
     const [currentUser, setCurrentUser] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [isManageModeState, setIsManageModeState] = useState(localStorage.getItem('isManageMode') === 'true');
+    const [isManageMode, setIsManageMode] = useState(false);
 
-    // SEC-06: Only allow manage mode if actually authenticated
-    const isManageMode = currentUser != null && isManageModeState;
+    useEffect(() => {
+        if (!currentUser) {
+            setIsManageMode(false);
+        }
+    }, [currentUser]);
 
     const login = (email, password) => {
         return signInWithEmailAndPassword(auth, email, password);
@@ -29,13 +32,15 @@ export const AuthProvider = ({ children }) => {
     };
 
     const setManageMode = (value) => {
-        setIsManageModeState(value);
-        localStorage.setItem('isManageMode', value);
+        if (currentUser) {
+            setIsManageMode(value);
+        }
     };
 
     const toggleManageMode = () => {
-        const newValue = !isManageModeState;
-        setManageMode(newValue);
+        if (currentUser) {
+            setIsManageMode(prev => !prev);
+        }
     };
 
     useEffect(() => {

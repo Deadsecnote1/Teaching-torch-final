@@ -12,12 +12,7 @@
  * - FILE_ID (if already extracted)
  */
 export const extractFileId = (url) => {
-  if (!url) return null;
-  
-  // If it's already just an ID
-  if (!url.includes('drive.google.com') && !url.includes('/')) {
-    return url;
-  }
+  if (!url || !url.includes('drive.google.com')) return null;
   
   // Extract from /file/d/FILE_ID/view or /file/d/FILE_ID
   const fileMatch = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
@@ -77,10 +72,8 @@ export const getViewUrl = (shareLink) => {
  */
 export const isGoogleDriveLink = (url) => {
   if (!url) return false;
-  // SEC-05: Tighten regex to avoid broad alphanumeric matches
-  // Google Drive IDs are typically between 25 and 50 characters
-  const isDriveId = /^[a-zA-Z0-9_-]{25,50}$/.test(url);
-  return url.includes('drive.google.com') || isDriveId;
+  // SEC-05: Enforce drive.google.com domain for strictness
+  return url.includes('drive.google.com');
 };
 
 /**
