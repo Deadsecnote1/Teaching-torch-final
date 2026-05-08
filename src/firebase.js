@@ -1,7 +1,7 @@
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { isSupported } from "firebase/analytics";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -15,10 +15,20 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+
+// Initialize Analytics optionally (Brave/Ad-blocker safety)
+let analytics = null;
+isSupported().then(supported => {
+  if (supported) {
+    analytics = getAnalytics(app);
+  }
+}).catch(err => console.error("Analytics not supported:", err));
+
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-console.log("Firebase initialized successfully");
+if (!import.meta.env.PROD) {
+  console.log("Firebase initialized successfully");
+}
 
 export { app, analytics, auth, db };
