@@ -6,6 +6,7 @@ import ResourceCard from '../../components/common/ResourceCard';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
+import { extractYouTubeId } from '../../utils/youtube';
 
 const ALResourcesPage = () => {
   const { streamId, subjectId, resourceTypeId } = useParams();
@@ -22,6 +23,7 @@ const ALResourcesPage = () => {
   // Sub-Category Editor State
   const [editingSubCat, setEditingSubCat] = useState(null);
   const [subCatFormData, setSubCatFormData] = useState({});
+  const [activeVideo, setActiveVideo] = useState(null);
 
   const handleEditSubmit = async (e) => {
     e.preventDefault();
@@ -38,6 +40,7 @@ const ALResourcesPage = () => {
           alSubjectId: subjectId,
           alResourceTypeId: resourceTypeId,
           alSubCategoryId: editFormData.alSubCategoryId,
+          mediaType: editFormData.mediaType || '',
           languages: [selectedLanguage],
           order: parseInt(editFormData.order) || 0,
           uploadDate: new Date().toISOString()
@@ -204,7 +207,7 @@ const ALResourcesPage = () => {
                           className="btn btn-sm btn-success ms-2"
                           onClick={() => {
                             setEditingResource(null);
-                            setEditFormData({ title: '', description: '', fileUrl: '', alSubCategoryId: subCat.id, order: 0 });
+                            setEditFormData({ title: '', description: '', fileUrl: '', alSubCategoryId: subCat.id, order: 0, mediaType: '' });
                             setIsModalOpen(true);
                           }}
                         >
@@ -233,11 +236,13 @@ const ALResourcesPage = () => {
                               title: r.title || '',
                               description: r.description || '',
                               fileUrl: r.fileUrl || '',
-                              order: r.order || 0
+                              order: r.order || 0,
+                              mediaType: r.mediaType || ''
                             });
                             setIsModalOpen(true);
                           }}
                           onDelete={(id) => deleteDocument('al_resources', id)}
+                          onPlayVideo={(r) => setActiveVideo(r)}
                         />
                       ))
                     ) : (
@@ -351,6 +356,20 @@ const ALResourcesPage = () => {
                     />
                   </div>
                   <div className="mb-3">
+                    <label className="form-label">Media Type (Optional Override)</label>
+                    <select 
+                      className="form-select" 
+                      value={editFormData.mediaType || ''} 
+                      onChange={(e) => setEditFormData({...editFormData, mediaType: e.target.value})}
+                    >
+                      <option value="">Auto Detect (Default)</option>
+                      <option value="document">Document (PDF/Word)</option>
+                      <option value="video">Video (YouTube/MP4)</option>
+                      <option value="audio">Audio (MP3/WAV)</option>
+                      <option value="image">Image</option>
+                    </select>
+                  </div>
+                  <div className="mb-3">
                     <label className="form-label">Priority / Order</label>
                     <input 
                       type="number" 
@@ -408,6 +427,36 @@ const ALResourcesPage = () => {
                   <button type="submit" className="btn btn-primary">Save Changes</button>
                 </div>
               </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Global Video Modal */}
+      {activeVideo && (
+        <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.85)', zIndex: 2000, position: 'fixed', inset: 0 }} onClick={() => setActiveVideo(null)}>
+          <div className="modal-dialog modal-xl modal-dialog-centered" onClick={e => e.stopPropagation()}>
+            <div className="modal-content bg-dark text-white border-0 shadow-lg">
+              <div className="modal-header border-0 pb-0">
+                <h5 className="modal-title d-flex align-items-center">
+                  <i className="bi bi-play-circle-fill text-danger me-2"></i>
+                  {activeVideo.title}
+                </h5>
+                <button type="button" className="btn-close btn-close-white" onClick={() => setActiveVideo(null)}></button>
+              </div>
+              <div className="modal-body p-0 mt-3">
+                <div className="ratio ratio-16x9">
+                  <iframe
+                    src={`https://www.youtube.com/embed/${extractYouTubeId(activeVideo.fileUrl || activeVideo.url)}?autoplay=1`}
+                    title="YouTube video player"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  ></iframe>
+                </div>
+              </div>
+              <div className="modal-footer border-0">
+                <button className="btn btn-outline-light btn-sm" onClick={() => setActiveVideo(null)}>Close Player</button>
+              </div>
             </div>
           </div>
         </div>

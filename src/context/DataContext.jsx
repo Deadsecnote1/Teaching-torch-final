@@ -44,51 +44,39 @@ const processResources = (docs) => {
   const allResources = []; // Flat list for Admin Dashboard
 
   docs.forEach(doc => {
-    const data = { id: doc.id, ...doc.data() };
+    const docData = doc.data();
+    const data = { id: doc.id, ...docData };
     allResources.push(data);
 
-    const { grade, subject, resourceType } = data;
-    data.language = data.languages ? data.languages[0] : 'english';
-
-    // Initialize grade/subject nesting
-    if (!structuredResources[grade]) structuredResources[grade] = {};
-    if (!structuredResources[grade][subject]) {
-      structuredResources[grade][subject] = {
-        textbooks: {},
-        papers: { terms: { term1: [], term2: [], term3: [] }, chapters: {} },
-        notes: {}
-      };
-    }
-
-    if (!structuredVideos[grade]) structuredVideos[grade] = {};
-    if (!structuredVideos[grade][subject]) structuredVideos[grade][subject] = [];
+    const { grade, subject, resourceType, languages } = data;
+    data.language = languages ? languages[0] : 'english';
 
     // Categorize
     if (resourceType === 'textbook') {
-      // Use language as key for textbooks (legacy structure)
-      // If multiple textbooks of same language, this legacy structure might be limiting,
-      // but matching previous behavior: "textbooks: { [medium]: fileData }"
-      // We'll map it to an array if possible or keep as object. 
-      // Previous reducer: textbooks: { ...textbooks, [medium]: fileData }
-      // The UI expects an object keyed by language OR an array? 
-      // TextbooksPage.js: computed uploadedSubjectTextbooks.sinhala which seems to be an ARRAY there.
-      // Wait, TextbooksPage.js lines 47-58 groups them.
-      // Let's check the previous reducer ADD_TEXTBOOK case.
-      // It stored: textbooks: { [medium]: { ...fileData } }
-      // This implied ONE textbook per medium per subject/grade. 
-      // But TextbooksPage seems to handle arrays.
-      // Let's store them in the state as arrays if we can, but let's stick to valid structure.
-      // Actually, TextbooksPage processes `uploadedFiles` which it fetches from localStorage itself (lines 24-30).
-      // So DataContext structure for 'resources' is mainly used by `getResources` utility.
-
+      if (!structuredResources[grade]) structuredResources[grade] = {};
+      if (!structuredResources[grade][subject]) {
+        structuredResources[grade][subject] = {
+          textbooks: {},
+          papers: { terms: { term1: [], term2: [], term3: [] }, chapters: {} },
+          notes: {}
+        };
+      }
       const target = structuredResources[grade][subject].textbooks;
-      const langs = data.languages && data.languages.length > 0 ? data.languages : ['english'];
+      const langs = languages && languages.length > 0 ? languages : ['english'];
 
       langs.forEach(lang => {
         if (!target[lang]) target[lang] = [];
         target[lang].push(data);
       });
     } else if (resourceType === 'papers') {
+      if (!structuredResources[grade]) structuredResources[grade] = {};
+      if (!structuredResources[grade][subject]) {
+        structuredResources[grade][subject] = {
+          textbooks: {},
+          papers: { terms: { term1: [], term2: [], term3: [] }, chapters: {} },
+          notes: {}
+        };
+      }
       const { paperType, paperCategory } = data;
       const target = structuredResources[grade][subject].papers;
       if (paperType === 'term') {
@@ -99,8 +87,18 @@ const processResources = (docs) => {
         target.chapters[paperCategory].push(data);
       }
     } else if (resourceType === 'videos') {
+      if (!structuredVideos[grade]) structuredVideos[grade] = {};
+      if (!structuredVideos[grade][subject]) structuredVideos[grade][subject] = [];
       structuredVideos[grade][subject].push(data);
     } else if (resourceType === 'notes') {
+      if (!structuredResources[grade]) structuredResources[grade] = {};
+      if (!structuredResources[grade][subject]) {
+        structuredResources[grade][subject] = {
+          textbooks: {},
+          papers: { terms: { term1: [], term2: [], term3: [] }, chapters: {} },
+          notes: {}
+        };
+      }
       const target = structuredResources[grade][subject].notes;
       target[data.id] = data;
     }
@@ -633,7 +631,7 @@ export const DataProvider = ({ children }) => {
   }, [state.grades, getSubjectsForGrade, getResources, getVideos]);
 
   // Context value
-  const value = {
+  const value = React.useMemo(() => ({
     ...state,
     addTextbook,
     addPaper,
@@ -657,7 +655,14 @@ export const DataProvider = ({ children }) => {
     fetchResourcesPaginated,
     updateSettings,
     dispatch
-  };
+  }), [
+    state, addTextbook, addPaper, addVideo, addNote, 
+    deleteResource, updateResource, deleteGrade, deleteSubject,
+    addGrade, updateGrade, addSubject, updateSubject,
+    getSubjectsForGrade, getResources, getVideos, getStats,
+    generateGradePageData, fetchResourcesForGrade, fetchAllResources,
+    fetchResourcesPaginated, updateSettings, dispatch
+  ]);
 
   return (
     <DataContext.Provider value={value}>

@@ -14,24 +14,25 @@ import ScrollToTop from './components/common/ScrollToTop';
 import ErrorBoundary from './components/common/ErrorBoundary';
 
 // Pages
-import Home from './pages/Home';
-import About from './pages/About';
-import Contact from './pages/Contact';
-import GradePage from './pages/GradePage';
-import ResourcesPage from './pages/ResourcesPage';
-import TextbooksPage from './pages/TextbooksPage';
-import PapersPage from './pages/PapersPage';
-import NotesPage from './pages/NotesPage';
-import VideosPage from './pages/VideosPage';
-import PrivacyPolicy from './pages/PrivacyPolicy';
-import AdminLogin from './pages/admin/Login';
-import AdminDashboard from './pages/admin/AdminDashboard';
-import SubjectHubPage from './pages/SubjectHubPage';
+// Lazy load Pages
+const Home = React.lazy(() => import('./pages/Home'));
+const About = React.lazy(() => import('./pages/About'));
+const Contact = React.lazy(() => import('./pages/Contact'));
+const GradePage = React.lazy(() => import('./pages/GradePage'));
+const ResourcesPage = React.lazy(() => import('./pages/ResourcesPage'));
+const TextbooksPage = React.lazy(() => import('./pages/TextbooksPage'));
+const PapersPage = React.lazy(() => import('./pages/PapersPage'));
+const NotesPage = React.lazy(() => import('./pages/NotesPage'));
+const VideosPage = React.lazy(() => import('./pages/VideosPage'));
+const PrivacyPolicy = React.lazy(() => import('./pages/PrivacyPolicy'));
+const AdminLogin = React.lazy(() => import('./pages/admin/Login'));
+const AdminDashboard = React.lazy(() => import('./pages/admin/AdminDashboard'));
+const SubjectHubPage = React.lazy(() => import('./pages/SubjectHubPage'));
 
-// AL Pages
-import ALStreamsPage from './pages/al/ALStreamsPage';
-import ALResourceTypesPage from './pages/al/ALResourceTypesPage';
-import ALResourcesPage from './pages/al/ALResourcesPage';
+// Lazy load AL Pages
+const ALStreamsPage = React.lazy(() => import('./pages/al/ALStreamsPage'));
+const ALResourceTypesPage = React.lazy(() => import('./pages/al/ALResourceTypesPage'));
+const ALResourcesPage = React.lazy(() => import('./pages/al/ALResourcesPage'));
 
 // Styles
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -71,34 +72,36 @@ function App() {
                   <Navbar />
                   <main className="main-content">
                     <ErrorBoundary>
-                      <Routes>
-                        <Route path="/" element={<Home />} />
-                        <Route path="/about" element={<About />} />
-                        <Route path="/contact" element={<Contact />} />
-                        <Route path="/grade/:gradeId" element={<GradePage />} />
-                        <Route path="/grade/:gradeId/:streamId" element={<GradePage />} />
-                        <Route path="/grade/:gradeId/:streamId/:subjectId" element={<SubjectHubPage />} />
-                        <Route path="/grade/:gradeId/:streamId/:subjectId/textbooks" element={<TextbooksPage />} />
-                        <Route path="/grade/:gradeId/:streamId/:subjectId/papers" element={<PapersPage />} />
-                        <Route path="/grade/:gradeId/:streamId/:subjectId/notes" element={<NotesPage />} />
-                        <Route path="/grade/:gradeId/:streamId/:subjectId/videos" element={<VideosPage />} />
-                        <Route path="/grade/:gradeId/:streamId/:subjectId/:resourceType" element={<ResourcesPage />} />
-                        <Route path="/grade/:gradeId/textbooks" element={<TextbooksPage />} />
-                        <Route path="/grade/:gradeId/papers" element={<PapersPage />} />
-                        <Route path="/grade/:gradeId/notes" element={<NotesPage />} />
-                        <Route path="/grade/:gradeId/videos" element={<VideosPage />} />
-                        <Route path="/grade/:gradeId/:resourceType" element={<ResourcesPage />} />
-                        
-                        {/* AL Independent Routes */}
-                        <Route path="/al" element={<ALStreamsPage />} />
-                        <Route path="/al/:streamId/:subjectId" element={<ALResourceTypesPage />} />
-                        <Route path="/al/:streamId/:subjectId/:resourceTypeId" element={<ALResourcesPage />} />
-  
-                        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                        <Route path="/admin/login" element={<AdminLogin />} />
-                        <Route path="/admin" element={<AdminDashboard />} />
-                        <Route path="*" element={<NotFound />} />
-                      </Routes>
+                      <React.Suspense fallback={<div className="p-5 text-center"><div className="spinner-border text-primary"></div></div>}>
+                        <Routes>
+                          <Route path="/" element={<Home />} />
+                          <Route path="/about" element={<About />} />
+                          <Route path="/contact" element={<Contact />} />
+                          <Route path="/grade/:gradeId" element={<GradePage />} />
+                          <Route path="/grade/:gradeId/:streamId" element={<GradePage />} />
+                          <Route path="/grade/:gradeId/:streamId/:subjectId" element={<SubjectHubPage />} />
+                          <Route path="/grade/:gradeId/:streamId/:subjectId/textbooks" element={<TextbooksPage />} />
+                          <Route path="/grade/:gradeId/:streamId/:subjectId/papers" element={<PapersPage />} />
+                          <Route path="/grade/:gradeId/:streamId/:subjectId/notes" element={<NotesPage />} />
+                          <Route path="/grade/:gradeId/:streamId/:subjectId/videos" element={<VideosPage />} />
+                          <Route path="/grade/:gradeId/:streamId/:subjectId/:resourceType" element={<ResourcesPage />} />
+                          <Route path="/grade/:gradeId/textbooks" element={<TextbooksPage />} />
+                          <Route path="/grade/:gradeId/papers" element={<PapersPage />} />
+                          <Route path="/grade/:gradeId/notes" element={<NotesPage />} />
+                          <Route path="/grade/:gradeId/videos" element={<VideosPage />} />
+                          <Route path="/grade/:gradeId/:resourceType" element={<ResourcesPage />} />
+                          
+                          {/* AL Independent Routes */}
+                          <Route path="/al" element={<ALStreamsPage />} />
+                          <Route path="/al/:streamId/:subjectId" element={<ALResourceTypesPage />} />
+                          <Route path="/al/:streamId/:subjectId/:resourceTypeId" element={<ALResourcesPage />} />
+    
+                          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                          <Route path="/admin/login" element={<AdminLogin />} />
+                          <Route path="/admin" element={<AdminDashboard />} />
+                          <Route path="*" element={<NotFound />} />
+                        </Routes>
+                      </React.Suspense>
                     </ErrorBoundary>
                   </main>
                   <Footer />

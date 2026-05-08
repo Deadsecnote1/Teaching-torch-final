@@ -37,7 +37,7 @@
   --navbar-bg: var(--primary-gradient);
   --card-bg: #ffffff;
   --card-shadow: rgba(0, 0, 0, 0.1);
-  --hero-gradient: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.5) 100%);
+  --hero-gradient: linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0));
 }
 
 /* Dark Mode Colors */
@@ -55,7 +55,7 @@
   --navbar-bg: #1E40AF;
   --card-bg: #1e1e1e;
   --card-shadow: rgba(0, 0, 0, 0.3);
-  --hero-gradient: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.6) 100%);
+  --hero-gradient: linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0));
 
   --primary: #008C87;
   /* Lighter teal for dark mode contrast */
@@ -247,8 +247,9 @@ a:active {
   left: 0;
   right: 0;
   bottom: 0;
-  opacity: 0.1;
+  opacity: 0;
   z-index: 0;
+  pointer-events: none;
 }
 
 .hero-content {
@@ -361,6 +362,10 @@ a:active {
 }
 
 /* Buttons */
+.btn:active {
+  transform: scale(0.98);
+}
+
 .btn-primary {
   background: var(--primary);
   border-color: var(--primary);
@@ -478,7 +483,13 @@ small {
 /* Breadcrumb */
 .breadcrumb {
   background: transparent;
-  padding: 0;
+  padding: 0.5rem 0;
+}
+
+@media (max-width: 768px) {
+  .breadcrumb {
+    padding: 0.5rem 1rem;
+  }
 }
 
 .breadcrumb-item a {
@@ -738,7 +749,12 @@ small {
 
   .grade-card {
     padding: 1.5rem;
+    margin: 10px;
     margin-bottom: 2rem;
+  }
+
+  .resource-card {
+    margin: 10px;
   }
 
   .grade-icon {
@@ -779,12 +795,37 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Focus indicators for accessibility */
-a:focus,
-button:focus,
-input:focus,
-select:focus,
-textarea:focus {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
+/* Contact Form Refinement */
+@media (min-width: 992px) {
+  .contact-form-section {
+    max-width: 700px;
+    margin: 0 auto;
+  }
+}
+
+/* Table Scroll Indicator */
+.table-responsive {
+  position: relative;
+}
+
+.table-responsive::after {
+  content: 'Scroll →';
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0,0,0,0.5);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .table-responsive::after {
+    opacity: 0.7;
+  }
 }

@@ -3,8 +3,9 @@ import { getDownloadUrl, getEmbedUrl, isGoogleDriveLink } from '../../utils/goog
 import { useAuth } from '../../context/AuthContext';
 import { useData } from '../../context/DataContext';
 import { analytics } from '../../firebase';
-import { logEvent } from 'firebase/analytics';
+import { extractYouTubeId, isYouTubeLink } from '../../utils/youtube';
 import toast from 'react-hot-toast';
+import { useState } from 'react';
 
 /**
  * Resource Card Component
@@ -20,10 +21,12 @@ const ResourceCard = ({
   showDownloadButton = true,
   className = '',
   onEdit, // New prop for centralized editing
-  onDelete // Prop for custom deletion logic (e.g. A/L)
+  onDelete, // Prop for custom deletion logic (e.g. A/L)
+  onPlayVideo
 }) => {
   const { isManageMode } = useAuth();
   const { deleteResource } = useData();
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
 
 
   const t = { languageLabel: 'Language', deleteConfirm: 'Are you sure you want to delete' };
@@ -90,12 +93,19 @@ const ResourceCard = ({
           <div className="resource-info d-flex align-items-center flex-grow-1" style={{ minWidth: 0, overflow: 'hidden' }}>
             {(() => {
               const type = resource.resourceType || '';
+              const mediaType = resource.mediaType || '';
+              const url = resource.driveLink || resource.fileUrl || resource.url || '';
+              
               let iconClass = 'bi-file-pdf text-danger';
-              if (type === 'videos' || type === 'video') iconClass = 'bi-play-circle text-primary';
+              
+              // Auto-detect from URL or collection type
+              if (isYouTubeLink(url) || type === 'videos' || type === 'video' || mediaType === 'video') iconClass = 'bi-play-circle text-primary';
+              else if (url.toLowerCase().match(/\.(mp3|wav|ogg|m4a)$/) || type === 'audio' || mediaType === 'audio') iconClass = 'bi-headphones text-success';
               else if (type === 'papers' || type === 'paper' || type.includes('paper')) iconClass = 'bi-file-earmark-text text-info';
               else if (type === 'notes' || type === 'note') iconClass = 'bi-journal-text text-warning';
               else if (type === 'textbooks' || type === 'textbook') iconClass = 'bi-book text-success';
               else if (type.includes('question')) iconClass = 'bi-patch-question text-warning';
+              else if (mediaType === 'document') iconClass = 'bi-file-earmark-text text-info';
               
               return <i className={`bi ${iconClass} me-3`} style={{ fontSize: '1.5rem', flexShrink: 0 }}></i>;
             })()}
@@ -112,18 +122,30 @@ const ResourceCard = ({
             </div>
           </div>
 
-          <div className="resource-actions d-flex gap-1 ms-3 align-items-center" style={{ flexShrink: 0 }}>
+          <div className="resource-actions d-flex gap-1 ms-3 align-items-center" style={{ flexShrink: 0, minWidth: 'fit-content' }}>
             {/* Standard User Actions */}
-            {showViewButton && (embedUrl || downloadUrl) && (
+            {showViewButton && (embedUrl || downloadUrl || isYouTubeLink(resource.fileUrl || resource.url)) && (
               <button
                 className="btn btn-sm btn-outline-primary"
-                onClick={handleView}
-                title="View PDF"
+                onClick={() => {
+                  const isAudio = resource.mediaType === 'audio' || (resource.fileUrl || resource.url || '').match(/\.(mp3|wav|ogg|m4a)$/i);
+                  const isTelegram = (resource.fileUrl || resource.url || resource.driveLink || '').includes('t.me/');
+                  
+                  if (isYouTubeLink(resource.fileUrl || resource.url)) {
+                    if (onPlayVideo) onPlayVideo(resource);
+                    else handleView();
+                  } else if (isAudio && !isTelegram) {
+                    setIsPlayingAudio(!isPlayingAudio);
+                  } else {
+                    handleView();
+                  }
+                }}
+                title={(resource.mediaType === 'audio' || (resource.fileUrl || resource.url || '').match(/\.(mp3|wav|ogg|m4a)$/i)) ? 'Listen/Play' : 'View'}
               >
-                <i className="bi bi-eye"></i>
+                <i className={`bi ${isPlayingAudio ? 'bi-stop-fill' : ((resource.mediaType === 'audio' || (resource.fileUrl || resource.url || '').match(/\.(mp3|wav|ogg|m4a)$/i) || isYouTubeLink(resource.fileUrl || resource.url)) ? 'bi-play-fill' : 'bi-eye')}`}></i>
               </button>
             )}
-            {showDownloadButton && (
+            {showDownloadButton && !(resource.mediaType === 'video' || resource.mediaType === 'audio' || isYouTubeLink(resource.fileUrl || resource.url || '')) && (
               <a
                 href={safeDownloadUrl}
                 className={`btn btn-sm ${isManageMode ? 'btn-outline-secondary' : 'btn-primary'}`}
@@ -131,7 +153,7 @@ const ResourceCard = ({
                 target="_blank"
                 rel="noopener noreferrer"
                 download={!isDrive}
-                title="Download PDF"
+                title="Download"
               >
                 <i className="bi bi-download"></i>
               </a>
@@ -171,6 +193,39 @@ const ResourceCard = ({
             )}
           </div>
         </div>
+
+        {/* Inline Audio Player */}
+        {isPlayingAudio && (
+          <div className="audio-player-container mt-2 p-2 bg-light rounded border border-success animate-fade-in">
+            {isDrive ? (
+              <>
+                <iframe 
+                  src={embedUrl} 
+                  title="Audio Player" 
+                  className="w-100 rounded"
+                  style={{ height: '140px', border: 'none' }}
+                  allow="autoplay"
+                ></iframe>
+                <div className="text-end mt-1">
+                  <button className="btn btn-sm btn-outline-danger py-0" style={{fontSize: '0.7rem'}} onClick={() => setIsPlayingAudio(false)}>Close Player</button>
+                </div>
+              </>
+            ) : (
+              <audio 
+                controls 
+                autoPlay 
+                className="w-100" 
+                style={{ height: '35px' }}
+                onEnded={() => setIsPlayingAudio(false)}
+              >
+                <source src={safeDownloadUrl} type="audio/mpeg" />
+                Your browser does not support the audio element.
+              </audio>
+            )}
+          </div>
+        )}
+
+
       </div>
 
       <style>{`
@@ -192,5 +247,5 @@ const ResourceCard = ({
   );
 };
 
-export default ResourceCard;
+export default React.memo(ResourceCard);
 

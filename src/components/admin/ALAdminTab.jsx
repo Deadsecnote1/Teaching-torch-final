@@ -155,6 +155,7 @@ const ALAdminTab = () => {
         alSubjectId: formData.alSubjectId,
         alResourceTypeId: formData.alResourceTypeId,
         alSubCategoryId: formData.alSubCategoryId,
+        mediaType: formData.mediaType || '', // Empty means auto-detect
         languages: [formData.language], // Support single language selection for now
         order: parseInt(formData.order) || 0,
         uploadDate: new Date().toISOString()
@@ -198,8 +199,8 @@ const ALAdminTab = () => {
 
   return (
         <div className="card shadow-sm border-0">
-          <div className="card-header border-bottom-0 pt-4 pb-0 px-4">
-            <ul className="nav nav-tabs card-header-tabs" role="tablist">
+          <div className="card-header border-bottom-0 pt-4 pb-0 px-4" style={{ overflowX: 'auto', whiteSpace: 'nowrap', msOverflowStyle: 'none', scrollbarWidth: 'none' }}>
+            <ul className="nav nav-tabs card-header-tabs flex-nowrap" role="tablist" style={{ borderBottom: 'none' }}>
               <li className="nav-item">
                 <button className={`nav-link ${activeTab === 'streams' ? 'active' : ''}`} onClick={() => {setActiveTab('streams'); setFormData({}); setEditingId(null);}}>Streams</button>
               </li>
@@ -542,7 +543,21 @@ const ALAdminTab = () => {
                       <label className="form-label">File/Google Drive URL</label>
                       <input type="url" className="form-control" name="fileUrl" value={formData.fileUrl || ''} onChange={handleInputChange} required placeholder="https://..." />
                     </div>
-
+                    <div className="mb-3">
+                      <label className="form-label">Media Type (Optional Override)</label>
+                      <select 
+                        className="form-select" 
+                        name="mediaType" 
+                        value={formData.mediaType || ''} 
+                        onChange={handleInputChange}
+                      >
+                        <option value="">Auto Detect (Default)</option>
+                        <option value="document">Document (PDF/Word)</option>
+                        <option value="video">Video (YouTube/MP4)</option>
+                        <option value="audio">Audio (MP3/WAV)</option>
+                        <option value="image">Image</option>
+                      </select>
+                    </div>
                     <div className="mb-3">
                       <label className="form-label">Priority / Order</label>
                       <input type="number" className="form-control" name="order" value={formData.order || 0} onChange={handleInputChange} />

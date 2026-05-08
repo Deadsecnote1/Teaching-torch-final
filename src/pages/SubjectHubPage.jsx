@@ -8,7 +8,7 @@ import AdSenseComponent from '../components/common/AdSenseComponent';
 const SubjectHubPage = () => {
   const { gradeId, streamId, subjectId } = useParams();
   const { selectedLanguage: language } = useLanguage();
-  const { grades, subjects, resourceTypes } = useData();
+  const { grades, subjects, resourceTypes = [] } = useData();
 
   const grade = grades[gradeId];
   const stream = grades[streamId];

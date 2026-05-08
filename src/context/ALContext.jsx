@@ -113,7 +113,7 @@ export const ALProvider = ({ children }) => {
     }
   };
 
-  const value = {
+  const value = React.useMemo(() => ({
     alStreams,
     alSubjects,
     alResourceTypes,
@@ -123,7 +123,10 @@ export const ALProvider = ({ children }) => {
     addDocument,
     updateDocument,
     deleteDocument
-  };
+  }), [
+    alStreams, alSubjects, alResourceTypes, alSubCategories, 
+    alResources, loading, addDocument, updateDocument, deleteDocument
+  ]);
 
   return (
     <ALContext.Provider value={value}>

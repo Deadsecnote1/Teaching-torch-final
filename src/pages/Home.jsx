@@ -33,12 +33,12 @@ const Home = () => {
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
       }}>
-        <div className="container text-center text-white">
+        <div className="container text-center text-dark">
           <div className="hero-content">
-            <h1 className="display-4 fw-bold mb-3">Welcome to Teaching Torch</h1>
-            <p className="lead mb-4">Free Educational Resources for Sri Lankan Students</p>
+            <h1 className="display-4 fw-bold mb-3 text-dark">Welcome to Teaching Torch</h1>
+            <p className="lead mb-4 text-dark fw-bold">Free Educational Resources for Sri Lankan Students</p>
             <div className="hero-buttons">
-              <a href="#grades" className="btn btn-light btn-lg me-3">Explore Grades</a>
+              <a href="#grades" className="btn btn-dark btn-lg me-3">Explore Grades</a>
             </div>
           </div>
         </div>
