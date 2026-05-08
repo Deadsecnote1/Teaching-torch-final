@@ -32,15 +32,11 @@ export const AuthProvider = ({ children }) => {
     };
 
     const setManageMode = (value) => {
-        if (currentUser) {
-            setIsManageMode(value);
-        }
+        setIsManageMode(value);
     };
 
     const toggleManageMode = () => {
-        if (currentUser) {
-            setIsManageMode(prev => !prev);
-        }
+        setIsManageMode(prev => !prev);
     };
 
     useEffect(() => {
