@@ -77,7 +77,10 @@ export const getViewUrl = (shareLink) => {
  */
 export const isGoogleDriveLink = (url) => {
   if (!url) return false;
-  return url.includes('drive.google.com') || /^[a-zA-Z0-9_-]+$/.test(url);
+  // SEC-05: Tighten regex to avoid broad alphanumeric matches
+  // Google Drive IDs are typically between 25 and 50 characters
+  const isDriveId = /^[a-zA-Z0-9_-]{25,50}$/.test(url);
+  return url.includes('drive.google.com') || isDriveId;
 };
 
 /**

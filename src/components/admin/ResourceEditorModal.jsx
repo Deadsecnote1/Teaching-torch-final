@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useData } from '../../context/DataContext';
 import toast from 'react-hot-toast';
+import { isValidHttpsUrl } from '../../utils/validation';
 
 const ResourceEditorModal = ({ resource, isOpen, onClose }) => {
   const { 
@@ -53,6 +54,11 @@ const ResourceEditorModal = ({ resource, isOpen, onClose }) => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
+      if (formData.url && !isValidHttpsUrl(formData.url.trim())) {
+        toast.error('Please enter a valid secure URL starting with https://');
+        setIsSubmitting(false);
+        return;
+      }
       if (formData.id) {
         await updateResource(formData.id, formData);
         toast.success('Resource updated successfully!');

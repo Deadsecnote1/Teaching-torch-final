@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useALData } from '../../context/ALContext';
 import toast from 'react-hot-toast';
+import { isValidHttpsUrl } from '../../utils/validation';
 
 const ALAdminTab = () => {
   const { 
@@ -147,6 +148,10 @@ const ALAdminTab = () => {
   const handleAddResource = async (e) => {
     e.preventDefault();
     try {
+      if (formData.fileUrl && !isValidHttpsUrl(formData.fileUrl.trim())) {
+        toast.error('Please enter a valid secure URL starting with https://');
+        return;
+      }
       const data = {
         title: formData.title,
         description: formData.description || '',

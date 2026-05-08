@@ -36,10 +36,10 @@ const AdSenseComponent = ({ slot, format = 'auto', responsive = true, style = {}
   };
 
   const actualSlot = slotMap[slot] || slot;
-  const publisherId = settings.adsenseClientId || "ca-pub-PLACEHOLDER_ID";
+  const publisherId = settings.adsenseClientId;
 
-  // If we don't have a valid slot ID after mapping, render nothing (display: none)
-  if (!actualSlot || actualSlot === 'PLACEHOLDER_SLOT') {
+  // If we don't have a valid slot ID or publisher ID, render nothing
+  if (!actualSlot || actualSlot === 'PLACEHOLDER_SLOT' || !publisherId || publisherId === "ca-pub-PLACEHOLDER_ID") {
     return null;
   }
 

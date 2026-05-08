@@ -12,6 +12,7 @@ import Navbar from './components/common/Navbar';
 import Footer from './components/common/Footer';
 import ScrollToTop from './components/common/ScrollToTop';
 import ErrorBoundary from './components/common/ErrorBoundary';
+import ProtectedRoute from './components/common/ProtectedRoute';
 
 // Pages
 // Lazy load Pages
@@ -98,7 +99,7 @@ function App() {
     
                           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                           <Route path="/admin/login" element={<AdminLogin />} />
-                          <Route path="/admin" element={<AdminDashboard />} />
+                          <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </React.Suspense>

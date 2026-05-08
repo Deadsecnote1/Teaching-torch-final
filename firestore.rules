@@ -2,43 +2,54 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // 1. Anyone can READ resources, grades, subjects, and settings (Students)
+    function isAdmin() {
+      return request.auth != null && request.auth.token.admin == true;
+    }
+
+    // 1. Standard Collections
     match /resources/{document=**} {
       allow read: if true;
+      allow write: if isAdmin();
     }
     match /grades/{document=**} {
       allow read: if true;
+      allow write: if isAdmin();
     }
     match /subjects/{document=**} {
       allow read: if true;
+      allow write: if isAdmin();
     }
     match /settings/{document=**} {
       allow read: if true;
+      allow write: if isAdmin();
     }
     match /resource_types/{document=**} {
       allow read: if true;
+      allow write: if isAdmin();
     }
     
-    // A/L Collections
+    // 2. A/L Collections
     match /al_streams/{document=**} {
       allow read: if true;
+      allow write: if isAdmin();
     }
     match /al_subjects/{document=**} {
       allow read: if true;
+      allow write: if isAdmin();
     }
     match /al_resource_types/{document=**} {
       allow read: if true;
+      allow write: if isAdmin();
     }
     match /al_sub_categories/{document=**} {
       allow read: if true;
+      allow write: if isAdmin();
     }
     match /al_resources/{document=**} {
       allow read: if true;
+      allow write: if isAdmin();
     }
 
-    // 2. Only LOGGED IN ADMINS can WRITE (Create, Update, Delete)
-    match /{document=**} {
-      allow write: if request.auth != null && request.auth.token.email == 'admin@teachingtorch.lk';
-    }
+    // SEC-10: Catch-all write rule removed for defense-in-depth
   }
 }

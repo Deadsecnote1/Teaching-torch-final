@@ -16,6 +16,7 @@ import AdminSettingsManager from '../../components/admin/AdminSettingsManager';
 
 import { isGoogleDriveLink, extractFileId } from '../../utils/googleDrive';
 import { isYouTubeLink, extractYouTubeId } from '../../utils/youtube';
+import { isValidHttpsUrl } from '../../utils/validation';
 
 const AdminDashboard = () => {
   useDocumentTitle('Admin Dashboard');
@@ -142,6 +143,11 @@ const AdminDashboard = () => {
       return;
     }
 
+    if (!isValidHttpsUrl(driveLink.trim())) {
+      toast.error('Please enter a valid secure URL starting with https://');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const fileData = {
@@ -198,6 +204,12 @@ const AdminDashboard = () => {
         grade: editResourceData.grade,
         url: editResourceData.url.trim()
       };
+
+      if (!isValidHttpsUrl(updateData.url)) {
+        toast.error('Please enter a valid secure URL starting with https://');
+        setIsSubmitting(false);
+        return;
+      }
 
       if (isYouTubeLink(editResourceData.url)) {
         updateData.youtubeUrl = editResourceData.url.trim();
