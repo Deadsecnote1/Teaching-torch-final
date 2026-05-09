@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 import {
   collection,
@@ -11,7 +11,8 @@ import {
   getDocs,
   doc,
   deleteDoc,
-  updateDoc
+  updateDoc,
+  onSnapshot
 } from 'firebase/firestore';
 
 const ResourceContext = createContext();
@@ -78,6 +79,25 @@ export const ResourceProvider = ({ children }) => {
   const [lastVisible, setLastVisible] = useState(null);
   const [hasMore, setHasMore] = useState(true);
   const { db } = useAuth();
+
+  useEffect(() => {
+    if (!db) return;
+
+    // Listen to all resources in real-time
+    const q = query(collection(db, "resources"));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      // Process Firestore documents into structured format
+      const { structuredResources, structuredVideos, allResources: fresh } = processResources(snapshot.docs);
+      
+      // Update all three state variables
+      setResources(structuredResources);
+      setVideos(structuredVideos);
+      setAllResources(fresh);
+    });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, [db]);
 
   const fetchResourcesForGrade = useCallback(async (gradeId) => {
     if (!db || fetchedGrades[gradeId]) return;

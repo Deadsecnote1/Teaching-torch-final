@@ -1,29 +1,56 @@
 import React, { createContext, useContext, useMemo } from 'react';
 import { useGrades } from './GradeContext';
 import { useResources } from './ResourceContext';
+import { useLanguage } from './LanguageContext';
 
 const DataContext = createContext();
 
 export const DataProvider = ({ children }) => {
   const gradeData = useGrades();
   const resourceData = useResources();
+  const { selectedLanguage } = useLanguage();
 
   // Combine both contexts to maintain backward compatibility
   const value = useMemo(() => ({
     ...gradeData,
     ...resourceData,
+    language: selectedLanguage,
     // Add any missing specific legacy mappings here
     gradesLoading: gradeData.loading,
     allResources: resourceData.allResources,
-    addTextbook: (grade, subject, langs, data) => 
+    addTextbook: (grade, subject, langs, data) =>
       resourceData.addResource({ ...data, grade, subject, resourceType: 'textbook', languages: Array.isArray(langs) ? langs : [langs] }),
-    addPaper: (grade, subject, paperType, paperCategory, data, school, langs) => 
+    addPaper: (grade, subject, paperType, paperCategory, data, school, langs) =>
       resourceData.addResource({ ...data, grade, subject, resourceType: 'papers', paperType, paperCategory, school, languages: langs }),
-    addVideo: (grade, subject, data) => 
+    addVideo: (grade, subject, data) =>
       resourceData.addResource({ ...data, grade, subject, resourceType: 'videos', languages: [data.language || 'english'] }),
-    addNote: (grade, subject, data, langs) => 
+    addNote: (grade, subject, data, langs) =>
       resourceData.addResource({ ...data, grade, subject, resourceType: 'notes', languages: Array.isArray(langs) ? langs : [langs] }),
-    
+
+    // Override generateGradePageData to merge resources into subjects
+    generateGradePageData: (gradeId) => {
+      const pageData = gradeData.generateGradePageData(gradeId);
+      if (!pageData.grade) return pageData;
+
+      const gradeResources = resourceData.resources[gradeId] || {};
+      const gradeVideos = resourceData.videos[gradeId] || {};
+
+      // Merge resources into subjects
+      const subjectsWithResources = {};
+      Object.entries(pageData.subjects).forEach(([subjectId, subject]) => {
+        subjectsWithResources[subjectId] = {
+          ...subject,
+          resources: gradeResources[subjectId] || { textbooks: {}, papers: { terms: { term1: [], term2: [], term3: [] }, chapters: {} }, notes: {} },
+          videos: gradeVideos[subjectId] || []
+        };
+      });
+
+      return {
+        ...pageData,
+        subjects: subjectsWithResources
+      };
+    },
+
     // Legacy helper functions
     getStats: () => ({
       totalGrades: Object.keys(gradeData.grades).length,

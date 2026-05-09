@@ -105,6 +105,14 @@ export const GradeProvider = ({ children }) => {
     return Object.fromEntries(validSubjectsArray);
   }, [subjects]);
 
+  const generateGradePageData = useCallback((gradeId) => {
+    const grade = grades[gradeId];
+    if (!grade) return { grade: null, subjects: {} };
+
+    const gradeSubjects = getSubjectsForGrade(gradeId);
+    return { grade, subjects: gradeSubjects };
+  }, [grades, getSubjectsForGrade]);
+
   const value = {
     grades,
     subjects,
@@ -116,7 +124,8 @@ export const GradeProvider = ({ children }) => {
     addSubject,
     updateSubject,
     deleteSubject,
-    getSubjectsForGrade
+    getSubjectsForGrade,
+    generateGradePageData
   };
 
   return <GradeContext.Provider value={value}>{children}</GradeContext.Provider>;

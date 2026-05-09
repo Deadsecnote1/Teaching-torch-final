@@ -30,20 +30,20 @@ export const ALProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const { db, isInitialized } = useAuth();
 
+  const processDoc = (doc) => {
+    const d = doc.data();
+    const obj = {
+      id: doc.id,
+      ...d
+    };
+    if (d.name) obj.name = normalizeString(d.name);
+    if (d.description) obj.description = normalizeString(d.description);
+    if (d.title) obj.title = normalizeString(d.title);
+    return obj;
+  };
+
   useEffect(() => {
     if (!isInitialized || !db) return;
-
-    const processDoc = (doc) => {
-      const d = doc.data();
-      const obj = {
-        id: doc.id,
-        ...d
-      };
-      if (d.name) obj.name = normalizeString(d.name);
-      if (d.description) obj.description = normalizeString(d.description);
-      if (d.title) obj.title = normalizeString(d.title);
-      return obj;
-    };
 
     const collections = ['al_streams', 'al_subjects', 'al_resource_types', 'al_sub_categories'];
     const setters = {
