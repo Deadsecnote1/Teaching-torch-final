@@ -17,6 +17,7 @@ const SplashScreen = () => {
       <img 
         src="/logo512.png" 
         alt="Teaching Torch Logo" 
+        loading="lazy"
         style={{ 
           width: '150px', 
           height: '150px', 

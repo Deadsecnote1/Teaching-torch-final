@@ -1,8 +1,9 @@
 /* Teaching Torch - Global Styles with Better Theme Support */
 :root {
-  /* Light Mode Colors - Modern Educational Theme */
-  --primary: #006764;
-  --primary-gradient: linear-gradient(135deg, var(--primary) 0%, #004D4A 100%);
+  /* Light Mode Colors - Premium Educational Theme */
+  --primary: #2563eb;
+  --primary-gradient: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  --primary-light: #dbeafe;
   /* Deep Teal - US Dept of Education Style */
   --secondary: #10B981;
   /* Emerald Green - Growth & Success */
@@ -57,8 +58,8 @@
   --card-shadow: rgba(0, 0, 0, 0.3);
   --hero-gradient: linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0));
 
-  --primary: #008C87;
-  /* Lighter teal for dark mode contrast */
+  --primary: #3b82f6;
+  /* Lighter blue for dark mode contrast */
   --secondary: #10B981;
   --light: #2d2d2d;
   --dark: #e0e0e0;
@@ -238,6 +239,25 @@ a:active {
   position: relative;
   color: white;
   padding-top: 76px;
+}
+
+.hero-section-bg {
+  background-image: var(--hero-gradient), url('/bg1-small.webp');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+@media (min-width: 768px) {
+  .hero-section-bg {
+    background-image: var(--hero-gradient), url('/bg1-medium.webp');
+  }
+}
+
+@media (min-width: 1200px) {
+  .hero-section-bg {
+    background-image: var(--hero-gradient), url('/bg1.webp');
+  }
 }
 
 .hero-section::before {

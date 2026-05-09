@@ -1,5 +1,6 @@
 import React from 'react';
 import LoadingSpinner from '../common/LoadingSpinner';
+import AdminResourceItem from './AdminResourceItem';
 
 const AdminFileManager = ({ 
   searchQuery, 
@@ -49,131 +50,27 @@ const AdminFileManager = ({
           {filteredFiles.length > 0 ? (
             <div>
               {filteredFiles.map((file) => (
-                <div key={file.id} className="p-2 border-bottom">
-                  {editingResource === file.id ? (
-                    <div className="edit-resource-form">
-                      <div className="mb-2">
-                        <label className="form-label small mb-0">Title</label>
-                        <input type="text" className="form-control form-control-sm mb-2" value={editResourceData.title} onChange={e => setEditResourceData({ ...editResourceData, title: e.target.value })} />
-                        
-                        <label className="form-label small mb-0">URL (Drive / YouTube)</label>
-                        <input type="text" className="form-control form-control-sm mb-2" value={editResourceData.url} onChange={e => setEditResourceData({ ...editResourceData, url: e.target.value })} />
-                        
-                        <label className="form-label small mb-0">Description</label>
-                        <textarea className="form-control form-control-sm mb-2" rows="2" value={editResourceData.description} onChange={e => setEditResourceData({ ...editResourceData, description: e.target.value })} />
-                        
-                        <div className="row g-2 mb-2">
-                          <div className="col-6">
-                            <label className="form-label small mb-0">Grade</label>
-                            <select className="form-select form-select-sm" value={editResourceData.grade} onChange={e => {
-                              const newGrade = e.target.value;
-                              const availableSubjects = getSubjectsForGrade(newGrade);
-                              const subjectKeys = Object.keys(availableSubjects);
-                              setEditResourceData(prev => ({ 
-                                ...prev, 
-                                grade: newGrade, 
-                                subject: subjectKeys.includes(prev.subject) ? prev.subject : (subjectKeys[0] || '') 
-                              }));
-                            }}>
-                              {Object.entries(grades).map(([key, g]) => (
-                                <option key={key} value={key}>{g.display}</option>
-                              ))}
-                            </select>
-                          </div>
-                          <div className="col-6">
-                            <label className="form-label small mb-0">Subject</label>
-                            <select className="form-select form-select-sm" value={editResourceData.subject} onChange={e => setEditResourceData({ ...editResourceData, subject: e.target.value })}>
-                              {Object.entries(getSubjectsForGrade(editResourceData.grade)).map(([key, s]) => (
-                                <option key={key} value={key}>{s.name}</option>
-                              ))}
-                            </select>
-                          </div>
-                        </div>
-                        <div className="row g-2">
-                          <div className="col-6">
-                            <label className="form-label small mb-0">Languages</label>
-                            <div className="border rounded px-2 py-1 bg-white form-control-sm" style={{ maxHeight: '80px', overflowY: 'auto' }}>
-                              {['english', 'sinhala', 'tamil'].map(lang => (
-                                <div className="form-check mb-0" style={{ fontSize: '0.8rem' }} key={`edit-rlang-${lang}`}>
-                                  <input
-                                    className="form-check-input"
-                                    type="checkbox"
-                                    id={`edit-rlang-${lang}`}
-                                    checked={editResourceData.languages.includes(lang)}
-                                    onChange={(e) => {
-                                      if (e.target.checked) {
-                                        setEditResourceData(prev => ({ ...prev, languages: [...prev.languages, lang] }));
-                                      } else {
-                                        setEditResourceData(prev => ({ ...prev, languages: prev.languages.filter(l => l !== lang) }));
-                                      }
-                                    }}
-                                  />
-                                  <label className="form-check-label text-capitalize" htmlFor={`edit-rlang-${lang}`}>
-                                    {lang}
-                                  </label>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                          <div className="col-6">
-                            <label className="form-label small mb-0">Order</label>
-                            <input type="number" className="form-control form-control-sm" placeholder="e.g 1" value={editResourceData.order} onChange={e => setEditResourceData({ ...editResourceData, order: e.target.value })} />
-                          </div>
-                        </div>
-                      </div>
-                      <div className="d-flex justify-content-end gap-2 mt-2">
-                        <button className="btn btn-sm btn-success" onClick={handleSaveEditResource} disabled={isSubmitting}>
-                          <i className="bi bi-check2"></i> Save
-                        </button>
-                        <button className="btn btn-sm btn-secondary" onClick={handleCancelEditResource} disabled={isSubmitting}>
-                          <i className="bi bi-x"></i> Cancel
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="d-flex justify-content-between align-items-center">
-                      <div className="flex-grow-1" style={{ minWidth: 0 }}>
-                        <div className="d-flex align-items-center">
-                          <i className={`bi ${file.resourceType === 'textbook' ? 'bi-book' :
-                            file.resourceType === 'papers' ? 'bi-file-text' :
-                              file.resourceType === 'notes' ? 'bi-sticky' :
-                                'bi-play-circle'
-                            } me-2 text-primary`}></i>
-                          <small className="text-truncate" style={{ maxWidth: '200px' }} title={file.title || file.name}>
-                            {file.title || file.name}
-                          </small>
-                        </div>
-                        <small className="text-muted d-block" style={{ fontSize: '0.75rem' }}>
-                          {file.grade} / {file.subject} <span className="ms-1 px-1 bg-light rounded shadow-sm">{file.languages?.join(', ') || 'en'}</span>
-                          {file.order !== undefined && file.order !== 999 && <span className="ms-1">(Order: {file.order})</span>}
-                        </small>
-                      </div>
-                      <div className="d-flex gap-1 ms-2">
-                        <button
-                          className="btn btn-sm btn-outline-primary"
-                          onClick={() => setEditingResource(file)}
-                          title="Edit resource"
-                        >
-                          <i className="bi bi-pencil"></i>
-                        </button>
-                        <button
-                          className="btn btn-sm btn-outline-danger"
-                          onClick={() => handleDeleteResource(file.id)}
-                          title="Delete resource"
-                        >
-                          <i className="bi bi-trash"></i>
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                <AdminResourceItem 
+                  key={file.id}
+                  file={file}
+                  editingResource={editingResource}
+                  editResourceData={editResourceData}
+                  setEditResourceData={setEditResourceData}
+                  handleSaveEditResource={handleSaveEditResource}
+                  handleCancelEditResource={handleCancelEditResource}
+                  setEditingResource={setEditingResource}
+                  handleDeleteResource={handleDeleteResource}
+                  isSubmitting={isSubmitting}
+                  grades={grades}
+                  getSubjectsForGrade={getSubjectsForGrade}
+                />
               ))}
               
               {/* Pagination Controls - Firestore style */}
               <div className="mt-4 text-center">
                 {hasMore && (
                   <button 
-                    className="btn btn-outline-primary btn-sm" 
+                    className="btn btn-outline-primary btn-sm px-4" 
                     onClick={() => fetchResourcesPaginated(false)}
                     disabled={isLoadingMore}
                   >
@@ -188,7 +85,22 @@ const AdminFileManager = ({
                   </button>
                 )}
                 {!hasMore && filteredFiles.length > 0 && searchQuery === '' && (
-                  <small className="text-muted italic">All resources loaded</small>
+                  <div className="mt-3 p-2 bg-light rounded-pill d-inline-block px-3">
+                    <small className="text-muted"><i className="bi bi-check-circle me-1"></i>All resources loaded</small>
+                  </div>
+                )}
+                
+                {searchQuery !== '' && hasMore && (
+                  <div className="mt-3">
+                    <small className="text-muted d-block mb-2">Searching only loaded files. Need to find more?</small>
+                    <button 
+                      className="btn btn-sm btn-link text-decoration-none"
+                      onClick={() => fetchResourcesPaginated(false)}
+                      disabled={isLoadingMore}
+                    >
+                      Search Next Page
+                    </button>
+                  </div>
                 )}
               </div>
             </div>
@@ -196,6 +108,14 @@ const AdminFileManager = ({
             <div className="text-center text-muted py-5">
               <i className="bi bi-folder-x" style={{ fontSize: '3rem' }}></i>
               <p className="mt-2">No files found</p>
+              {searchQuery !== '' && hasMore && (
+                <button 
+                  className="btn btn-outline-primary btn-sm mt-2"
+                  onClick={() => fetchResourcesPaginated(false)}
+                >
+                  Check Next Page
+                </button>
+              )}
             </div>
           )}
         </div>

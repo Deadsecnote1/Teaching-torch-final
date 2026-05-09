@@ -129,6 +129,7 @@ const ALResourceTypesPage = () => {
                       <img 
                         src="/assets/logos/physics-chamber.jpg" 
                         alt="Physics Chamber" 
+                        loading="lazy"
                         style={{ 
                           width: '100%', 
                           height: '100%', 

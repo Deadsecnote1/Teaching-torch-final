@@ -1,34 +1,46 @@
-import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
-import { isSupported, getAnalytics } from "firebase/analytics";
+import { firebaseConfig } from './firebaseConfig';
 
-const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
+let firebaseApp = null;
+let auth = null;
+let db = null;
+let analytics = null;
+
+/**
+ * Lazy-load and initialize Firebase only when needed.
+ * This prevents blocking the main thread during initial app render.
+ */
+export const initFirebase = async () => {
+  if (firebaseApp) return { app: firebaseApp, auth, db, analytics };
+
+  // Dynamically import Firebase modules
+  const [
+    { initializeApp },
+    { getAuth },
+    { getFirestore },
+    { isSupported, getAnalytics }
+  ] = await Promise.all([
+    import('firebase/app'),
+    import('firebase/auth'),
+    import('firebase/firestore'),
+    import('firebase/analytics')
+  ]);
+
+  firebaseApp = initializeApp(firebaseConfig);
+  auth = getAuth(firebaseApp);
+  db = getFirestore(firebaseApp);
+  
+  // Defer analytics initialization to not block the main return
+  isSupported().then(supported => {
+    if (supported) {
+      analytics = getAnalytics(firebaseApp);
+    }
+  }).catch(err => {
+    console.warn("Analytics deferred initialization failed:", err);
+  });
+
+  return { app: firebaseApp, auth, db, analytics };
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-
-// Initialize Analytics optionally (Brave/Ad-blocker safety)
-let analytics = null;
-isSupported().then(supported => {
-  if (supported) {
-    analytics = getAnalytics(app);
-  }
-}).catch(err => console.error("Analytics not supported:", err));
-
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-if (!import.meta.env.PROD) {
-  console.log("Firebase initialized successfully");
-}
-
-export { app, analytics, auth, db };
+// We still export these, but they will be null until initFirebase is called.
+// Most components should now use the AuthContext to get these.
+export { auth, db, analytics };

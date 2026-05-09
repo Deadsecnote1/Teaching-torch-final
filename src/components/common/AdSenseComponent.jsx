@@ -15,7 +15,15 @@ const AdSenseComponent = ({ slot, format = 'auto', responsive = true, style = {}
 
   useEffect(() => {
     try {
-      // Initialize the ad if the ins element is present and has a client
+      if (!window.adsbygoogle_loaded && publisherId && publisherId !== "ca-pub-PLACEHOLDER_ID") {
+        const script = document.createElement('script');
+        script.async = true;
+        script.defer = true;
+        script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${publisherId}`;
+        script.crossOrigin = "anonymous";
+        script.onload = () => { window.adsbygoogle_loaded = true; };
+        document.head.appendChild(script);
+      }
       const ads = document.getElementsByClassName('adsbygoogle');
       if (ads.length > 0) {
         (window.adsbygoogle = window.adsbygoogle || []).push({});

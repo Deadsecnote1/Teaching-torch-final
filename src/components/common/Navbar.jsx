@@ -56,6 +56,7 @@ const Navbar = () => {
             src="/logo192.png"
             alt="Teaching Torch Logo"
             className=""
+            loading="lazy"
             style={{ width: 'clamp(40px, 8vw, 60px)', height: 'clamp(40px, 8vw, 60px)', objectFit: 'contain' }}
           />
         </Link>

@@ -26,13 +26,7 @@ const Home = () => {
 
   return (
     <div className="home-page">
-      {/* Hero Section */}
-      <header className="hero-section" style={{
-        backgroundImage: `var(--hero-gradient), url('/bg1.jpg')`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
-      }}>
+      <header className="hero-section hero-section-bg">
         <div className="container text-center text-dark">
           <div className="hero-content">
             <h1 className="display-4 fw-bold mb-3 text-dark">Welcome to Teaching Torch</h1>

@@ -1,12 +1,14 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { analytics } from '../firebase';
+import { useAuth } from './AuthContext';
 import { logEvent } from 'firebase/analytics';
+
 // Create Language Context
 const LanguageContext = createContext();
 
 // Language Provider Component
 export const LanguageProvider = ({ children }) => {
   const [selectedLanguage, setSelectedLanguage] = useState('english');
+  const { analytics } = useAuth();
 
   // Language configurations
   const languages = {
@@ -48,9 +50,11 @@ export const LanguageProvider = ({ children }) => {
     localStorage.setItem('selectedLanguage', language);
     
     try {
-      logEvent(analytics, 'language_filter_changed', {
-        language: language
-      });
+      if (analytics) {
+        logEvent(analytics, 'language_filter_changed', {
+          language: language
+        });
+      }
     } catch (err) {
       console.error("Analytics error:", err);
     }

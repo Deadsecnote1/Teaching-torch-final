@@ -2,7 +2,7 @@ import React from 'react';
 import { getDownloadUrl, getEmbedUrl, isGoogleDriveLink } from '../../utils/googleDrive';
 import { useAuth } from '../../context/AuthContext';
 import { useData } from '../../context/DataContext';
-import { analytics } from '../../firebase';
+import { logEvent } from 'firebase/analytics';
 import { extractYouTubeId, isYouTubeLink } from '../../utils/youtube';
 import toast from 'react-hot-toast';
 import { useState } from 'react';
@@ -24,7 +24,7 @@ const ResourceCard = ({
   onDelete, // Prop for custom deletion logic (e.g. A/L)
   onPlayVideo
 }) => {
-  const { isManageMode } = useAuth();
+  const { isManageMode, analytics } = useAuth();
   const { deleteResource } = useData();
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
 
@@ -44,14 +44,16 @@ const ResourceCard = ({
 
   const handleDownload = (e) => {
     try {
-      logEvent(analytics, 'resource_download', {
-        resource_id: resource.id || 'unknown',
-        resource_title: title || resource.title || resource.filename || 'unknown',
-        resource_type: resource.resourceType || 'unknown',
-        grade: resource.grade || 'unknown',
-        subject: resource.subject || 'unknown',
-        language: language || 'unknown'
-      });
+      if (analytics) {
+        logEvent(analytics, 'resource_download', {
+          resource_id: resource.id || 'unknown',
+          resource_title: title || resource.title || resource.filename || 'unknown',
+          resource_type: resource.resourceType || 'unknown',
+          grade: resource.grade || 'unknown',
+          subject: resource.subject || 'unknown',
+          language: language || 'unknown'
+        });
+      }
     } catch (err) {
       console.error("Analytics error:", err);
     }
@@ -67,14 +69,16 @@ const ResourceCard = ({
 
   const handleView = () => {
     try {
-      logEvent(analytics, 'resource_view', {
-        resource_id: resource.id || 'unknown',
-        resource_title: title || resource.title || resource.filename || 'unknown',
-        resource_type: resource.resourceType || 'unknown',
-        grade: resource.grade || 'unknown',
-        subject: resource.subject || 'unknown',
-        language: language || 'unknown'
-      });
+      if (analytics) {
+        logEvent(analytics, 'resource_view', {
+          resource_id: resource.id || 'unknown',
+          resource_title: title || resource.title || resource.filename || 'unknown',
+          resource_type: resource.resourceType || 'unknown',
+          grade: resource.grade || 'unknown',
+          subject: resource.subject || 'unknown',
+          language: language || 'unknown'
+        });
+      }
     } catch (err) {
       console.error("Analytics error:", err);
     }
@@ -128,7 +132,9 @@ const ResourceCard = ({
               <button
                 className="btn btn-sm btn-outline-primary"
                 onClick={() => {
-                  const isAudio = resource.mediaType === 'audio' || (resource.fileUrl || resource.url || '').match(/\.(mp3|wav|ogg|m4a)$/i);
+                  const isAudio = resource.mediaType === 'audio' || 
+                                   (resource.fileUrl || resource.url || '').match(/\.(mp3|wav|ogg|m4a|aac)$/i) ||
+                                   resource.resourceType === 'audio';
                   const isTelegram = (resource.fileUrl || resource.url || resource.driveLink || '').includes('t.me/');
                   
                   if (isYouTubeLink(resource.fileUrl || resource.url)) {
@@ -248,4 +254,3 @@ const ResourceCard = ({
 };
 
 export default React.memo(ResourceCard);
-

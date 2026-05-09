@@ -1,10 +1,12 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { DataProvider } from './context/DataContext';
+import { GradeProvider } from './context/GradeContext';
+import { ResourceProvider } from './context/ResourceContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { LanguageProvider } from './context/LanguageContext';
 import { ALProvider } from './context/ALContext';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { Toaster } from 'react-hot-toast';
 
 // Components
@@ -13,6 +15,7 @@ import Footer from './components/common/Footer';
 import ScrollToTop from './components/common/ScrollToTop';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import ProtectedRoute from './components/common/ProtectedRoute';
+import SplashScreen from './components/common/SplashScreen';
 
 // Pages
 // Lazy load Pages
@@ -59,59 +62,76 @@ const NotFound = () => (
   </div>
 );
 
+// Inner component to handle initialization state
+const AppContent = () => {
+  const { isInitialized } = useAuth();
+
+  if (!isInitialized) {
+    return <SplashScreen />;
+  }
+
+  return (
+    <Router>
+      <ScrollToTop />
+      <Toaster position="top-right" />
+      <div className="App">
+        <Navbar />
+        <main className="main-content">
+          <ErrorBoundary>
+            <React.Suspense fallback={<div className="p-5 text-center"><div className="spinner-border text-primary"></div></div>}>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/grade/:gradeId" element={<GradePage />} />
+                <Route path="/grade/:gradeId/:streamId" element={<GradePage />} />
+                <Route path="/grade/:gradeId/:streamId/:subjectId" element={<SubjectHubPage />} />
+                <Route path="/grade/:gradeId/:streamId/:subjectId/textbooks" element={<TextbooksPage />} />
+                <Route path="/grade/:gradeId/:streamId/:subjectId/papers" element={<PapersPage />} />
+                <Route path="/grade/:gradeId/:streamId/:subjectId/notes" element={<NotesPage />} />
+                <Route path="/grade/:gradeId/:streamId/:subjectId/videos" element={<VideosPage />} />
+                <Route path="/grade/:gradeId/:streamId/:subjectId/:resourceType" element={<ResourcesPage />} />
+                <Route path="/grade/:gradeId/textbooks" element={<TextbooksPage />} />
+                <Route path="/grade/:gradeId/papers" element={<PapersPage />} />
+                <Route path="/grade/:gradeId/notes" element={<NotesPage />} />
+                <Route path="/grade/:gradeId/videos" element={<VideosPage />} />
+                <Route path="/grade/:gradeId/:resourceType" element={<ResourcesPage />} />
+                
+                {/* AL Independent Routes */}
+                <Route path="/al" element={<ALStreamsPage />} />
+                <Route path="/al/:streamId/:subjectId" element={<ALResourceTypesPage />} />
+                <Route path="/al/:streamId/:subjectId/:resourceTypeId" element={<ALResourcesPage />} />
+
+                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/admin/login" element={<AdminLogin />} />
+                <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </React.Suspense>
+          </ErrorBoundary>
+        </main>
+        <Footer />
+      </div>
+    </Router>
+  );
+};
+
 function App() {
   return (
     <ThemeProvider>
-      <LanguageProvider>
-        <DataProvider>
-          <ALProvider>
-            <AuthProvider>
-              <Router>
-                <ScrollToTop />
-                <Toaster position="top-right" />
-                <div className="App">
-                  <Navbar />
-                  <main className="main-content">
-                    <ErrorBoundary>
-                      <React.Suspense fallback={<div className="p-5 text-center"><div className="spinner-border text-primary"></div></div>}>
-                        <Routes>
-                          <Route path="/" element={<Home />} />
-                          <Route path="/about" element={<About />} />
-                          <Route path="/contact" element={<Contact />} />
-                          <Route path="/grade/:gradeId" element={<GradePage />} />
-                          <Route path="/grade/:gradeId/:streamId" element={<GradePage />} />
-                          <Route path="/grade/:gradeId/:streamId/:subjectId" element={<SubjectHubPage />} />
-                          <Route path="/grade/:gradeId/:streamId/:subjectId/textbooks" element={<TextbooksPage />} />
-                          <Route path="/grade/:gradeId/:streamId/:subjectId/papers" element={<PapersPage />} />
-                          <Route path="/grade/:gradeId/:streamId/:subjectId/notes" element={<NotesPage />} />
-                          <Route path="/grade/:gradeId/:streamId/:subjectId/videos" element={<VideosPage />} />
-                          <Route path="/grade/:gradeId/:streamId/:subjectId/:resourceType" element={<ResourcesPage />} />
-                          <Route path="/grade/:gradeId/textbooks" element={<TextbooksPage />} />
-                          <Route path="/grade/:gradeId/papers" element={<PapersPage />} />
-                          <Route path="/grade/:gradeId/notes" element={<NotesPage />} />
-                          <Route path="/grade/:gradeId/videos" element={<VideosPage />} />
-                          <Route path="/grade/:gradeId/:resourceType" element={<ResourcesPage />} />
-                          
-                          {/* AL Independent Routes */}
-                          <Route path="/al" element={<ALStreamsPage />} />
-                          <Route path="/al/:streamId/:subjectId" element={<ALResourceTypesPage />} />
-                          <Route path="/al/:streamId/:subjectId/:resourceTypeId" element={<ALResourcesPage />} />
-    
-                          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                          <Route path="/admin/login" element={<AdminLogin />} />
-                          <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-                          <Route path="*" element={<NotFound />} />
-                        </Routes>
-                      </React.Suspense>
-                    </ErrorBoundary>
-                  </main>
-                  <Footer />
-                </div>
-              </Router>
-            </AuthProvider>
-          </ALProvider>
-        </DataProvider>
-      </LanguageProvider>
+      <AuthProvider>
+        <LanguageProvider>
+          <GradeProvider>
+            <ResourceProvider>
+              <DataProvider>
+                <ALProvider>
+                  <AppContent />
+                </ALProvider>
+              </DataProvider>
+            </ResourceProvider>
+          </GradeProvider>
+        </LanguageProvider>
+      </AuthProvider>
     </ThemeProvider>
   );
 }

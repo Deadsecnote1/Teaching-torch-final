@@ -11,7 +11,6 @@ import { extractYouTubeId, getYouTubeThumbnail, isYouTubeLink } from '../utils/y
 import { getEmbedUrl, isGoogleDriveLink } from '../utils/googleDrive';
 import { subjectTranslations } from '../utils/subjectTranslations';
 import { getResourceTypeName } from '../utils/resourceTranslations';
-import { analytics } from '../firebase';
 import { logEvent } from 'firebase/analytics';
 import toast from 'react-hot-toast';
 
@@ -22,7 +21,7 @@ const VideosPage = () => {
   const { grade: rawGrade, subjects, isLoading, isGradeMissing } = useGradePage(streamId || gradeId);
   const { updateSubject, deleteSubject, grades } = useData();
   const { selectedLanguage, setLanguage, shouldShowResource, getLanguageIndicator, languages } = useLanguage();
-  const { isManageMode } = useAuth();
+  const { isManageMode, analytics } = useAuth();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [addModalInitialData, setAddModalInitialData] = useState(null);
   const [editingResource, setEditingResource] = useState(null);
@@ -63,12 +62,14 @@ const VideosPage = () => {
 
   const handlePlayVideo = (video, videoUrl) => {
     try {
-      logEvent(analytics, 'video_play', {
-        video_id: video.id || 'unknown',
-        video_title: video.title || 'unknown',
-        grade: gradeId || 'unknown',
-        language: video.language || 'unknown'
-      });
+      if (analytics) {
+        logEvent(analytics, 'video_play', {
+          video_id: video.id || 'unknown',
+          video_title: video.title || 'unknown',
+          grade: gradeId || 'unknown',
+          language: video.language || 'unknown'
+        });
+      }
     } catch (err) {
       console.error("Analytics error:", err);
     }
@@ -149,6 +150,7 @@ const VideosPage = () => {
                           alt={video.title}
                           className="card-img-top"
                           style={{ height: '200px', objectFit: 'cover' }}
+                          loading="lazy"
                           onError={(e) => {
                             e.target.style.display = 'none';
                             e.target.nextSibling.style.display = 'flex';

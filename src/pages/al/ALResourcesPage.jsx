@@ -10,9 +10,13 @@ import { extractYouTubeId } from '../../utils/youtube';
 
 const ALResourcesPage = () => {
   const { streamId, subjectId, resourceTypeId } = useParams();
-  const { alStreams, alSubjects, alResourceTypes, alSubCategories, alResources, loading, deleteDocument, updateDocument, addDocument } = useALData();
+  const { alStreams, alSubjects, alResourceTypes, alSubCategories, alResources, loading, fetchALResources, deleteDocument, updateDocument, addDocument } = useALData();
   const { selectedLanguage, setLanguage, languages } = useLanguage();
   const { isManageMode } = useAuth();
+
+  React.useEffect(() => {
+    fetchALResources();
+  }, [fetchALResources]);
   
   // Manage Mode Editor State
   const [isModalOpen, setIsModalOpen] = useState(false);
