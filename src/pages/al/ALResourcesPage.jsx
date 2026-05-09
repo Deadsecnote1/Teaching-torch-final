@@ -15,8 +15,10 @@ const ALResourcesPage = () => {
   const { isManageMode } = useAuth();
 
   React.useEffect(() => {
-    fetchALResources();
-  }, [fetchALResources]);
+    if (subjectId) {
+      fetchALResources(subjectId);
+    }
+  }, [fetchALResources, subjectId]);
   
   // Manage Mode Editor State
   const [isModalOpen, setIsModalOpen] = useState(false);

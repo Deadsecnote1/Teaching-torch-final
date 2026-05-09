@@ -81,37 +81,36 @@ export const ResourceProvider = ({ children }) => {
   const { db } = useAuth();
 
   useEffect(() => {
-    if (!db) return;
+    // Global listener removed to save costs. 
+    // We now use targeted listeners per grade.
+    return () => {
+      // Cleanup all grade listeners on unmount
+      Object.values(fetchedGrades).forEach(unsub => {
+        if (typeof unsub === 'function') unsub();
+      });
+    };
+  }, []);
 
-    // Listen to all resources in real-time
-    const q = query(collection(db, "resources"));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      // Process Firestore documents into structured format
-      const { structuredResources, structuredVideos, allResources: fresh } = processResources(snapshot.docs);
-      
-      // Update all three state variables
-      setResources(structuredResources);
-      setVideos(structuredVideos);
-      setAllResources(fresh);
-    });
-
-    // Cleanup subscription on unmount
-    return () => unsubscribe();
-  }, [db]);
-
-  const fetchResourcesForGrade = useCallback(async (gradeId) => {
+  const fetchResourcesForGrade = useCallback((gradeId) => {
     if (!db || fetchedGrades[gradeId]) return;
+    
     try {
       const q = query(collection(db, "resources"), where("grade", "==", gradeId));
-      const snapshot = await getDocs(q);
-      const { structuredResources, structuredVideos, allResources: fresh } = processResources(snapshot.docs);
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        const { structuredResources, structuredVideos, allResources: fresh } = processResources(snapshot.docs);
+        
+        setResources(prev => ({ ...prev, ...structuredResources }));
+        setVideos(prev => ({ ...prev, ...structuredVideos }));
+        // Merge fresh resources into allResources without duplicates
+        setAllResources(prev => {
+          const others = prev.filter(r => r.grade !== gradeId);
+          return [...others, ...fresh];
+        });
+      });
       
-      setResources(prev => ({ ...prev, ...structuredResources }));
-      setVideos(prev => ({ ...prev, ...structuredVideos }));
-      setAllResources(prev => [...prev, ...fresh]);
-      setFetchedGrades(prev => ({ ...prev, [gradeId]: true }));
+      setFetchedGrades(prev => ({ ...prev, [gradeId]: unsubscribe }));
     } catch (error) {
-      console.error("Error fetching resources:", error);
+      console.error("Error setting up grade listener:", error);
     }
   }, [db, fetchedGrades]);
 

@@ -75,19 +75,37 @@ export const ALProvider = ({ children }) => {
     return () => unsubs.forEach(unsub => unsub());
   }, [isInitialized, db]);
 
+  const [fetchedSubjects, setFetchedSubjects] = useState({});
+
   // On-demand fetch for resources to save reads
-  const fetchALResources = async (force = false) => {
-    if (!db || (alResources.length > 0 && !force)) return;
+  const fetchALResources = (subjectId = null) => {
+    if (!db || !subjectId || fetchedSubjects[subjectId]) return;
+    
     try {
-      const { getDocs } = await import('firebase/firestore');
-      const snapshot = await getDocs(query(collection(db, 'al_resources')));
-      const data = snapshot.docs.map(processDoc);
-      data.sort((a, b) => (a.order || 0) - (b.order || 0));
-      setAlResources(data);
+      const q = query(collection(db, 'al_resources'), where('alSubjectId', '==', subjectId));
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        const fresh = snapshot.docs.map(processDoc);
+        setAlResources(prev => {
+          const others = prev.filter(r => r.alSubjectId !== subjectId);
+          const combined = [...others, ...fresh];
+          combined.sort((a, b) => (a.order || 0) - (b.order || 0));
+          return combined;
+        });
+      });
+      
+      setFetchedSubjects(prev => ({ ...prev, [subjectId]: unsubscribe }));
     } catch (err) {
-      console.error("Error fetching AL resources:", err);
+      console.error("Error setting up AL subject listener:", err);
     }
   };
+
+  useEffect(() => {
+    return () => {
+      Object.values(fetchedSubjects).forEach(unsub => {
+        if (typeof unsub === 'function') unsub();
+      });
+    };
+  }, []);
 
   // Generic generic functions
   const addDocument = async (collectionName, data, customId = null) => {
