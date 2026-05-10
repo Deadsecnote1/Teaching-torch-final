@@ -78,6 +78,7 @@ export const ALProvider = ({ children }) => {
     return () => unsubs.forEach(unsub => unsub());
   }, [isInitialized, db]);
 
+  const listenersRef = React.useRef({});
   const [fetchedSubjects, setFetchedSubjects] = useState({});
 
   // On-demand fetch for resources to save reads
@@ -96,7 +97,8 @@ export const ALProvider = ({ children }) => {
         });
       });
       
-      setFetchedSubjects(prev => ({ ...prev, [subjectId]: unsubscribe }));
+      listenersRef.current[subjectId] = unsubscribe;
+      setFetchedSubjects(prev => ({ ...prev, [subjectId]: true }));
     } catch (err) {
       console.error("Error setting up AL subject listener:", err);
     }
@@ -104,7 +106,7 @@ export const ALProvider = ({ children }) => {
 
   useEffect(() => {
     return () => {
-      Object.values(fetchedSubjects).forEach(unsub => {
+      Object.values(listenersRef.current).forEach(unsub => {
         if (typeof unsub === 'function') unsub();
       });
     };
