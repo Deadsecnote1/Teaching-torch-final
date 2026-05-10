@@ -113,10 +113,11 @@ const AdminDashboard = () => {
   }, [settings]);
 
   useEffect(() => {
-    if (activeTab === 'files' && uploadedFiles.length === 0) {
+    // Only fetch if we are on the files tab AND we haven't loaded any resources yet
+    if (activeTab === 'files' && allResources.length === 0) {
       fetchResourcesPaginated(true);
     }
-  }, [activeTab, fetchResourcesPaginated, uploadedFiles.length]);
+  }, [activeTab, fetchResourcesPaginated, allResources.length]);
 
   useEffect(() => {
     if (allResources) {
@@ -167,23 +168,27 @@ const AdminDashboard = () => {
         fileData.fileId = extractFileId(driveLink);
       }
 
+      let result;
       if (selectedResourceType === 'textbook') {
-        await addTextbook(selectedGrade, selectedSubject, selectedLanguages, fileData);
+        result = await addTextbook(selectedGrade, selectedSubject, selectedLanguages, fileData);
       } else if (selectedResourceType === 'papers') {
-        await addPaper(selectedGrade, selectedSubject, selectedPaperType, selectedPaperCategory, fileData, schoolName, selectedLanguages);
+        result = await addPaper(selectedGrade, selectedSubject, selectedPaperType, selectedPaperCategory, fileData, schoolName, selectedLanguages);
       } else if (selectedResourceType === 'videos') {
-        await addVideo(selectedGrade, selectedSubject, { ...fileData, languages: selectedLanguages });
+        result = await addVideo(selectedGrade, selectedSubject, { ...fileData, languages: selectedLanguages });
       } else if (selectedResourceType === 'notes') {
-        await addNote(selectedGrade, selectedSubject, fileData, selectedLanguages);
+        result = await addNote(selectedGrade, selectedSubject, fileData, selectedLanguages);
       }
 
-      toast.success('Resource added successfully!');
+      // OPTIMISTIC UPDATE: Add to local state immediately
+      if (result && result.id) {
+        setUploadedFiles(prev => [{ id: result.id, ...fileData, languages: selectedLanguages, grade: selectedGrade, subject: selectedSubject, resourceType: selectedResourceType, paperType: selectedPaperType, paperCategory: selectedPaperCategory, schoolName }, ...prev]);
+      }
+      
       setDriveLink('');
       setResourceTitle('');
       setResourceDescription('');
       setResourceOrder('');
-      // Refresh first page
-      await fetchResourcesPaginated(true);
+      toast.success('Resource added successfully!');
     } catch (error) {
       toast.error('Failed to add resource: ' + error.message);
     } finally {
@@ -220,9 +225,12 @@ const AdminDashboard = () => {
       }
 
       await updateResource(editingResource, updateData);
+      
+      // OPTIMISTIC UPDATE: Update local state
+      setUploadedFiles(prev => prev.map(f => f.id === editingResource ? { ...f, ...updateData } : f));
+      
       toast.success('Resource updated!');
       setEditingResource(null);
-      await fetchResourcesPaginated(true);
     } catch (error) {
       toast.error('Failed to update: ' + error.message);
     } finally {
@@ -234,8 +242,11 @@ const AdminDashboard = () => {
     if (window.confirm('Delete this resource?')) {
       try {
         await deleteResource(id);
+        
+        // OPTIMISTIC UPDATE: Remove from local state
+        setUploadedFiles(prev => prev.filter(f => f.id !== id));
+        
         toast.success('Deleted!');
-        await fetchResourcesPaginated(true);
       } catch (error) {
         toast.error('Delete failed');
       }

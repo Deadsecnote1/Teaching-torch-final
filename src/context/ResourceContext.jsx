@@ -72,6 +72,7 @@ const processResources = (docs) => {
 };
 
 export const ResourceProvider = ({ children }) => {
+  const listenersRef = React.useRef({});
   const [resources, setResources] = useState({});
   const [videos, setVideos] = useState({});
   const [allResources, setAllResources] = useState([]);
@@ -85,14 +86,14 @@ export const ResourceProvider = ({ children }) => {
     // We now use targeted listeners per grade.
     return () => {
       // Cleanup all grade listeners on unmount
-      Object.values(fetchedGrades).forEach(unsub => {
+      Object.values(listenersRef.current).forEach(unsub => {
         if (typeof unsub === 'function') unsub();
       });
     };
   }, []);
 
   const fetchResourcesForGrade = useCallback((gradeId) => {
-    if (!db || fetchedGrades[gradeId]) return;
+    if (!db || !gradeId || fetchedGrades[gradeId]) return;
     
     try {
       const q = query(collection(db, "resources"), where("grade", "==", gradeId));
@@ -108,11 +109,12 @@ export const ResourceProvider = ({ children }) => {
         });
       });
       
-      setFetchedGrades(prev => ({ ...prev, [gradeId]: unsubscribe }));
+      listenersRef.current[gradeId] = unsubscribe;
+      setFetchedGrades(prev => ({ ...prev, [gradeId]: true }));
     } catch (error) {
       console.error("Error setting up grade listener:", error);
     }
-  }, [db, fetchedGrades]);
+  }, [db]); // Removed fetchedGrades dependency to make it stable
 
   const fetchResourcesPaginated = useCallback(async (isFirstPage = false, pageSize = 20) => {
     if (!db) return;

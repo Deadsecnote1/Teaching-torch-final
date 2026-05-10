@@ -22,38 +22,76 @@ export const GradeProvider = ({ children }) => {
   useEffect(() => {
     if (!isInitialized || !db) return;
 
-    // Listen to Grades
-    const unsubGrades = onSnapshot(query(collection(db, "grades")), (snapshot) => {
-      const liveGrades = {};
-      snapshot.forEach(doc => {
-        liveGrades[doc.id] = { id: doc.id, ...doc.data() };
-      });
-      setGrades(liveGrades);
-      setLoading(false);
-    });
-
-    // Listen to Subjects
-    const unsubSubjects = onSnapshot(query(collection(db, "subjects")), (snapshot) => {
-      const liveSubjects = {};
-      snapshot.forEach(doc => {
-        liveSubjects[doc.id] = { id: doc.id, ...doc.data() };
-      });
-      setSubjects(liveSubjects);
-    });
-
-    // Listen to Settings
-    const unsubSettings = onSnapshot(doc(db, "settings", "general"), (docSnap) => {
-      if (docSnap.exists()) {
-        setSettings(docSnap.data());
+    // 1. One-time fetch for everyone (initial load)
+    const fetchInitialData = async () => {
+      try {
+        const { getDocs, query, collection } = await import('firebase/firestore');
+        
+        // Fetch Grades
+        const gradesSnap = await getDocs(query(collection(db, "grades")));
+        const liveGrades = {};
+        gradesSnap.forEach(doc => {
+          liveGrades[doc.id] = { id: doc.id, ...doc.data() };
+        });
+        setGrades(liveGrades);
+        
+        // Fetch Subjects
+        const subjectsSnap = await getDocs(query(collection(db, "subjects")));
+        const liveSubjects = {};
+        subjectsSnap.forEach(doc => {
+          liveSubjects[doc.id] = { id: doc.id, ...doc.data() };
+        });
+        setSubjects(liveSubjects);
+        
+        // Fetch Settings
+        const { getDoc } = await import('firebase/firestore');
+        const settingsSnap = await getDoc(doc(db, "settings", "general"));
+        if (settingsSnap.exists()) {
+          setSettings(settingsSnap.data());
+        }
+        
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching initial grade data:", err);
+        setLoading(false);
       }
-    });
+    };
+
+    fetchInitialData();
+
+    // 2. Real-time listeners ONLY if in Manage Mode (Admin)
+    let unsubs = [];
+    if (isManageMode) {
+      // Listen to Grades
+      unsubs.push(onSnapshot(query(collection(db, "grades")), (snapshot) => {
+        const liveGrades = {};
+        snapshot.forEach(doc => {
+          liveGrades[doc.id] = { id: doc.id, ...doc.data() };
+        });
+        setGrades(liveGrades);
+      }));
+
+      // Listen to Subjects
+      unsubs.push(onSnapshot(query(collection(db, "subjects")), (snapshot) => {
+        const liveSubjects = {};
+        snapshot.forEach(doc => {
+          liveSubjects[doc.id] = { id: doc.id, ...doc.data() };
+        });
+        setSubjects(liveSubjects);
+      }));
+
+      // Listen to Settings
+      unsubs.push(onSnapshot(doc(db, "settings", "general"), (docSnap) => {
+        if (docSnap.exists()) {
+          setSettings(docSnap.data());
+        }
+      }));
+    }
 
     return () => {
-      unsubGrades();
-      unsubSubjects();
-      unsubSettings();
+      unsubs.forEach(unsub => unsub());
     };
-  }, [isInitialized, db]);
+  }, [isInitialized, db, isManageMode]); // Re-run when isManageMode changes
 
   const addGrade = useCallback(async (gradeId, gradeData) => {
     if (!db) return false;
