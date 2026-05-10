@@ -40,6 +40,8 @@ export const ALProvider = ({ children }) => {
     if (d.name) obj.name = normalizeString(d.name);
     if (d.description) obj.description = normalizeString(d.description);
     if (d.title) obj.title = normalizeString(d.title);
+    if (d.icon) obj.icon = normalizeString(d.icon);
+    if (d.color) obj.color = normalizeString(d.color);
     return obj;
   };
 

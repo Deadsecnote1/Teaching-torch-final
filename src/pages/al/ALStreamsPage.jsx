@@ -30,9 +30,9 @@ const ALStreamsPage = () => {
       await updateDocument('al_streams', editingStream.id, sanitizedData);
       setEditingStream(null);
       toast.success('Stream updated');
-    } catch (err) { 
+    } catch (err) {
       console.error(err);
-      toast.error('Update failed: ' + err.message); 
+      toast.error('Update failed: ' + err.message);
     }
   };
 
@@ -51,9 +51,9 @@ const ALStreamsPage = () => {
       await updateDocument('al_subjects', editingSubject.id, sanitizedData);
       setEditingSubject(null);
       toast.success('Subject updated');
-    } catch (err) { 
+    } catch (err) {
       console.error(err);
-      toast.error('Update failed: ' + err.message); 
+      toast.error('Update failed: ' + err.message);
     }
   };
 
@@ -102,7 +102,7 @@ const ALStreamsPage = () => {
 
             return (
               <div key={stream.id} className="col-md-4">
-                <div 
+                <div
                   className={`card h-100 shadow-sm border-0 stream-card ${isActive ? 'active' : ''}`}
                   onMouseEnter={() => setActiveStreamId(stream.id)}
                   onMouseLeave={() => setActiveStreamId(null)}
@@ -111,11 +111,12 @@ const ALStreamsPage = () => {
                 >
                   <div className="card-body text-center p-5 position-relative z-1">
                     <div className="mb-4" style={{ color: stream.color || 'var(--primary)' }}>
-                      <i className={`bi ${stream.icon || 'bi-layers'} display-1`}></i>
+                      <span>TEST ICON DIV</span>
+                      <span className={`bi ${stream.icon || 'bi-layers'} display-1`}></span>
                     </div>
                     <h3 className="fw-bold">{stream.name}</h3>
                     <p className="text-muted">{stream.description || 'Access specialized resources'}</p>
-                    
+
                     {isManageMode && (
                       <div className="mt-2 d-flex justify-content-center gap-2">
                         <button className="btn btn-sm btn-outline-info" onClick={(e) => {
@@ -130,7 +131,7 @@ const ALStreamsPage = () => {
                         </button>
                       </div>
                     )}
-                    
+
                     {/* Subjects Dropdown / Menu */}
                     <div className={`subjects-menu mt-4 ${isActive ? 'd-block' : 'd-none'}`} style={{ animation: 'fadeIn 0.3s ease' }}>
                       <hr />
@@ -138,7 +139,7 @@ const ALStreamsPage = () => {
                       <div className="d-flex flex-column gap-2">
                         {streamSubjects.map(subject => (
                           <div key={subject.id} className="d-flex gap-2">
-                            <Link 
+                            <Link
                               to={`/al/${stream.id}/${subject.id}`}
                               className="btn btn-outline-primary flex-grow-1 text-start d-flex justify-content-between align-items-center"
                             >
@@ -171,7 +172,7 @@ const ALStreamsPage = () => {
               </div>
             );
           })}
-          
+
           {alStreams.length === 0 && (
             <div className="col-12 text-center text-muted py-5">
               <h4>No Streams Available</h4>
@@ -194,15 +195,15 @@ const ALStreamsPage = () => {
                 <div className="modal-body">
                   <div className="mb-3">
                     <label className="form-label">Stream Name</label>
-                    <input type="text" className="form-control" value={formData.name || ''} onChange={e => setFormData({...formData, name: e.target.value})} required />
+                    <input type="text" className="form-control" value={formData.name || ''} onChange={e => setFormData({ ...formData, name: e.target.value })} required />
                   </div>
                   <div className="mb-3">
                     <label className="form-label">Description</label>
-                    <input type="text" className="form-control" value={formData.description || ''} onChange={e => setFormData({...formData, description: e.target.value})} />
+                    <input type="text" className="form-control" value={formData.description || ''} onChange={e => setFormData({ ...formData, description: e.target.value })} />
                   </div>
                   <div className="mb-3">
                     <label className="form-label">Order (Priority)</label>
-                    <input type="number" className="form-control" value={formData.order || 0} onChange={e => setFormData({...formData, order: parseInt(e.target.value)})} />
+                    <input type="number" className="form-control" value={formData.order || 0} onChange={e => setFormData({ ...formData, order: parseInt(e.target.value) })} />
                   </div>
                 </div>
                 <div className="modal-footer border-secondary">
@@ -228,15 +229,15 @@ const ALStreamsPage = () => {
                 <div className="modal-body">
                   <div className="mb-3">
                     <label className="form-label">Subject Name</label>
-                    <input type="text" className="form-control" value={formData.name || ''} onChange={e => setFormData({...formData, name: e.target.value})} required />
+                    <input type="text" className="form-control" value={formData.name || ''} onChange={e => setFormData({ ...formData, name: e.target.value })} required />
                   </div>
                   <div className="mb-3">
                     <label className="form-label">Icon (Bootstrap class)</label>
-                    <input type="text" className="form-control" value={formData.icon || ''} onChange={e => setFormData({...formData, icon: e.target.value})} />
+                    <input type="text" className="form-control" value={formData.icon || ''} onChange={e => setFormData({ ...formData, icon: e.target.value })} />
                   </div>
                   <div className="mb-3">
                     <label className="form-label">Order (Priority)</label>
-                    <input type="number" className="form-control" value={formData.order || 0} onChange={e => setFormData({...formData, order: parseInt(e.target.value)})} />
+                    <input type="number" className="form-control" value={formData.order || 0} onChange={e => setFormData({ ...formData, order: parseInt(e.target.value) })} />
                   </div>
                 </div>
                 <div className="modal-footer border-secondary">
