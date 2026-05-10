@@ -111,8 +111,7 @@ const ALStreamsPage = () => {
                 >
                   <div className="card-body text-center p-5 position-relative z-1">
                     <div className="mb-4" style={{ color: stream.color || 'var(--primary)' }}>
-                      <span>TEST ICON DIV</span>
-                      <span className={`bi ${stream.icon || 'bi-layers'} display-1`}></span>
+                      <i className={`bi ${stream.icon || 'bi-layers'} display-1`}></i>
                     </div>
                     <h3 className="fw-bold">{stream.name}</h3>
                     <p className="text-muted">{stream.description || 'Access specialized resources'}</p>
