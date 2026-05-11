@@ -28,7 +28,7 @@ export const ALProvider = ({ children }) => {
   const [alSubCategories, setAlSubCategories] = useState([]);
   const [alResources, setAlResources] = useState([]);
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // Default to false
   const { db, isInitialized } = useAuth();
 
   const processDoc = (doc) => {
@@ -45,38 +45,44 @@ export const ALProvider = ({ children }) => {
     return obj;
   };
 
-  useEffect(() => {
-    if (!isInitialized || !db) return;
+  const [isInitializing, setIsInitializing] = useState(false);
+  const initializeALData = React.useCallback(async () => {
+    if (!isInitialized || !db || loading || alStreams.length > 0 || isInitializing) return;
+    
+    setIsInitializing(true);
+    setLoading(true);
+    console.log("%c[AL] Initializing Lazy Metadata", "color: #8b5cf6; font-weight: bold;");
+    
+    try {
+      const { getDocs, query, collection } = await import('firebase/firestore');
+      
+      const collections = ['al_streams', 'al_subjects', 'al_resource_types', 'al_sub_categories'];
+      const setters = {
+        al_streams: setAlStreams,
+        al_subjects: setAlSubjects,
+        al_resource_types: setAlResourceTypes,
+        al_sub_categories: setAlSubCategories
+      };
 
-    const collections = ['al_streams', 'al_subjects', 'al_resource_types', 'al_sub_categories'];
-    const setters = {
-      al_streams: setAlStreams,
-      al_subjects: setAlSubjects,
-      al_resource_types: setAlResourceTypes,
-      al_sub_categories: setAlSubCategories
-    };
-    const loadedCollections = new Set();
+      const results = await Promise.all(
+        collections.map(colName => getDocs(query(collection(db, colName))))
+      );
 
-    const setupListener = (colName) => {
-      return onSnapshot(query(collection(db, colName)), (snapshot) => {
+      results.forEach((snapshot, index) => {
+        const colName = collections[index];
         const data = snapshot.docs.map(processDoc);
         data.sort((a, b) => (a.order || 0) - (b.order || 0));
         setters[colName](data);
-        loadedCollections.add(colName);
-        if (loadedCollections.size === collections.length) {
-          setLoading(false);
-        }
-      }, (err) => {
-        console.error(`Error loading ${colName}:`, err);
-        loadedCollections.add(colName); 
-        if (loadedCollections.size === collections.length) setLoading(false);
       });
-    };
 
-    const unsubs = collections.map(setupListener);
-
-    return () => unsubs.forEach(unsub => unsub());
-  }, [isInitialized, db]);
+      setLoading(false);
+      setIsInitializing(false);
+    } catch (err) {
+      console.error("Error loading AL data:", err);
+      setLoading(false);
+      setIsInitializing(false);
+    }
+  }, [isInitialized, db, loading, alStreams.length, isInitializing]);
 
   const listenersRef = React.useRef({});
   const [fetchedSubjects, setFetchedSubjects] = useState({});
@@ -161,6 +167,7 @@ export const ALProvider = ({ children }) => {
     alSubCategories,
     alResources,
     loading,
+    initializeALData,
     fetchALResources,
     addDocument,
     updateDocument,
@@ -168,7 +175,7 @@ export const ALProvider = ({ children }) => {
     db // Expose db if needed
   }), [
     alStreams, alSubjects, alResourceTypes, alSubCategories, 
-    alResources, loading, fetchALResources, addDocument, updateDocument, deleteDocument, db
+    alResources, loading, initializeALData, fetchALResources, addDocument, updateDocument, deleteDocument, db
   ]);
 
   return (

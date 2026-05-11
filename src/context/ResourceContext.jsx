@@ -92,29 +92,28 @@ export const ResourceProvider = ({ children }) => {
     };
   }, []);
 
-  const fetchResourcesForGrade = useCallback((gradeId) => {
+  const fetchResourcesForGrade = useCallback(async (gradeId) => {
     if (!db || !gradeId || fetchedGrades[gradeId]) return;
     
     try {
+      const { getDocs, query, collection, where } = await import('firebase/firestore');
       const q = query(collection(db, "resources"), where("grade", "==", gradeId));
-      const unsubscribe = onSnapshot(q, (snapshot) => {
-        const { structuredResources, structuredVideos, allResources: fresh } = processResources(snapshot.docs);
-        
-        setResources(prev => ({ ...prev, ...structuredResources }));
-        setVideos(prev => ({ ...prev, ...structuredVideos }));
-        // Merge fresh resources into allResources without duplicates
-        setAllResources(prev => {
-          const others = prev.filter(r => r.grade !== gradeId);
-          return [...others, ...fresh];
-        });
+      
+      const snapshot = await getDocs(q);
+      const { structuredResources, structuredVideos, allResources: fresh } = processResources(snapshot.docs);
+      
+      setResources(prev => ({ ...prev, ...structuredResources }));
+      setVideos(prev => ({ ...prev, ...structuredVideos }));
+      setAllResources(prev => {
+        const others = prev.filter(r => r.grade !== gradeId);
+        return [...others, ...fresh];
       });
       
-      listenersRef.current[gradeId] = unsubscribe;
       setFetchedGrades(prev => ({ ...prev, [gradeId]: true }));
     } catch (error) {
-      console.error("Error setting up grade listener:", error);
+      console.error("Error fetching grade resources:", error);
     }
-  }, [db]); // Removed fetchedGrades dependency to make it stable
+  }, [db, fetchedGrades]);
 
   const fetchResourcesPaginated = useCallback(async (isFirstPage = false, pageSize = 20) => {
     if (!db) return;

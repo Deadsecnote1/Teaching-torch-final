@@ -7,9 +7,13 @@ import useDocumentTitle from '../../hooks/useDocumentTitle';
 
 const ALStreamsPage = () => {
   useDocumentTitle('Advanced Level Streams');
-  const { alStreams, alSubjects, loading, updateDocument, deleteDocument } = useALData();
+  const { alStreams, alSubjects, loading, initializeALData, updateDocument, deleteDocument } = useALData();
   const { isManageMode, currentUser } = useAuth();
   const [activeStreamId, setActiveStreamId] = useState(null);
+
+  React.useEffect(() => {
+    initializeALData();
+  }, [initializeALData]);
 
   // Editor States
   const [editingStream, setEditingStream] = useState(null);

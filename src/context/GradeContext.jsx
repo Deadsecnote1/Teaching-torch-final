@@ -22,33 +22,47 @@ export const GradeProvider = ({ children }) => {
   useEffect(() => {
     if (!isInitialized || !db) return;
 
-    // 1. One-time fetch for everyone (initial load)
+    const { getCached, setCache, invalidateCache } = require('../utils/cacheUtils');
+
+    // 1. Load from cache OR one-time fetch for everyone
     const fetchInitialData = async () => {
       try {
-        const { getDocs, query, collection } = await import('firebase/firestore');
+        const { getDocs, query, collection, doc, getDoc } = await import('firebase/firestore');
         
-        // Fetch Grades
-        const gradesSnap = await getDocs(query(collection(db, "grades")));
-        const liveGrades = {};
-        gradesSnap.forEach(doc => {
-          liveGrades[doc.id] = { id: doc.id, ...doc.data() };
-        });
+        // Cache-aware fetch for Grades
+        let liveGrades = isManageMode ? null : getCached('grades');
+        if (!liveGrades) {
+          const gradesSnap = await getDocs(query(collection(db, "grades")));
+          liveGrades = {};
+          gradesSnap.forEach(doc => {
+            liveGrades[doc.id] = { id: doc.id, ...doc.data() };
+          });
+          if (!isManageMode) setCache('grades', liveGrades);
+        }
         setGrades(liveGrades);
         
-        // Fetch Subjects
-        const subjectsSnap = await getDocs(query(collection(db, "subjects")));
-        const liveSubjects = {};
-        subjectsSnap.forEach(doc => {
-          liveSubjects[doc.id] = { id: doc.id, ...doc.data() };
-        });
+        // Cache-aware fetch for Subjects
+        let liveSubjects = isManageMode ? null : getCached('subjects');
+        if (!liveSubjects) {
+          const subjectsSnap = await getDocs(query(collection(db, "subjects")));
+          liveSubjects = {};
+          subjectsSnap.forEach(doc => {
+            liveSubjects[doc.id] = { id: doc.id, ...doc.data() };
+          });
+          if (!isManageMode) setCache('subjects', liveSubjects);
+        }
         setSubjects(liveSubjects);
         
-        // Fetch Settings
-        const { getDoc } = await import('firebase/firestore');
-        const settingsSnap = await getDoc(doc(db, "settings", "general"));
-        if (settingsSnap.exists()) {
-          setSettings(settingsSnap.data());
+        // Cache-aware fetch for Settings
+        let liveSettings = isManageMode ? null : getCached('settings');
+        if (!liveSettings) {
+          const settingsSnap = await getDoc(doc(db, "settings", "general"));
+          if (settingsSnap.exists()) {
+            liveSettings = settingsSnap.data();
+            if (!isManageMode) setCache('settings', liveSettings);
+          }
         }
+        if (liveSettings) setSettings(liveSettings);
         
         setLoading(false);
       } catch (err) {
@@ -62,6 +76,8 @@ export const GradeProvider = ({ children }) => {
     // 2. Real-time listeners ONLY if in Manage Mode (Admin)
     let unsubs = [];
     if (isManageMode) {
+      console.log("%c[Admin] Real-time Listeners Active", "color: #3b82f6; font-weight: bold;");
+      
       // Listen to Grades
       unsubs.push(onSnapshot(query(collection(db, "grades")), (snapshot) => {
         const liveGrades = {};
@@ -69,6 +85,8 @@ export const GradeProvider = ({ children }) => {
           liveGrades[doc.id] = { id: doc.id, ...doc.data() };
         });
         setGrades(liveGrades);
+        // Clear cache so it's fresh for next user-mode visit
+        invalidateCache('grades');
       }));
 
       // Listen to Subjects
@@ -78,12 +96,14 @@ export const GradeProvider = ({ children }) => {
           liveSubjects[doc.id] = { id: doc.id, ...doc.data() };
         });
         setSubjects(liveSubjects);
+        invalidateCache('subjects');
       }));
 
       // Listen to Settings
       unsubs.push(onSnapshot(doc(db, "settings", "general"), (docSnap) => {
         if (docSnap.exists()) {
           setSettings(docSnap.data());
+          invalidateCache('settings');
         }
       }));
     }
@@ -91,7 +111,7 @@ export const GradeProvider = ({ children }) => {
     return () => {
       unsubs.forEach(unsub => unsub());
     };
-  }, [isInitialized, db, isManageMode]); // Re-run when isManageMode changes
+  }, [isInitialized, db, isManageMode]);
 
   const addGrade = useCallback(async (gradeId, gradeData) => {
     if (!db) return false;
