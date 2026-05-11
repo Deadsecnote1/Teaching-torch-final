@@ -96,8 +96,13 @@ export const ResourceProvider = ({ children }) => {
     if (!db || !gradeId || fetchedGrades[gradeId]) return;
     
     try {
-      const { getDocs, query, collection, where } = await import('firebase/firestore');
-      const q = query(collection(db, "resources"), where("grade", "==", gradeId));
+      const { getDocs, query, collection, where, orderBy, limit } = await import('firebase/firestore');
+      const q = query(
+        collection(db, "resources"), 
+        where("grade", "==", gradeId),
+        orderBy("uploadDate", "desc"),
+        limit(200)
+      );
       
       const snapshot = await getDocs(q);
       const { structuredResources, structuredVideos, allResources: fresh } = processResources(snapshot.docs);

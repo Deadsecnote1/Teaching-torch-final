@@ -17,7 +17,7 @@ export const GradeProvider = ({ children }) => {
   const [subjects, setSubjects] = useState({});
   const [settings, setSettings] = useState({});
   const [loading, setLoading] = useState(true);
-  const { db, isInitialized } = useAuth();
+  const { db, isInitialized, isManageMode } = useAuth();
 
   useEffect(() => {
     if (!isInitialized || !db) return;
