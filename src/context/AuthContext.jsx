@@ -8,13 +8,14 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-    const [currentUser, setCurrentUser] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [isManageMode, setIsManageMode] = useState(false);
-    const [instances, setInstances] = useState({ auth: null, db: null, analytics: null });
+    const [currentUser, setCurrentUser] = React.useState(null);
+    const [loading, setLoading] = React.useState(true);
+    const [isManageMode, setIsManageMode] = React.useState(false);
+    const instancesRef = React.useRef({ auth: null, db: null, analytics: null });
+    const [isInitialized, setIsInitialized] = React.useState(false);
 
     // Initialize Firebase in the background
-    useEffect(() => {
+    React.useEffect(() => {
         let unsubscribe = null;
         
         const initialize = async () => {
@@ -22,7 +23,8 @@ export const AuthProvider = ({ children }) => {
                 const { auth, db, analytics } = await initFirebase();
                 const { onAuthStateChanged } = await import('firebase/auth');
                 
-                setInstances({ auth, db, analytics });
+                instancesRef.current = { auth, db, analytics };
+                setIsInitialized(true);
                 
                 unsubscribe = onAuthStateChanged(auth, (user) => {
                     setCurrentUser(user);
@@ -41,44 +43,44 @@ export const AuthProvider = ({ children }) => {
         };
     }, []);
 
-    useEffect(() => {
-        if (!currentUser) {
+    React.useEffect(() => {
+        if (!currentUser && isManageMode) {
             setIsManageMode(false);
         }
-    }, [currentUser]);
+    }, [currentUser, isManageMode]);
 
-    const login = async (email, password) => {
-        if (!instances.auth) throw new Error("Auth not initialized");
+    const login = React.useCallback(async (email, password) => {
+        if (!instancesRef.current.auth) throw new Error("Auth not initialized");
         const { signInWithEmailAndPassword } = await import('firebase/auth');
-        return signInWithEmailAndPassword(instances.auth, email, password);
-    };
+        return signInWithEmailAndPassword(instancesRef.current.auth, email, password);
+    }, []);
 
-    const logout = async () => {
-        if (!instances.auth) return;
+    const logout = React.useCallback(async () => {
+        if (!instancesRef.current.auth) return;
         const { signOut } = await import('firebase/auth');
-        return signOut(instances.auth);
-    };
+        return signOut(instancesRef.current.auth);
+    }, []);
 
-    const setManageMode = (value) => {
+    const setManageMode = React.useCallback((value) => {
         setIsManageMode(value);
-    };
+    }, []);
 
-    const toggleManageMode = () => {
+    const toggleManageMode = React.useCallback(() => {
         setIsManageMode(prev => !prev);
-    };
+    }, []);
 
-    const value = {
+    const value = React.useMemo(() => ({
         currentUser,
         isManageMode,
         toggleManageMode,
         setManageMode,
         login,
         logout,
-        auth: instances.auth,
-        db: instances.db,
-        analytics: instances.analytics,
-        isInitialized: !!instances.auth
-    };
+        auth: instancesRef.current.auth,
+        db: instancesRef.current.db,
+        analytics: instancesRef.current.analytics,
+        isInitialized
+    }), [currentUser, isManageMode, toggleManageMode, setManageMode, login, logout, isInitialized]);
 
     return (
         <AuthContext.Provider value={value}>

@@ -17,7 +17,14 @@ import {
 
 const ResourceContext = createContext();
 
-// Helper to structure resources like the old state for UI compatibility
+// Pure helper to ensure default structure
+const getDefaultStructure = () => ({
+  textbooks: {},
+  papers: { terms: { term1: [], term2: [], term3: [] }, chapters: {} },
+  notes: {}
+});
+
+// Optimized resource processor
 const processResources = (docs) => {
   const structuredResources = {};
   const structuredVideos = {};
@@ -28,43 +35,43 @@ const processResources = (docs) => {
     allResources.push(data);
 
     const { grade, subject, resourceType, languages } = data;
-    data.language = languages ? languages[0] : 'english';
+    data.language = languages?.[0] || 'english';
 
-    if (resourceType === 'textbook') {
-      if (!structuredResources[grade]) structuredResources[grade] = {};
-      if (!structuredResources[grade][subject]) {
-        structuredResources[grade][subject] = { textbooks: {}, papers: { terms: { term1: [], term2: [], term3: [] }, chapters: {} }, notes: {} };
-      }
-      const target = structuredResources[grade][subject].textbooks;
-      const langs = languages?.length > 0 ? languages : ['english'];
-      langs.forEach(lang => {
-        if (!target[lang]) target[lang] = [];
-        target[lang].push(data);
-      });
-    } else if (resourceType === 'papers') {
-      if (!structuredResources[grade]) structuredResources[grade] = {};
-      if (!structuredResources[grade][subject]) {
-        structuredResources[grade][subject] = { textbooks: {}, papers: { terms: { term1: [], term2: [], term3: [] }, chapters: {} }, notes: {} };
-      }
-      const { paperType, paperCategory } = data;
-      const target = structuredResources[grade][subject].papers;
-      if (paperType === 'term') {
-        if (!target.terms[paperCategory]) target.terms[paperCategory] = [];
-        target.terms[paperCategory].push(data);
-      } else {
-        if (!target.chapters[paperCategory]) target.chapters[paperCategory] = [];
-        target.chapters[paperCategory].push(data);
-      }
-    } else if (resourceType === 'videos') {
+    if (resourceType === 'videos') {
       if (!structuredVideos[grade]) structuredVideos[grade] = {};
       if (!structuredVideos[grade][subject]) structuredVideos[grade][subject] = [];
       structuredVideos[grade][subject].push(data);
-    } else if (resourceType === 'notes') {
-      if (!structuredResources[grade]) structuredResources[grade] = {};
-      if (!structuredResources[grade][subject]) {
-        structuredResources[grade][subject] = { textbooks: {}, papers: { terms: { term1: [], term2: [], term3: [] }, chapters: {} }, notes: {} };
-      }
-      structuredResources[grade][subject].notes[data.id] = data;
+      return;
+    }
+
+    if (!structuredResources[grade]) structuredResources[grade] = {};
+    if (!structuredResources[grade][subject]) structuredResources[grade][subject] = getDefaultStructure();
+    
+    const target = structuredResources[grade][subject];
+
+    switch (resourceType) {
+      case 'textbook':
+        const langs = languages?.length > 0 ? languages : ['english'];
+        langs.forEach(lang => {
+          if (!target.textbooks[lang]) target.textbooks[lang] = [];
+          target.textbooks[lang].push(data);
+        });
+        break;
+      case 'papers':
+        const { paperType, paperCategory } = data;
+        if (paperType === 'term') {
+          if (!target.papers.terms[paperCategory]) target.papers.terms[paperCategory] = [];
+          target.papers.terms[paperCategory].push(data);
+        } else {
+          if (!target.papers.chapters[paperCategory]) target.papers.chapters[paperCategory] = [];
+          target.papers.chapters[paperCategory].push(data);
+        }
+        break;
+      case 'notes':
+        target.notes[data.id] = data;
+        break;
+      default:
+        break;
     }
   });
 
@@ -79,13 +86,15 @@ export const ResourceProvider = ({ children }) => {
   const [fetchedGrades, setFetchedGrades] = useState({});
   const [lastVisible, setLastVisible] = useState(null);
   const [hasMore, setHasMore] = useState(true);
+  
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [gradeLoading, setGradeLoading] = useState({});
+
   const { db } = useAuth();
 
   useEffect(() => {
-    // Global listener removed to save costs. 
-    // We now use targeted listeners per grade.
     return () => {
-      // Cleanup all grade listeners on unmount
       Object.values(listenersRef.current).forEach(unsub => {
         if (typeof unsub === 'function') unsub();
       });
@@ -95,8 +104,10 @@ export const ResourceProvider = ({ children }) => {
   const fetchResourcesForGrade = useCallback(async (gradeId) => {
     if (!db || !gradeId || fetchedGrades[gradeId]) return;
     
+    setGradeLoading(prev => ({ ...prev, [gradeId]: true }));
+    setError(null);
+
     try {
-      const { getDocs, query, collection, where, orderBy, limit } = await import('firebase/firestore');
       const q = query(
         collection(db, "resources"), 
         where("grade", "==", gradeId),
@@ -115,19 +126,28 @@ export const ResourceProvider = ({ children }) => {
       });
       
       setFetchedGrades(prev => ({ ...prev, [gradeId]: true }));
-    } catch (error) {
-      console.error("Error fetching grade resources:", error);
+    } catch (err) {
+      console.error("Error fetching grade resources:", err);
+      setError(err.message);
+    } finally {
+      setGradeLoading(prev => ({ ...prev, [gradeId]: false }));
     }
   }, [db, fetchedGrades]);
 
   const fetchResourcesPaginated = useCallback(async (isFirstPage = false, pageSize = 20) => {
     if (!db) return;
-    try {
-      let q = isFirstPage 
-        ? query(collection(db, "resources"), orderBy("uploadDate", "desc"), limit(pageSize))
-        : (lastVisible ? query(collection(db, "resources"), orderBy("uploadDate", "desc"), startAfter(lastVisible), limit(pageSize)) : null);
+    setLoading(true);
+    setError(null);
 
-      if (!q) return;
+    try {
+      let q;
+      if (isFirstPage) {
+        q = query(collection(db, "resources"), orderBy("uploadDate", "desc"), limit(pageSize));
+      } else if (lastVisible) {
+        q = query(collection(db, "resources"), orderBy("uploadDate", "desc"), startAfter(lastVisible), limit(pageSize));
+      } else {
+        return;
+      }
 
       const snapshot = await getDocs(q);
       const last = snapshot.docs[snapshot.docs.length - 1];
@@ -137,31 +157,40 @@ export const ResourceProvider = ({ children }) => {
       setAllResources(prev => isFirstPage ? fresh : [...prev, ...fresh]);
       setLastVisible(last);
       setHasMore(hasNext);
-    } catch (error) {
-      console.error("Pagination error:", error);
+    } catch (err) {
+      console.error("Pagination error:", err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   }, [db, lastVisible]);
 
-  const addResource = async (data) => {
+  const addResource = useCallback(async (data) => {
     if (!db) return;
     return addDoc(collection(db, "resources"), { ...data, uploadDate: new Date().toISOString() });
-  };
+  }, [db]);
 
-  const updateResource = async (id, data) => {
+  const updateResource = useCallback(async (id, data) => {
     if (!db) return;
     return updateDoc(doc(db, "resources", id), data);
-  };
+  }, [db]);
 
-  const deleteResource = async (id) => {
+  const deleteResource = useCallback(async (id) => {
     if (!db) return;
     return deleteDoc(doc(db, "resources", id));
-  };
+  }, [db]);
 
-  const value = {
+  const value = useMemo(() => ({
     resources, videos, allResources, lastVisible, hasMore,
+    loading, error, gradeLoading,
     fetchResourcesForGrade, fetchResourcesPaginated,
     addResource, updateResource, deleteResource
-  };
+  }), [
+    resources, videos, allResources, lastVisible, hasMore,
+    loading, error, gradeLoading,
+    fetchResourcesForGrade, fetchResourcesPaginated,
+    addResource, updateResource, deleteResource
+  ]);
 
   return <ResourceContext.Provider value={value}>{children}</ResourceContext.Provider>;
 };
