@@ -12,11 +12,11 @@
     "react"
   ],
   "bugs": {
-    "url": "https://github.com/Deadsecnote1/TT-react/issues"
+    "url": "https://github.com/Deadsecnote1/Teaching-torch/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Deadsecnote1/TT-react.git"
+    "url": "git+https://github.com/Deadsecnote1/Teaching-torch.git"
   },
   "license": "MIT",
   "author": "Teaching Torch Team",
