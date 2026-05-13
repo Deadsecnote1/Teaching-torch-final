@@ -27,10 +27,10 @@ const Home = () => {
   return (
     <div className="home-page">
       <header className="hero-section hero-section-bg">
-        <div className="container text-center text-dark">
+        <div className="container text-center text-white">
           <div className="hero-content">
-            <h1 className="display-4 fw-bold mb-3 text-dark">Welcome to Teaching Torch</h1>
-            <p className="lead mb-4 text-dark fw-bold">Free Educational Resources for Sri Lankan Students</p>
+            <h1 className="display-4 fw-bold mb-3 text-white">Welcome to Teaching Torch</h1>
+            <p className="lead mb-4 text-white fw-bold">Free Educational Resources for Sri Lankan Students</p>
             <div className="hero-buttons">
               <a href="#grades" className="btn btn-dark btn-lg me-3">Explore Grades</a>
             </div>
