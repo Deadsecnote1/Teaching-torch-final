@@ -1,0 +1,70 @@
+/* Mobile-first responsive design */
+@layer base {
+  html {
+    @apply text-base antialiased;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+      sans-serif;
+  }
+
+  body {
+    @apply bg-bg-primary text-text-primary;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Safe area for mobile notches */
+  body {
+    padding: max(1rem, env(safe-area-inset-bottom));
+  }
+
+  /* Touch-friendly tap targets (44px minimum) */
+  button, a, input[type="checkbox"], input[type="radio"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Reduce motion for accessibility */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* Focus states for accessibility */
+@layer components {
+  .focus-ring {
+    @apply outline-none ring-2 ring-primary ring-offset-2;
+  }
+
+  /* Responsive container */
+  .container-modern {
+    @apply w-full max-w-full px-4 mx-auto
+      sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl;
+  }
+
+  /* Mobile-first spacing */
+  .section-pad {
+    @apply px-4 py-6 sm:px-6 md:px-8 md:py-8;
+  }
+
+  /* Card component base */
+  .card-modern {
+    @apply bg-card rounded-lg shadow-sm 
+      hover:shadow-md transition-shadow duration-200 border border-border;
+  }
+
+  /* Button base */
+  .btn-base {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 
+      rounded-lg font-medium transition-all duration-200 focus-ring;
+  }
+}
