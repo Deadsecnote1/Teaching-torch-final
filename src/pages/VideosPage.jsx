@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useParams, Link, useSearchParams } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useData } from '../context/DataContext';
 import { useGradePage } from '../hooks/useGradePage';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
-import ResourceCard from '../components/common/ResourceCard';
+import ModernResourceCard from '../components/common/ModernResourceCard';
 import ResourceEditorModal from '../components/admin/ResourceEditorModal';
 import MetadataEditorModal from '../components/admin/MetadataEditorModal';
 import { extractYouTubeId, getYouTubeThumbnail, isYouTubeLink } from '../utils/youtube';
@@ -12,7 +13,13 @@ import { getEmbedUrl, isGoogleDriveLink } from '../utils/googleDrive';
 import { subjectTranslations } from '../utils/subjectTranslations';
 import { getResourceTypeName } from '../utils/resourceTranslations';
 import { logEvent } from 'firebase/analytics';
+import AdSenseComponent from '../components/common/AdSenseComponent';
 import toast from 'react-hot-toast';
+import { ChevronRight, ArrowLeft, Edit, Trash2, Plus, Youtube, Play, X, Search, Calendar, Bookmark } from 'lucide-react';
+import { Container, Section, Grid } from '../components/ui/Layout';
+import { Button } from '../components/ui/Button';
+import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card';
+import { cn } from '../utils/cn';
 
 const VideosPage = () => {
   const { gradeId, streamId, subjectId: paramSubjectId } = useParams();
@@ -22,6 +29,7 @@ const VideosPage = () => {
   const { updateSubject, deleteSubject, grades } = useData();
   const { selectedLanguage, setLanguage, shouldShowResource, getLanguageIndicator, languages } = useLanguage();
   const { isManageMode, analytics } = useAuth();
+  
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [addModalInitialData, setAddModalInitialData] = useState(null);
   const [editingResource, setEditingResource] = useState(null);
@@ -40,23 +48,22 @@ const VideosPage = () => {
 
   if (isLoading) {
     return (
-      <div className="container py-5 text-center">
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
-      </div>
+      <Container className="py-20 text-center flex flex-col items-center justify-center min-h-[50vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+        <p className="mt-4 text-text-muted">Loading videos...</p>
+      </Container>
     );
   }
 
   if (isGradeMissing) {
     return (
-      <div className="container py-5">
-        <div className="text-center">
-          <h2>Grade Not Found</h2>
-          <p>The requested grade does not exist.</p>
-          <Link to="/" className="btn btn-primary">Go Home</Link>
-        </div>
-      </div>
+      <Container className="py-20 text-center min-h-[50vh] flex flex-col items-center justify-center">
+        <h2 className="text-3xl font-bold text-text-primary mb-4">Grade Not Found</h2>
+        <p className="text-text-muted mb-8">The requested grade does not exist.</p>
+        <Link to="/" className="inline-flex items-center justify-center px-6 py-2.5 rounded-lg font-medium transition-colors bg-primary text-white hover:bg-primary-dark">
+          Go Home
+        </Link>
+      </Container>
     );
   }
 
@@ -70,249 +77,178 @@ const VideosPage = () => {
           language: video.language || 'unknown'
         });
       }
-    } catch (err) {
-      console.error("Analytics error:", err);
-    }
+    } catch (err) {}
 
     const youtubeId = extractYouTubeId(videoUrl);
     if (youtubeId) {
-      setActiveVideo({
-        title: video.title,
-        embedUrl: `https://www.youtube.com/embed/${youtubeId}?autoplay=1`
-      });
+      setActiveVideo({ title: video.title, embedUrl: `https://www.youtube.com/embed/${youtubeId}?autoplay=1` });
       setShowPlayer(true);
       return;
     }
-
     if (isGoogleDriveLink(videoUrl)) {
       const embedUrl = getEmbedUrl(videoUrl);
       if (embedUrl) {
-        setActiveVideo({
-          title: video.title,
-          embedUrl
-        });
+        setActiveVideo({ title: video.title, embedUrl });
         setShowPlayer(true);
         return;
       }
     }
-
-    // Fallback: open in new tab
     window.open(videoUrl, '_blank', 'noopener,noreferrer');
   };
 
-  // Generate videos grid component
   const VideosGrid = ({ videos, onEdit }) => {
     if (!videos || videos.length === 0) {
       return (
-        <div className="text-center py-5">
-          <i className="bi bi-youtube text-muted" style={{ fontSize: '4rem' }}></i>
-          <h5 className="mt-3 text-muted">No video lessons available</h5>
-          <p className="text-muted">Video lessons for this subject haven't been added yet.</p>
+        <div className="text-center py-10">
+          <Youtube className="w-16 h-16 text-text-muted mx-auto mb-4 opacity-30" />
+          <h5 className="text-lg font-medium text-text-primary mb-2">No video lessons available</h5>
+          <p className="text-sm text-text-muted">Video lessons for this subject haven't been added yet.</p>
         </div>
       );
     }
 
-    // Filter videos by language
     const filteredVideos = videos.filter(video => shouldShowResource(video));
 
     if (filteredVideos.length === 0) {
       return (
-        <div className="text-center py-5">
-          <i className="bi bi-search text-muted" style={{ fontSize: '4rem' }}></i>
-          <h5 className="mt-3 text-muted">No videos found</h5>
-          <p className="text-muted">
-            No video lessons available in{' '}
-            {selectedLanguage === 'sinhala' && 'Sinhala'}
-            {selectedLanguage === 'tamil' && 'Tamil'}
-            {selectedLanguage === 'english' && 'English'}
-            {' '}for this subject.
-          </p>
+        <div className="text-center py-10">
+          <Search className="w-16 h-16 text-text-muted mx-auto mb-4 opacity-30" />
+          <h5 className="text-lg font-medium text-text-primary mb-2">No videos found</h5>
+          <p className="text-sm text-text-muted">No video lessons available in {languages[selectedLanguage]?.display || 'the selected language'} for this subject.</p>
         </div>
       );
     }
 
     return (
-      <div className="videos-grid">
-        <div className="row g-4">
-          {filteredVideos.map((video, index) => {
-            const videoUrl = video.driveLink || video.url || video.youtubeUrl;
-            const thumbnail = getYouTubeThumbnail(videoUrl);
+      <Grid cols={3} gap={6} className="mt-4">
+        {filteredVideos.map((video, index) => {
+          const videoUrl = video.driveLink || video.url || video.youtubeUrl;
+          const thumbnail = getYouTubeThumbnail(videoUrl);
 
-            return (
-              <div key={video.id || index} className="col-md-6 col-lg-4">
-                <div className="video-card h-100" data-language={video.language}>
-                  <div className="card h-100">
-                    {/* Video Thumbnail */}
-                    <div className="video-thumbnail position-relative">
-                      {thumbnail ? (
-                        <img
-                          src={thumbnail}
-                          alt={video.title}
-                          className="card-img-top"
-                          style={{ height: '200px', objectFit: 'cover' }}
-                          loading="lazy"
-                          onError={(e) => {
-                            e.target.style.display = 'none';
-                            e.target.nextSibling.style.display = 'flex';
-                          }}
-                        />
-                      ) : null}
-
-                      {/* Fallback thumbnail */}
-                      <div
-                        className="placeholder-thumbnail d-flex align-items-center justify-content-center bg-light"
-                        style={{
-                          height: '200px',
-                          display: thumbnail ? 'none' : 'flex'
-                        }}
-                      >
-                        <i className="bi bi-play-circle text-muted" style={{ fontSize: '4rem' }}></i>
-                      </div>
-
-                      {/* Play overlay */}
-                      <div className="play-overlay position-absolute top-50 start-50 translate-middle">
-                        <div className="play-button bg-danger text-white rounded-circle d-flex align-items-center justify-content-center"
-                          style={{ width: '60px', height: '60px' }}>
-                          <i className="bi bi-play-fill" style={{ fontSize: '1.5rem', marginLeft: '4px' }}></i>
-                        </div>
-                      </div>
-
-                      {/* Language badge */}
-                      <div className="position-absolute top-0 end-0 m-2">
-                        <span className="badge bg-dark bg-opacity-75 d-flex align-items-center">
-                          <span
-                            className="language-indicator me-1"
-                            {...getLanguageIndicator(video.language || video.languages?.[0])}
-                          ></span>
-                          {video.language || video.languages?.[0]}
-                        </span>
-                      </div>
+          return (
+            <div key={video.id || index} className="col-span-1 h-full">
+              <Card className="h-full flex flex-col border-border hover:border-primary/50 transition-all shadow-sm overflow-hidden group">
+                <div 
+                  className="relative h-48 bg-bg-secondary cursor-pointer overflow-hidden"
+                  onClick={() => handlePlayVideo(video, videoUrl)}
+                >
+                  {thumbnail ? (
+                    <img src={thumbnail} alt={video.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Youtube className="w-16 h-16 text-text-muted opacity-20" />
                     </div>
-
-                    {/* Video Content */}
-                    <div className="card-body d-flex flex-column">
-                      <div className="video-content flex-grow-1">
-                        <h6 className="video-title mb-2">{video.title}</h6>
-
-                        {video.chapter && (
-                          <p className="text-muted mb-2">
-                            <i className="bi bi-bookmark me-1"></i>
-                            <small>{video.chapter}</small>
-                          </p>
-                        )}
-
-                        {video.description && (
-                          <p className="text-muted small mb-3">{video.description}</p>
-                        )}
-
-                          <small className="text-muted d-block">
-                            <i className="bi bi-calendar me-1"></i>
-                            Added: {video.addedDate ? new Date(video.addedDate).toLocaleDateString() : 'Recently'}
-                          </small>
-                      </div>
-
-                      {/* Video Actions */}
-                      <div className="video-actions mt-3">
-                        <button
-                          className={`btn btn-sm w-100 ${isYouTubeLink(videoUrl) ? 'btn-danger' : 'btn-primary'}`}
-                          onClick={() => handlePlayVideo(video, videoUrl)}
-                        >
-                          <i className="bi bi-play-circle me-1"></i>
-                          Play Video
-                        </button>
-                      </div>
-
-                      {/* Admin Management Actions */}
-                      {isManageMode && (
-                        <div className="admin-management mt-2 pt-2 border-top">
-                          <ResourceCard
-                            resource={video}
-                            title={video.title}
-                            description={video.chapter ? `Chapter: ${video.chapter}` : ''}
-                            showViewButton={false}
-                            showDownloadButton={false}
-                            onEdit={onEdit}
-                          />
-                        </div>
-                      )}
+                  )}
+                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-14 h-14 rounded-full bg-danger text-white flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform">
+                      <Play className="w-6 h-6 ml-1" />
                     </div>
                   </div>
+                  <div className="absolute top-2 right-2">
+                    <span className="bg-black/70 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-md flex items-center gap-1.5 font-medium">
+                      <span className="w-2 h-2 rounded-full" style={getLanguageIndicator(video.language || video.languages?.[0]).style}></span>
+                      {video.language || video.languages?.[0]}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
+
+                <div className="flex-1 p-4 flex flex-col">
+                  <h6 className="font-bold text-text-primary line-clamp-2 mb-2">{video.title}</h6>
+                  
+                  {video.chapter && (
+                    <div className="flex items-center text-xs text-text-muted mb-2">
+                      <Bookmark className="w-3.5 h-3.5 mr-1" /> {video.chapter}
+                    </div>
+                  )}
+                  {video.description && (
+                    <p className="text-xs text-text-muted line-clamp-2 mb-3">{video.description}</p>
+                  )}
+                  
+                  <div className="mt-auto pt-3 flex items-center justify-between text-xs text-text-muted border-t border-border/50">
+                    <span className="flex items-center"><Calendar className="w-3.5 h-3.5 mr-1" /> {video.addedDate ? new Date(video.addedDate).toLocaleDateString() : 'Recently'}</span>
+                  </div>
+
+                  {isManageMode && (
+                    <div className="mt-3 pt-3 border-t border-border">
+                      <ModernResourceCard resource={video} title={video.title} description={video.chapter ? `Chapter: ${video.chapter}` : ''} showViewButton={false} showDownloadButton={false} onEdit={onEdit} />
+                    </div>
+                  )}
+                </div>
+              </Card>
+            </div>
+          );
+        })}
+      </Grid>
     );
   };
 
   return (
-    <div className="videos-page">
+    <div className="min-h-screen flex flex-col bg-bg-primary">
       {/* Header */}
-      <header className="grade-header">
-        <div className="container text-center">
-          <h1 className="display-4 fw-bold mb-0">{grade.display} Video Lessons</h1>
-          <p className="lead mt-2">Curated educational videos and tutorials</p>
-        </div>
+      <header className="bg-bg-secondary border-b border-border py-12">
+        <Container className="text-center">
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+            <h1 className="text-4xl md:text-5xl font-extrabold text-text-primary tracking-tight mb-3">{grade.display} Video Lessons</h1>
+            <p className="text-lg text-text-muted max-w-2xl mx-auto">Curated educational videos and tutorials</p>
+          </motion.div>
+        </Container>
       </header>
 
-      {/* Language Switcher Section */}
-      <section className="py-4 switcher-container border-bottom">
-        <div className="container">
-          <div className="d-flex flex-column flex-md-row align-items-center justify-content-center gap-3">
-            <span className="fw-bold text-uppercase tracking-wider small opacity-75">Select Content Medium:</span>
-            <div className="btn-group shadow-sm" role="group">
+      {/* Language Switcher */}
+      <div className="bg-bg-primary border-b border-border sticky top-[64px] sm:top-[64px] z-40 shadow-sm backdrop-blur-md bg-opacity-90">
+        <Container className="py-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <span className="text-xs font-bold text-text-muted uppercase tracking-wider">Select Content Medium:</span>
+            <div className="flex bg-bg-secondary p-1.5 rounded-xl shadow-inner border border-border">
               {['sinhala', 'tamil', 'english'].map(lang => (
                 <button
                   key={lang}
-                  type="button"
-                  className={`btn px-4 py-2 content-medium-btn ${selectedLanguage === lang ? 'btn-primary active' : 'btn-outline-custom'}`}
                   onClick={() => setLanguage(lang)}
-                  style={{ minWidth: '120px' }}
+                  className={cn(
+                    "px-4 py-2 text-sm font-semibold rounded-lg transition-all flex items-center gap-2",
+                    selectedLanguage === lang 
+                      ? "bg-card text-text-primary shadow-sm border border-border" 
+                      : "text-text-muted hover:text-text-primary hover:bg-bg-tertiary"
+                  )}
                 >
-                  <i className={`bi bi-circle-fill me-2`} style={{ color: languages[lang].color, fontSize: '0.7rem' }}></i>
+                  <span className="w-2.5 h-2.5 rounded-full shadow-sm" style={{ backgroundColor: languages[lang].color }}></span>
                   {languages[lang].display}
                 </button>
               ))}
             </div>
           </div>
-        </div>
-      </section>
+        </Container>
+      </div>
 
       {/* Breadcrumb */}
-      <section className="py-3 bg-light">
-        <div className="container">
-          <nav aria-label="breadcrumb">
-            <ol className="breadcrumb mb-0">
-              <li className="breadcrumb-item">
-                <Link to="/">Home</Link>
-              </li>
-              {parentGrade && (
-                <li className="breadcrumb-item">
-                  <Link to={`/grade/${gradeId}`}>{parentGrade.display}</Link>
-                </li>
-              )}
-              <li className="breadcrumb-item">
-                <Link to={streamId ? `/grade/${gradeId}/${streamId}` : `/grade/${gradeId}`}>{grade.display}</Link>
-              </li>
-              {subject && (
-                <li className="breadcrumb-item">
-                  <Link to={`/grade/${gradeId}/${streamId}/${selectedSubjectId}`}>{subject.display}</Link>
-                </li>
-              )}
-              <li className="breadcrumb-item active" aria-current="page">
-                {getResourceTypeName('videos', selectedLanguage)}
-              </li>
-            </ol>
+      <div className="bg-bg-secondary/50 border-b border-border">
+        <Container className="py-3">
+          <nav className="flex items-center text-sm font-medium text-text-muted whitespace-nowrap overflow-x-auto no-scrollbar">
+            <Link to="/" className="hover:text-primary transition-colors flex items-center">Home</Link>
+            <ChevronRight className="w-4 h-4 mx-2 flex-shrink-0 opacity-40" />
+            {parentGrade && (
+              <>
+                <Link to={`/grade/${gradeId}`} className="hover:text-primary transition-colors">{parentGrade.display}</Link>
+                <ChevronRight className="w-4 h-4 mx-2 flex-shrink-0 opacity-40" />
+              </>
+            )}
+            <Link to={streamId ? `/grade/${gradeId}/${streamId}` : `/grade/${gradeId}`} className="hover:text-primary transition-colors">{grade.display}</Link>
+            <ChevronRight className="w-4 h-4 mx-2 flex-shrink-0 opacity-40" />
+            {subject && (
+              <>
+                <Link to={`/grade/${gradeId}/${streamId}/${selectedSubjectId}`} className="hover:text-primary transition-colors">{subject.display}</Link>
+                <ChevronRight className="w-4 h-4 mx-2 flex-shrink-0 opacity-40" />
+              </>
+            )}
+            <span className="text-text-primary font-semibold">{getResourceTypeName('videos', selectedLanguage)}</span>
           </nav>
-        </div>
-      </section>
+        </Container>
+      </div>
 
-
-
-      {/* Videos Content */}
-      <section className="py-5">
-        <div className="container">
+      {/* Content */}
+      <Section className="flex-1 pt-8">
+        <div className="flex flex-col gap-8">
           {Object.keys(subjects).filter(subjectId => {
             if (subjectId === 'standalone') return false;
             const subject = subjects[subjectId];
@@ -320,238 +256,131 @@ const VideosPage = () => {
               return subject.languages.includes(selectedLanguage);
             }
             return true;
-          }).map(subjectId => {
+          }).map((subjectId, index) => {
             const subject = subjects[subjectId];
             const videos = subject.videos || [];
-
-            const mergedVideos = videos;
-
-            // Filter by selected subject if specified
-            if (selectedSubjectId && subjectId !== selectedSubjectId) {
-              return null;
-            }
-
-            // Check if any videos match the filter
-            const hasFilteredVideos = mergedVideos.some(video => shouldShowResource(video));
-
-            // Skip subject if no videos match filter
-            if (!hasFilteredVideos) {
-              return null;
-            }
+            
+            if (selectedSubjectId && subjectId !== selectedSubjectId) return null;
+            if (!videos.some(video => shouldShowResource(video))) return null;
 
             return (
-              <div key={subjectId} className="subject-section mb-5">
-                <div className="subject-header mb-4 d-flex justify-content-between align-items-center">
-                  <div className="d-flex align-items-center">
-                    <div className="subject-icon-large me-3">
-                      <i className={subject.icon} style={{ fontSize: '2.5rem', color: 'var(--primary)' }}></i>
+              <motion.div
+                key={subjectId}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.05 }}
+              >
+                <Card className="flex flex-col border-border hover:border-primary/30 transition-colors shadow-sm overflow-hidden">
+                  <CardHeader className="flex flex-row items-center justify-between border-b border-border bg-bg-secondary/40 pb-4">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-bg-primary shadow-sm border border-border flex items-center justify-center">
+                        <i className={cn(subject.icon, "text-2xl text-primary")}></i>
+                      </div>
+                      <div>
+                        <CardTitle className="text-xl">
+                          {subjectTranslations.getTranslatedName(subjectId, subject, selectedLanguage)}
+                        </CardTitle>
+                        <p className="text-sm text-text-muted mt-1">Educational video lessons</p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="mb-0">
-                        {subjectTranslations.getTranslatedName(subjectId, subject, selectedLanguage)}
-                      </h3>
-                      <small className="text-muted">Educational video lessons</small>
-                    </div>
-                  </div>
 
-                  {isManageMode && (
-                    <div className="admin-subject-actions d-flex gap-2">
-                       <button 
-                        className="btn btn-sm btn-outline-info"
-                        onClick={() => {
-                          setMetadataModal({
-                            isOpen: true,
-                            initialData: subject,
-                            type: 'subject',
-                            key: subjectId
-                          });
-                        }}
-                        title="Edit Subject"
-                      >
-                        <i className="bi bi-pencil"></i>
-                      </button>
-                      <button 
-                        className="btn btn-sm btn-outline-danger"
-                        onClick={() => {
+                    {isManageMode && (
+                      <div className="flex gap-1 bg-card rounded-lg border border-border p-1 shadow-sm">
+                        <Button size="icon" variant="ghost" onClick={() => setMetadataModal({ isOpen: true, initialData: subject, type: 'subject', key: subjectId })} className="h-8 w-8 text-info hover:bg-info/10">
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button size="icon" variant="ghost" onClick={() => {
                           if (window.confirm(`Are you sure you want to delete "${subject.name}"?`)) {
                             deleteSubject(subjectId);
                             toast.success('Subject Deleted');
                           }
+                        }} className="h-8 w-8 text-danger hover:bg-danger/10">
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    )}
+                  </CardHeader>
+                  
+                  <CardContent className="p-5 bg-bg-primary">
+                    <VideosGrid videos={videos} onEdit={setEditingResource} />
+
+                    {isManageMode && (
+                      <Button 
+                        variant="outline" 
+                        className="w-full mt-6 border-dashed border-2 hover:bg-success/5 hover:text-success hover:border-success h-12 rounded-xl"
+                        onClick={() => {
+                          setAddModalInitialData({ grade: gradeId, subject: subjectId, resourceType: 'videos', languages: ['sinhala', 'tamil', 'english'] });
+                          setIsAddModalOpen(true);
                         }}
-                        title="Delete Subject"
                       >
-                        <i className="bi bi-trash"></i>
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                <VideosGrid videos={mergedVideos} onEdit={(r) => setEditingResource(r)} />
-
-                {isManageMode && (
-                  <div className="mt-4 pt-3 border-top">
-                    <button 
-                      className="btn btn-outline-success w-100 py-2"
-                      style={{ borderStyle: 'dashed', borderWidth: '2px' }}
-                      onClick={() => {
-                        setAddModalInitialData({
-                          grade: gradeId,
-                          subject: subjectId,
-                          resourceType: 'videos',
-                          languages: ['sinhala', 'tamil', 'english']
-                        });
-                        setIsAddModalOpen(true);
-                      }}
-                    >
-                      <i className="bi bi-plus-lg me-2"></i>
-                      Add New Video
-                    </button>
-                  </div>
-                )}
-              </div>
+                        <Plus className="w-4 h-4 mr-2" /> Add New Video
+                      </Button>
+                    )}
+                  </CardContent>
+                </Card>
+              </motion.div>
             );
           })}
-
-
-
-          {/* No Subjects Message */}
-          {Object.keys(subjects).length === 0 && (
-            <div className="text-center py-5">
-              <i className="bi bi-youtube text-muted" style={{ fontSize: '4rem' }}></i>
-              <h4 className="mt-3 text-muted">No video lessons available</h4>
-              <p className="text-muted">Video lessons for this grade haven't been added yet.</p>
-            </div>
-          )}
-
-          {/* No Results for Filter */}
-          {Object.keys(subjects).length > 0 &&
-            !Object.values(subjects).some(subject =>
-              (subject.videos || []).some(video => shouldShowResource(video))
-            ) && (
-              <div className="text-center py-5">
-                <i className="bi bi-search text-muted" style={{ fontSize: '4rem' }}></i>
-                <h4 className="mt-3 text-muted">No videos found</h4>
-                <p className="text-muted">
-                  No video lessons available in{' '}
-                  {selectedLanguage === 'sinhala' && 'Sinhala'}
-                  {selectedLanguage === 'tamil' && 'Tamil'}
-                  {selectedLanguage === 'english' && 'English'}
-                  {' '}for this grade.
-                </p>
-              </div>
-            )}
         </div>
-      </section>
 
-      {/* Back to Grade Button */}
-      <section className="py-3 bg-light">
-        <div className="container text-center">
-          <Link to={`/grade/${gradeId}`} className="btn btn-outline-primary">
-            <i className="bi bi-arrow-left me-2"></i>Back to {grade.display} Overview
-          </Link>
-        </div>
-      </section>
+        {Object.keys(subjects).length === 0 && (
+          <div className="text-center py-20">
+            <Youtube className="w-16 h-16 text-text-muted mx-auto mb-4 opacity-30" />
+            <h4 className="text-xl font-bold text-text-primary mb-2">No video lessons available</h4>
+            <p className="text-text-muted">Video lessons for this grade haven't been added yet.</p>
+          </div>
+        )}
+      </Section>
+
+      <div className="bg-bg-secondary border-t border-border py-8 text-center mt-auto">
+        <Link 
+          to={`/grade/${gradeId}`} 
+          className="inline-flex items-center justify-center px-6 py-2.5 rounded-lg font-medium transition-colors border border-border bg-card text-text-primary hover:bg-bg-tertiary shadow-sm"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" /> Back to {grade.display} Overview
+        </Link>
+      </div>
 
       {/* Video Player Modal */}
-      {showPlayer && activeVideo && (
-        <div
-          className="modal fade show d-block"
-          style={{
-            backgroundColor: 'rgba(0,0,0,0.6)',
-            position: 'fixed',
-            inset: 0,
-            zIndex: 1050
-          }}
-          onClick={() => setShowPlayer(false)}
-        >
-          <div
-            className="modal-dialog modal-xl modal-dialog-centered"
-            style={{ margin: '2rem auto' }}
-            onClick={(e) => e.stopPropagation()}
+      <AnimatePresence>
+        {showPlayer && activeVideo && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 sm:p-6"
+            onClick={() => setShowPlayer(false)}
           >
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">
-                  <i className="bi bi-play-circle text-danger me-2"></i>
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-card w-full max-w-6xl rounded-2xl shadow-2xl overflow-hidden border border-border"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between p-4 border-b border-border bg-bg-secondary">
+                <h5 className="font-bold text-text-primary flex items-center gap-2">
+                  <Play className="w-5 h-5 text-danger" />
                   {activeVideo.title}
                 </h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={() => setShowPlayer(false)}
-                  aria-label="Close"
-                ></button>
+                <button onClick={() => setShowPlayer(false)} className="p-2 rounded-full hover:bg-bg-tertiary text-text-muted hover:text-text-primary transition-colors">
+                  <X className="w-5 h-5" />
+                </button>
               </div>
-              <div className="modal-body p-0">
-                <div className="ratio ratio-16x9">
-                  <iframe
-                    title={activeVideo.title}
-                    src={activeVideo.embedUrl}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    style={{ border: 'none' }}
-                  ></iframe>
-                </div>
+              <div className="aspect-video bg-black">
+                <iframe
+                  title={activeVideo.title}
+                  src={activeVideo.embedUrl}
+                  className="w-full h-full border-0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                ></iframe>
               </div>
-            </div>
-          </div>
-        </div>
-      )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      <style>{`
-        .video-thumbnail {
-          position: relative;
-          overflow: hidden;
-          border-radius: 0.5rem;
-          box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
-        }
-
-        .video-thumbnail img {
-          transition: transform 0.3s ease;
-        }
-
-        .video-thumbnail:hover img {
-          transform: scale(1.05);
-        }
-
-        .placeholder-thumbnail {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          border-radius: 0.5rem;
-          z-index: 1;
-        }
-
-        .play-overlay {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background-color: rgba(0, 0, 0, 0.5);
-          border-radius: 0.5rem;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 2;
-        }
-
-        .play-button {
-          position: relative;
-          width: 100%;
-          height: 100%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .modal.show {
-          display: block !important;
-        }
-      `}</style>
-      {/* Resource Editor Modal (Centralized) */}
       <ResourceEditorModal
         resource={editingResource || addModalInitialData}
         isOpen={!!editingResource || isAddModalOpen}
@@ -562,7 +391,6 @@ const VideosPage = () => {
         }}
       />
 
-      {/* Edit Subject Modal */}
       <MetadataEditorModal
         isOpen={metadataModal.isOpen}
         onClose={() => setMetadataModal({ ...metadataModal, isOpen: false })}

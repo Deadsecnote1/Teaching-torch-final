@@ -1,29 +1,30 @@
 import React, { useMemo, useState } from 'react';
 import { useParams, Link, useSearchParams } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useData } from '../context/DataContext';
 import { useGradePage } from '../hooks/useGradePage';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import useDocumentTitle from '../hooks/useDocumentTitle';
-import ResourceCard from '../components/common/ResourceCard';
+import ModernResourceCard from '../components/common/ModernResourceCard';
 import ResourceEditorModal from '../components/admin/ResourceEditorModal';
 import MetadataEditorModal from '../components/admin/MetadataEditorModal';
 import { subjectTranslations } from '../utils/subjectTranslations';
 import { getResourceTypeName } from '../utils/resourceTranslations';
 import AdSenseComponent from '../components/common/AdSenseComponent';
 import toast from 'react-hot-toast';
+import { ChevronRight, ArrowLeft, Edit, Plus, Archive, FolderOpen } from 'lucide-react';
+import { Container, Section, Grid } from '../components/ui/Layout';
+import { Button } from '../components/ui/Button';
+import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card';
+import { cn } from '../utils/cn';
 
 const ResourcesPage = () => {
   const { gradeId, streamId, subjectId: paramSubjectId, resourceType } = useParams();
   const [searchParams] = useSearchParams();
   const selectedSubjectId = paramSubjectId || searchParams.get('subject');
   const { grade: rawGrade, subjects, isLoading, isGradeMissing } = useGradePage(streamId || gradeId);
-  const {
-    updateSubject,
-    updateResourceType,
-    resourceTypes,
-    grades
-  } = useData();
+  const { updateSubject, updateResourceType, resourceTypes, grades } = useData();
 
   const grade = rawGrade;
   const parentGrade = streamId ? grades[gradeId] : null;
@@ -34,15 +35,11 @@ const ResourcesPage = () => {
   const typeName = resourceTypes.find(t => t.id === resourceType)?.name?.[selectedLanguage] || getResourceTypeName(resourceType, selectedLanguage) || resourceType;
   const gradeName = grade?.display || 'Grade';
   useDocumentTitle(`${typeName} - ${gradeName}`);
+  
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [addModalInitialData, setAddModalInitialData] = useState(null);
   const [editingResource, setEditingResource] = useState(null);
-  const [metadataModal, setMetadataModal] = useState({
-    isOpen: false,
-    initialData: null,
-    type: 'subject',
-    key: null
-  });
+  const [metadataModal, setMetadataModal] = useState({ isOpen: false, initialData: null, type: 'subject', key: null });
 
   const typeMetadata = useMemo(() => {
     const found = resourceTypes.find(t => t.id === resourceType);
@@ -62,69 +59,37 @@ const ResourcesPage = () => {
     };
   }, [resourceType, resourceTypes, selectedLanguage]);
 
-
-
-  // Generic List Component
   const ResourceList = ({ resources, onEdit }) => {
     const safeResources = resources || [];
     const hasSubCategories = typeMetadata.subCategories && typeMetadata.subCategories.length > 0;
 
-    const LanguageColumn = ({ langId, title, bgClass, files }) => {
-      if (!shouldShowResource(langId)) return null;
-
-      return (
-        <div className="col-12 mb-3">
-          <div className="textbook-medium-card h-100 w-100">
-            <div className="card h-100 w-100 d-flex flex-column">
-              <div
-                className={`card-header text-center py-2 ${bgClass}`}
-                style={langId === 'tamil' ? { backgroundColor: 'var(--tamil)' } : {}}
-              >
-                <h6 className="mb-0">
-                  <i className="bi bi-download me-2"></i>
-                </h6>
-              </div>
-              <div className="card-body p-2 flex-grow-1 overflow-auto">
-                {files && files.length > 0 ? (
-                  <div className="uploaded-textbooks">
-                    {files.map((file, index) => (
-                      <ResourceCard
-                        key={file.id || index}
-                        resource={file}
-                        title={file.title || file.name || file.originalName}
-                        description={file.description}
-                        language={langId}
-                        showViewButton={true}
-                        showDownloadButton={true}
-                        className="mb-3"
-                        showLanguageLabel={false}
-                        onEdit={onEdit}
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-3">
-                    <i className="bi bi-dash-circle text-muted" style={{ fontSize: '1.5rem' }}></i>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      );
-    };
+    // Filter resources based on current language
+    const filteredResources = safeResources.filter(res => shouldShowResource(res));
 
     const renderGrid = (items) => {
-      const grouped = {
-        sinhala: items.filter(res => shouldShowResource('sinhala') && (res.language === 'sinhala' || res.languages?.includes('sinhala'))),
-        tamil: items.filter(res => shouldShowResource('tamil') && (res.language === 'tamil' || res.languages?.includes('tamil'))),
-        english: items.filter(res => shouldShowResource('english') && (res.language === 'english' || res.languages?.includes('english')))
-      };
+      if (items.length === 0) {
+        return (
+          <div className="text-center py-6">
+            <Archive className="w-10 h-10 text-text-muted mx-auto mb-2 opacity-30" />
+            <p className="text-sm text-text-muted">No resources available in {languages[selectedLanguage]?.display}</p>
+          </div>
+        );
+      }
       return (
-        <div className="row g-3">
-          <LanguageColumn langId="sinhala" bgClass="bg-danger text-white" files={grouped.sinhala} />
-          <LanguageColumn langId="tamil" bgClass="text-white" files={grouped.tamil} />
-          <LanguageColumn langId="english" bgClass="bg-primary text-white" files={grouped.english} />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {items.map((file, index) => (
+            <ModernResourceCard
+              key={file.id || index}
+              resource={file}
+              title={file.title || file.name || file.originalName}
+              description={file.description}
+              language={file.language}
+              showViewButton={true}
+              showDownloadButton={true}
+              showLanguageLabel={false}
+              onEdit={onEdit}
+            />
+          ))}
         </div>
       );
     };
@@ -132,72 +97,67 @@ const ResourcesPage = () => {
     if (hasSubCategories) {
       const subCats = [...(typeMetadata.subCategories || [])].sort((a, b) => (a.order || 0) - (b.order || 0));
       const slugify = (text) => text?.toString().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-      const others = safeResources.filter(r => {
+      const others = filteredResources.filter(r => {
         const rSub = r.subCategory || '';
         if (!rSub) return true;
-
         return !subCats.some(sc => {
           const scId = sc.id || sc;
           const scName = typeof sc === 'object' ? (sc.name?.english || '') : sc;
-          return rSub === scId ||
-            slugify(rSub) === scId ||
-            rSub === scName ||
-            slugify(rSub) === slugify(scName);
+          return rSub === scId || slugify(rSub) === scId || rSub === scName || slugify(rSub) === slugify(scName);
         });
       });
 
       return (
-        <div className="row g-4 mt-3">
-          {subCats.map((subCatObj, idx) => {
+        <div className="flex flex-col gap-6 mt-4">
+          {subCats.map((subCatObj) => {
             const subCatId = subCatObj.id || subCatObj;
             const subCatDisplayName = subCatObj.name ? (subCatObj.name[selectedLanguage] || subCatObj.name.english) : subCatObj;
-            const subCatIcon = subCatObj.icon || 'bi-folder2-open';
 
-            const items = safeResources.filter(r => {
+            const items = filteredResources.filter(r => {
               const rSub = r.subCategory || '';
-              return rSub === subCatId ||
-                slugify(rSub) === subCatId ||
-                rSub === subCatDisplayName ||
-                slugify(rSub) === slugify(subCatDisplayName);
+              return rSub === subCatId || slugify(rSub) === subCatId || rSub === subCatDisplayName || slugify(rSub) === slugify(subCatDisplayName);
             });
+            
             return (
-              <div key={subCatId} className="col-lg-6">
-                <div className="subject-section h-100 p-4 border rounded shadow-sm" style={{ backgroundColor: 'var(--card-bg)' }}>
-                  <h6 className="mb-3 text-info fw-bold border-bottom border-secondary pb-2 d-flex align-items-center">
-                    <i className={`bi ${subCatIcon} me-2 fs-4`}></i>
-                    <span>{subCatDisplayName}</span>
+              <div key={subCatId} className="border border-border bg-bg-secondary rounded-xl overflow-hidden shadow-sm">
+                <div className="bg-bg-tertiary px-4 py-3 border-b border-border flex items-center justify-between">
+                  <h6 className="font-bold text-text-primary flex items-center gap-2">
+                    <FolderOpen className="w-4 h-4 text-primary" /> {subCatDisplayName}
                   </h6>
-                  {renderGrid(items)}
                   {isManageMode && (
-                    <div className="text-center mt-3">
-                      <button
-                        className="btn btn-sm btn-outline-info py-1 px-3 shadow-sm"
-                        style={{ fontSize: '0.8rem', borderRadius: '20px' }}
-                        onClick={() => {
-                          setAddModalInitialData({
-                            grade: gradeId,
-                            subject: typeMetadata.isStandalone ? 'standalone' : (selectedSubjectId || ''),
-                            resourceType: resourceType,
-                            subCategory: subCatId,
-                            languages: ['sinhala', 'tamil', 'english']
-                          });
-                          setIsAddModalOpen(true);
-                        }}
-                      >
-                        <i className="bi bi-plus-lg me-1"></i>Add Resource to {subCatDisplayName}
-                      </button>
-                    </div>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="text-primary hover:bg-primary/10 h-8"
+                      onClick={() => {
+                        setAddModalInitialData({
+                          grade: gradeId,
+                          subject: typeMetadata.isStandalone ? 'standalone' : (selectedSubjectId || ''),
+                          resourceType: resourceType,
+                          subCategory: subCatId,
+                          languages: ['sinhala', 'tamil', 'english']
+                        });
+                        setIsAddModalOpen(true);
+                      }}
+                    >
+                      <Plus className="w-4 h-4 mr-1" /> Add
+                    </Button>
                   )}
+                </div>
+                <div className="p-4 bg-card">
+                  {renderGrid(items)}
                 </div>
               </div>
             );
           })}
           {others.length > 0 && (
-            <div className="col-lg-6">
-              <div className="subject-section h-100 p-4 border rounded shadow-sm" style={{ backgroundColor: 'var(--card-bg)' }}>
-                <h6 className="mb-3 text-muted border-bottom border-secondary pb-2">
-                  <i className="bi bi-folder2-open me-2"></i>Other
+            <div className="border border-border bg-bg-secondary rounded-xl overflow-hidden shadow-sm">
+              <div className="bg-bg-tertiary px-4 py-3 border-b border-border">
+                <h6 className="font-bold text-text-muted flex items-center gap-2">
+                  <FolderOpen className="w-4 h-4" /> Other
                 </h6>
+              </div>
+              <div className="p-4 bg-card">
                 {renderGrid(others)}
               </div>
             </div>
@@ -207,187 +167,148 @@ const ResourcesPage = () => {
     }
 
     return (
-      <div className="resources-grid mt-3">
-        {renderGrid(safeResources)}
+      <div className="mt-4">
+        {renderGrid(filteredResources)}
       </div>
     );
   };
 
   if (isLoading) {
     return (
-      <div className="container py-5 text-center">
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
-      </div>
+      <Container className="py-20 text-center flex flex-col items-center justify-center min-h-[50vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+        <p className="mt-4 text-text-muted">Loading {typeMetadata.displayName}...</p>
+      </Container>
     );
   }
 
   if (isGradeMissing) {
     return (
-      <div className="container py-5">
-        <div className="text-center">
-          <h2>Grade Not Found</h2>
-          <p>The requested grade does not exist.</p>
-          <Link to="/" className="btn btn-primary">Go Home</Link>
-        </div>
-      </div>
+      <Container className="py-20 text-center min-h-[50vh] flex flex-col items-center justify-center">
+        <h2 className="text-3xl font-bold text-text-primary mb-4">Grade Not Found</h2>
+        <p className="text-text-muted mb-8">The requested grade does not exist.</p>
+        <Link to="/" className="inline-flex items-center justify-center px-6 py-2.5 rounded-lg font-medium transition-colors bg-primary text-white hover:bg-primary-dark">
+          Go Home
+        </Link>
+      </Container>
     );
   }
 
   return (
-    <div className="resources-page">
-      {/* Page Header */}
-      <header className="grade-header">
-        <div className="container text-center">
-          <div className="d-inline-flex align-items-center justify-content-center position-relative">
-            <h1 className="display-4 fw-bold mb-0">{grade.display} {typeMetadata.displayName}</h1>
-            {isManageMode && (
-              <button
-                className="btn btn-sm btn-outline-light ms-3 rounded-circle"
-                style={{ width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                onClick={() => {
-                  setMetadataModal({
-                    isOpen: true,
-                    initialData: typeMetadata,
-                    type: 'resourceType',
-                    key: resourceType
-                  });
-                }}
-                title="Edit Module Settings"
-              >
-                <i className="bi bi-pencil"></i>
-              </button>
-            )}
-          </div>
-          <p className="lead mt-2">{typeMetadata.displayDescription}</p>
-        </div>
+    <div className="min-h-screen flex flex-col bg-bg-primary">
+      {/* Header */}
+      <header className="bg-bg-secondary border-b border-border py-12">
+        <Container className="text-center">
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center">
+            <div className="flex items-center gap-3 mb-3">
+              <h1 className="text-4xl md:text-5xl font-extrabold text-text-primary tracking-tight">
+                {grade.display} {typeMetadata.displayName}
+              </h1>
+              {isManageMode && (
+                <Button size="icon" variant="outline" className="rounded-full h-9 w-9 bg-card hover:bg-bg-tertiary" onClick={() => setMetadataModal({ isOpen: true, initialData: typeMetadata, type: 'resourceType', key: resourceType })}>
+                  <Edit className="w-4 h-4 text-text-secondary" />
+                </Button>
+              )}
+            </div>
+            <p className="text-lg text-text-muted max-w-2xl mx-auto">{typeMetadata.displayDescription}</p>
+          </motion.div>
+        </Container>
       </header>
 
-      {/* Language Switcher Section */}
-      <section className="py-4 switcher-container border-bottom">
-        <div className="container">
-          <div className="d-flex flex-column flex-md-row align-items-center justify-content-center gap-3">
-            <span className="fw-bold text-uppercase tracking-wider small opacity-75">Select Content Medium:</span>
-            <div className="btn-group shadow-sm" role="group">
+      {/* Language Switcher */}
+      <div className="bg-bg-primary border-b border-border sticky top-[64px] sm:top-[64px] z-40 shadow-sm backdrop-blur-md bg-opacity-90">
+        <Container className="py-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <span className="text-xs font-bold text-text-muted uppercase tracking-wider">Select Content Medium:</span>
+            <div className="flex bg-bg-secondary p-1.5 rounded-xl shadow-inner border border-border">
               {['sinhala', 'tamil', 'english'].map(lang => (
                 <button
                   key={lang}
-                  type="button"
-                  className={`btn px-4 py-2 content-medium-btn ${selectedLanguage === lang ? 'btn-primary active' : 'btn-outline-custom'}`}
                   onClick={() => setLanguage(lang)}
-                  style={{ minWidth: '120px' }}
+                  className={cn(
+                    "px-4 py-2 text-sm font-semibold rounded-lg transition-all flex items-center gap-2",
+                    selectedLanguage === lang 
+                      ? "bg-card text-text-primary shadow-sm border border-border" 
+                      : "text-text-muted hover:text-text-primary hover:bg-bg-tertiary"
+                  )}
                 >
-                  <i className={`bi bi-circle-fill me-2`} style={{ color: languages[lang].color, fontSize: '0.7rem' }}></i>
+                  <span className="w-2.5 h-2.5 rounded-full shadow-sm" style={{ backgroundColor: languages[lang].color }}></span>
                   {languages[lang].display}
                 </button>
               ))}
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* Header Ad Unit */}
-      <AdSenseComponent slot="RESOURCES_HEADER_AD_SLOT" />
+        </Container>
+      </div>
 
       {/* Breadcrumb */}
-      <section className="py-3 bg-light">
-        <div className="container">
-          <nav aria-label="breadcrumb">
-            <ol className="breadcrumb mb-0">
-              <li className="breadcrumb-item">
-                <Link to="/">Home</Link>
-              </li>
-              {parentGrade && (
-                <li className="breadcrumb-item">
-                  <Link to={`/grade/${gradeId}`}>{parentGrade.display}</Link>
-                </li>
-              )}
-              <li className="breadcrumb-item">
-                <Link to={streamId ? `/grade/${gradeId}/${streamId}` : `/grade/${gradeId}`}>{grade.display}</Link>
-              </li>
-              {subject && (
-                <li className="breadcrumb-item">
-                  <Link to={`/grade/${gradeId}/${streamId}/${selectedSubjectId}`}>{subject.display}</Link>
-                </li>
-              )}
-              <li className="breadcrumb-item active d-flex align-items-center" aria-current="page">
-                {typeMetadata.displayName}
-                {isManageMode && (
-                  <button
-                    className="btn btn-sm btn-link p-0 ms-2 text-primary"
-                    onClick={() => {
-                      setMetadataModal({
-                        isOpen: true,
-                        initialData: typeMetadata,
-                        type: 'resourceType',
-                        key: resourceType
-                      });
-                    }}
-                    title="Edit Module Settings"
-                  >
-                    <i className="bi bi-pencil-fill" style={{ fontSize: '0.8rem' }}></i>
-                  </button>
-                )}
-              </li>
-            </ol>
+      <div className="bg-bg-secondary/50 border-b border-border">
+        <Container className="py-3">
+          <nav className="flex items-center text-sm font-medium text-text-muted whitespace-nowrap overflow-x-auto no-scrollbar">
+            <Link to="/" className="hover:text-primary transition-colors flex items-center">Home</Link>
+            <ChevronRight className="w-4 h-4 mx-2 flex-shrink-0 opacity-40" />
+            {parentGrade && (
+              <>
+                <Link to={`/grade/${gradeId}`} className="hover:text-primary transition-colors">{parentGrade.display}</Link>
+                <ChevronRight className="w-4 h-4 mx-2 flex-shrink-0 opacity-40" />
+              </>
+            )}
+            <Link to={streamId ? `/grade/${gradeId}/${streamId}` : `/grade/${gradeId}`} className="hover:text-primary transition-colors">{grade.display}</Link>
+            <ChevronRight className="w-4 h-4 mx-2 flex-shrink-0 opacity-40" />
+            {subject && (
+              <>
+                <Link to={`/grade/${gradeId}/${streamId}/${selectedSubjectId}`} className="hover:text-primary transition-colors">{subject.display}</Link>
+                <ChevronRight className="w-4 h-4 mx-2 flex-shrink-0 opacity-40" />
+              </>
+            )}
+            <span className="text-text-primary font-semibold flex items-center gap-2">
+              {typeMetadata.displayName}
+            </span>
           </nav>
-        </div>
-      </section>
+        </Container>
+      </div>
+
+      <Container className="mt-6">
+        <AdSenseComponent slot="RESOURCES_HEADER_AD_SLOT" />
+      </Container>
 
       {/* Content */}
-      <section className="py-5">
-        <div className="container">
-          <div className="row g-4">
-            {typeMetadata.isStandalone ? (
-              <div className="col-lg-12 mb-4">
-                <div className="subject-section h-100 p-4 border rounded shadow-sm" style={{ backgroundColor: 'var(--card-bg)', minHeight: '400px' }}>
-                  <ResourceList
-                    resources={subjects['standalone']?.resources?.extras?.[resourceType] || []}
-                    onEdit={(r) => setEditingResource(r)}
-                  />
-
+      <Section className="flex-1 pt-8">
+        <div className="flex flex-col gap-8">
+          {typeMetadata.isStandalone ? (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+              <Card className="border-border shadow-sm">
+                <CardContent className="p-6">
+                  <ResourceList resources={subjects['standalone']?.resources?.extras?.[resourceType] || []} onEdit={setEditingResource} />
                   {isManageMode && (
-                    <div className="mt-5 pt-4 border-top">
-                      <button
-                        className="btn btn-outline-success w-100 py-3 fs-5"
-                        style={{ borderStyle: 'dashed', borderWidth: '2px' }}
-                        onClick={() => {
-                          setAddModalInitialData({
-                            grade: gradeId,
-                            subject: 'standalone',
-                            resourceType: resourceType,
-                            languages: ['sinhala', 'tamil', 'english']
-                          });
-                          setIsAddModalOpen(true);
-                        }}
-                      >
-                        <i className="bi bi-plus-circle-fill me-3"></i>
-                        Upload to {typeMetadata.displayName} Hub
-                      </button>
-                    </div>
+                    <Button 
+                      variant="outline" 
+                      className="w-full mt-6 border-dashed border-2 hover:bg-success/5 hover:text-success hover:border-success h-14 rounded-xl text-base"
+                      onClick={() => {
+                        setAddModalInitialData({ grade: gradeId, subject: 'standalone', resourceType: resourceType, languages: ['sinhala', 'tamil', 'english'] });
+                        setIsAddModalOpen(true);
+                      }}
+                    >
+                      <Plus className="w-5 h-5 mr-2" /> Upload to {typeMetadata.displayName} Hub
+                    </Button>
                   )}
-                </div>
-              </div>
-            ) : (
-              Object.keys(subjects).filter(subjectId => {
+                </CardContent>
+              </Card>
+            </motion.div>
+          ) : (
+            <Grid cols={2} gap={8}>
+              {Object.keys(subjects).filter(subjectId => {
                 if (subjectId === 'standalone') return false;
                 const subject = subjects[subjectId];
                 if (selectedSubjectId && subjectId !== selectedSubjectId) return false;
-                if (subject.languages && subject.languages.length > 0) {
-                  return subject.languages.includes(selectedLanguage);
-                }
+                if (subject.languages && subject.languages.length > 0) return subject.languages.includes(selectedLanguage);
                 return true;
-              }).map(subjectId => {
+              }).map((subjectId, index) => {
                 const subject = subjects[subjectId];
-
-                // Extract resources for the current type
+                
                 let typeResources = [];
                 if (resourceType === 'textbooks') {
-                  // Textbooks are stored by language in structure
-                  Object.values(subject.resources.textbooks || {}).forEach(arr => {
-                    typeResources = [...typeResources, ...arr];
-                  });
+                  Object.values(subject.resources.textbooks || {}).forEach(arr => { typeResources = [...typeResources, ...arr]; });
                 } else if (resourceType === 'notes') {
                   typeResources = Object.values(subject.resources.notes || {});
                 } else if (resourceType === 'videos') {
@@ -395,84 +316,67 @@ const ResourcesPage = () => {
                 } else if (resourceType === 'papers') {
                   return null;
                 } else {
-                  // Custom types from 'extras'
                   typeResources = subject.resources.extras?.[resourceType] || [];
                 }
 
-                // Check if any resources match the language filter
-                const hasFilteredResources = typeResources.some(res =>
-                  shouldShowResource(res)
-                );
-
+                const hasFilteredResources = typeResources.some(res => shouldShowResource(res));
                 if (!hasFilteredResources && !isManageMode) return null;
 
                 return (
-                  <div key={subjectId} className="col-lg-6 mb-4">
-                    <div className="subject-section h-100 p-4 border rounded shadow-sm" style={{ backgroundColor: 'var(--card-bg)' }}>
-                      <div className="subject-header mb-4 border-bottom pb-2 d-flex justify-content-between align-items-center">
-                        <div className="d-flex align-items-center">
-                          <div className="subject-icon-large me-3">
-                            <i className={subject.icon} style={{ fontSize: '2rem', color: 'var(--primary)' }}></i>
+                  <motion.div key={subjectId} className="col-span-1" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }}>
+                    <Card className="h-full flex flex-col border-border shadow-sm">
+                      <CardHeader className="border-b border-border bg-bg-secondary/40 pb-4 flex flex-row items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 rounded-xl bg-bg-primary shadow-sm border border-border flex items-center justify-center">
+                            <i className={cn(subject.icon, "text-2xl text-primary")}></i>
                           </div>
-                          <div>
-                            <h3 className="mb-0">
-                              {subjectTranslations.getTranslatedName(subjectId, subject, selectedLanguage)}
-                            </h3>
-                          </div>
+                          <CardTitle className="text-xl">
+                            {subjectTranslations.getTranslatedName(subjectId, subject, selectedLanguage)}
+                          </CardTitle>
                         </div>
 
                         {isManageMode && (
-                          <div className="admin-subject-actions d-flex gap-2">
-                            <button
-                              className="btn btn-sm btn-outline-info"
+                          <Button size="icon" variant="ghost" onClick={() => setMetadataModal({ isOpen: true, initialData: subject, type: 'subject', key: subjectId })} className="h-8 w-8 text-info hover:bg-info/10">
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </CardHeader>
+                      <CardContent className="p-5 flex-1 flex flex-col">
+                        <ResourceList resources={typeResources} onEdit={setEditingResource} />
+
+                        {isManageMode && (
+                          <div className="mt-auto pt-6">
+                            <Button 
+                              variant="outline" 
+                              className="w-full border-dashed border-2 hover:bg-success/5 hover:text-success hover:border-success h-12 rounded-xl"
                               onClick={() => {
-                                setMetadataModal({
-                                  isOpen: true,
-                                  initialData: subject,
-                                  type: 'subject',
-                                  key: subjectId
-                                });
+                                setAddModalInitialData({ grade: gradeId, subject: subjectId, resourceType: resourceType, languages: ['sinhala', 'tamil', 'english'] });
+                                setIsAddModalOpen(true);
                               }}
-                              title="Edit Subject"
                             >
-                              <i className="bi bi-pencil"></i>
-                            </button>
+                              <Plus className="w-4 h-4 mr-2" /> Add New {typeMetadata.displayName}
+                            </Button>
                           </div>
                         )}
-                      </div>
-
-                      <ResourceList resources={typeResources} onEdit={(r) => setEditingResource(r)} />
-
-                      {isManageMode && (
-                        <div className="mt-4 pt-3 border-top mt-auto">
-                          <button
-                            className="btn btn-outline-success w-100 py-2"
-                            style={{ borderStyle: 'dashed', borderWidth: '2px' }}
-                            onClick={() => {
-                              setAddModalInitialData({
-                                grade: gradeId,
-                                subject: subjectId,
-                                resourceType: resourceType,
-                                languages: ['sinhala', 'tamil', 'english']
-                              });
-                              setIsAddModalOpen(true);
-                            }}
-                          >
-                            <i className="bi bi-plus-lg me-2"></i>
-                            Add New {typeMetadata.displayName}
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
                 );
-              })
-            )}
-          </div>
+              })}
+            </Grid>
+          )}
         </div>
-      </section>
+      </Section>
 
-      {/* Modals */}
+      <div className="bg-bg-secondary border-t border-border py-8 text-center mt-auto">
+        <Link 
+          to={`/grade/${gradeId}`} 
+          className="inline-flex items-center justify-center px-6 py-2.5 rounded-lg font-medium transition-colors border border-border bg-card text-text-primary hover:bg-bg-tertiary shadow-sm"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" /> Back to {grade.display} Overview
+        </Link>
+      </div>
+
       <ResourceEditorModal
         resource={editingResource || addModalInitialData}
         isOpen={!!editingResource || isAddModalOpen}
@@ -499,53 +403,6 @@ const ResourcesPage = () => {
         initialData={metadataModal.initialData}
         type={metadataModal.type}
       />
-
-      <style>{`
-        .textbook-medium-card .card {
-          transition: all 0.3s ease;
-          border-color: #eee;
-          background-color: var(--bg-tertiary) !important;
-        }
-
-        .textbook-medium-card .card:hover {
-          transform: translateY(-3px);
-          box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-          border-color: var(--primary);
-        }
-
-        .uploaded-textbooks {
-          max-height: 250px;
-          overflow-y: auto;
-        }
-
-        .subject-section {
-          background-color: var(--card-bg);
-          padding: 1.5rem;
-          border-radius: 0.5rem;
-          border: 1px solid var(--border-color);
-          transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .subject-section:hover {
-          transform: translateY(-5px);
-          box-shadow: 0 10px 25px var(--card-shadow) !important;
-        }
-
-        .grade-header {
-          background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-          padding: 120px 0 4rem 0;
-          color: white;
-          border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .grade-header h1 {
-          letter-spacing: -0.02em;
-        }
-
-        .grade-header .btn-outline-light:hover {
-          background-color: rgba(255,255,255,0.1);
-        }
-      `}</style>
     </div>
   );
 };
