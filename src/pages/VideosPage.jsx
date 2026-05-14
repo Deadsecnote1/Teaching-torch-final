@@ -15,7 +15,7 @@ import { getResourceTypeName } from '../utils/resourceTranslations';
 import { logEvent } from 'firebase/analytics';
 import AdSenseComponent from '../components/common/AdSenseComponent';
 import toast from 'react-hot-toast';
-import { ChevronRight, ArrowLeft, Edit, Trash2, Plus, Youtube, Play, X, Search, Calendar, Bookmark } from 'lucide-react';
+import { ChevronRight, ArrowLeft, Edit, Trash2, Plus, Video, Play, X, Search, Calendar, Bookmark } from 'lucide-react';
 import { Container, Section, Grid } from '../components/ui/Layout';
 import { Button } from '../components/ui/Button';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card';
@@ -100,7 +100,7 @@ const VideosPage = () => {
     if (!videos || videos.length === 0) {
       return (
         <div className="text-center py-10">
-          <Youtube className="w-16 h-16 text-text-muted mx-auto mb-4 opacity-30" />
+          <Video className="w-16 h-16 text-text-muted mx-auto mb-4 opacity-30" />
           <h5 className="text-lg font-medium text-text-primary mb-2">No video lessons available</h5>
           <p className="text-sm text-text-muted">Video lessons for this subject haven't been added yet.</p>
         </div>
@@ -136,7 +136,7 @@ const VideosPage = () => {
                     <img src={thumbnail} alt={video.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
-                      <Youtube className="w-16 h-16 text-text-muted opacity-20" />
+                      <Video className="w-16 h-16 text-text-muted opacity-20" />
                     </div>
                   )}
                   <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
@@ -325,7 +325,7 @@ const VideosPage = () => {
 
         {Object.keys(subjects).length === 0 && (
           <div className="text-center py-20">
-            <Youtube className="w-16 h-16 text-text-muted mx-auto mb-4 opacity-30" />
+            <Video className="w-16 h-16 text-text-muted mx-auto mb-4 opacity-30" />
             <h4 className="text-xl font-bold text-text-primary mb-2">No video lessons available</h4>
             <p className="text-text-muted">Video lessons for this grade haven't been added yet.</p>
           </div>
