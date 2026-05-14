@@ -152,7 +152,7 @@ const NotesPage = () => {
                       ) : (
                         <a
                           href={`/${note.path}`}
-                          className="btn btn-primary btn-sm w-100"
+                          className="btn btn-outline-primary btn-sm w-100"
                           download
                         >
                           <i className="bi bi-download me-1"></i>Download Notes

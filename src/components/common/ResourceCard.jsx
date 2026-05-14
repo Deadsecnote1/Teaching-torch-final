@@ -154,7 +154,7 @@ const ResourceCard = ({
             {showDownloadButton && !(resource.mediaType === 'video' || resource.mediaType === 'audio' || isYouTubeLink(resource.fileUrl || resource.url || '')) && (
               <a
                 href={safeDownloadUrl}
-                className={`btn btn-sm ${isManageMode ? 'btn-outline-secondary' : 'btn-primary'}`}
+                className={`btn btn-sm ${isManageMode ? 'btn-outline-secondary' : 'btn-outline-primary'}`}
                 onClick={handleDownload}
                 target="_blank"
                 rel="noopener noreferrer"

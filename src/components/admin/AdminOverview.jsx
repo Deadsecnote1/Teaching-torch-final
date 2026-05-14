@@ -58,7 +58,7 @@ const AdminOverview = ({ stats, uploadedFilesCount, exportData, setActiveTab, fi
               <div className="d-grid gap-2">
                 <button
                   onClick={exportData}
-                  className="btn btn-primary"
+                  className="btn btn-outline-primary"
                 >
                   <i className="bi bi-download me-2"></i>
                   Export All Data
