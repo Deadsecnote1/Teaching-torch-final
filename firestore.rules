@@ -4,6 +4,7 @@ service cloud.firestore {
     // Helper function to check if user is admin via a secure allowlist document
     function isAdmin() {
       return request.auth != null && 
+             exists(/databases/$(database)/documents/admins/allowedList) &&
              request.auth.uid in get(/databases/$(database)/documents/admins/allowedList).data.uids;
     }
 
@@ -17,14 +18,43 @@ service cloud.firestore {
 
     // === METADATA COLLECTIONS ===
     
-    // Grades, Subjects, Settings: Publicly readable for navigation, admin only for edits
-    match /{collection=grades,subjects,settings}/{document=**} {
+    // Grades: Publicly readable for navigation, admin only for edits
+    match /grades/{document=**} {
       allow read: if true;
       allow write: if isAdmin();
     }
 
-    // AL Collections: Publicly readable, admin only for edits
-    match /{collection=al_streams,al_subjects,al_resource_types,al_sub_categories,al_resources}/{document=**} {
+    // Subjects: Publicly readable for navigation, admin only for edits
+    match /subjects/{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Settings: Publicly readable for navigation, admin only for edits
+    match /settings/{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // === AL COLLECTIONS ===
+
+    match /al_streams/{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /al_subjects/{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /al_resource_types/{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /al_sub_categories/{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /al_resources/{document=**} {
       allow read: if true;
       allow write: if isAdmin();
     }

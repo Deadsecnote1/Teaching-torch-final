@@ -31,6 +31,14 @@
   --card-bg: #ffffff;
   --card-shadow: rgba(0, 0, 0, 0.1);
   --hero-gradient: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5));
+
+  /* Bootstrap Override Variables */
+  --bs-primary: var(--primary);
+  --bs-primary-rgb: 13, 148, 136; /* rgb for #0d9488 */
+  --bs-btn-bg: var(--primary);
+  --bs-btn-border-color: var(--primary);
+  --bs-btn-hover-bg: var(--primary-dark);
+  --bs-btn-hover-border-color: var(--primary-dark);
 }
 
 /* Dark Mode Colors */
@@ -52,6 +60,12 @@
   --secondary: #0d9488;
   --light: #141414;
   --dark: #f0f0f0;
+
+  /* Dark mode button overrides */
+  --bs-btn-bg: var(--primary);
+  --bs-btn-border-color: var(--primary);
+  --bs-btn-hover-bg: #5eead4;
+  --bs-btn-hover-border-color: #5eead4;
 }
 
 /* Force dark mode for bootstrap utilities */
@@ -376,8 +390,9 @@ a:active {
 }
 
 .btn-primary {
-  background: var(--primary);
-  border-color: var(--primary);
+  background: var(--primary) !important;
+  background-color: var(--primary) !important;
+  border-color: var(--primary) !important;
   transition: all 0.3s ease;
   text-decoration: none !important;
 }
