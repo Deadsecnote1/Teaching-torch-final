@@ -214,7 +214,7 @@ const AdminGradeManager = ({
                         <strong>{subject.name}</strong>
                         <span className="badge bg-light text-muted ms-2 small">ID: {key}</span>
                         <div className="small text-muted mt-1">
-                           {subject.grades?.map(gk => grades[gk]?.display).join(', ')}
+                           {subject.grades?.filter(gk => !!grades[gk]).map(gk => grades[gk].display).join(', ')}
                         </div>
                       </div>
                       <div className="btn-group">

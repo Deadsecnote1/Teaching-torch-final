@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from './AuthContext';
 import { getCached, setCache, invalidateCache } from '../utils/cacheUtils';
-import { getDocs, getDoc, doc as firestoreDoc, collection, query } from 'firebase/firestore';
+import { getDocs, getDoc, doc as firestoreDoc, collection, query, onSnapshot, setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 
 const GradeContext = createContext();
 

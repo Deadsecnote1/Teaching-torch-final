@@ -58,6 +58,7 @@ export const DataProvider = ({ children }) => {
     totalGrades: Object.keys(gradeData.grades).length,
     totalSubjects: Object.keys(gradeData.subjects).length,
     totalResources: resourceData.allResources.length,
+    totalLanguages: 3 // English, Sinhala, Tamil
   }), [gradeData.grades, gradeData.subjects, resourceData.allResources.length]);
 
   const value = useMemo(() => ({
