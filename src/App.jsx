@@ -10,7 +10,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { Toaster } from 'react-hot-toast';
 
 // Components
-import Navbar from './components/common/Navbar';
+import ModernNavbar from './components/common/ModernNavbar';
 import Footer from './components/common/Footer';
 import ScrollToTop from './components/common/ScrollToTop';
 import ErrorBoundary from './components/common/ErrorBoundary';
@@ -75,7 +75,7 @@ const AppContent = () => {
       <ScrollToTop />
       <Toaster position="top-right" />
       <div className="App">
-        <Navbar />
+        <ModernNavbar />
         <main className="main-content">
           <ErrorBoundary>
             <React.Suspense fallback={<div className="p-5 text-center"><div className="spinner-border text-primary"></div></div>}>
