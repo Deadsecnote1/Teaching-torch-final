@@ -1,19 +1,22 @@
 import React, { useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useData } from '../context/DataContext';
 import { useGradePage } from '../hooks/useGradePage';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
-import ResourceCard from '../components/common/ResourceCard';
+import ModernResourceCard from '../components/common/ModernResourceCard';
 import ResourceEditorModal from '../components/admin/ResourceEditorModal';
 import MetadataEditorModal from '../components/admin/MetadataEditorModal';
 import { subjectTranslations } from '../utils/subjectTranslations';
 import { getResourceTypeName } from '../utils/resourceTranslations';
 import AdSenseComponent from '../components/common/AdSenseComponent';
 import toast from 'react-hot-toast';
-
-
-// Removed API_BASE_URL - using Google Drive links instead
+import { ChevronRight, ArrowLeft, Cloud, Edit, Trash2, Download, MinusCircle, Plus, FileText, ArrowUp } from 'lucide-react';
+import { Container, Section, Grid } from '../components/ui/Layout';
+import { Button } from '../components/ui/Button';
+import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card';
+import { cn } from '../utils/cn';
 
 const TextbooksPage = () => {
   const { gradeId, streamId, subjectId: paramSubjectId } = useParams();
@@ -21,6 +24,7 @@ const TextbooksPage = () => {
   const { grade: rawGrade, subjects, isLoading, isGradeMissing } = useGradePage(streamId || gradeId);
   const { updateSubject, deleteSubject, grades } = useData();
   const { isManageMode } = useAuth();
+  
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [addModalInitialData, setAddModalInitialData] = useState(null);
   const [editingResource, setEditingResource] = useState(null);
@@ -36,46 +40,33 @@ const TextbooksPage = () => {
   const subject = selectedSubjectId ? subjects[selectedSubjectId] : null;
   const { selectedLanguage, setLanguage, shouldShowResource, isShowingAll, languages } = useLanguage();
 
-  // Flatten resources from subjects for backward compatibility or direct usage
   const uploadedFiles = useMemo(() => {
     if (!subjects) return [];
-
-    // Aggregate all textbooks from all subjects in this grade
     const allTextbooks = [];
     Object.values(subjects).forEach(subject => {
       if (subject.resources && subject.resources.textbooks) {
         Object.values(subject.resources.textbooks).forEach(tbArray => {
-          if (Array.isArray(tbArray)) {
-            allTextbooks.push(...tbArray);
-          } else {
-            allTextbooks.push(tbArray);
-          }
+          if (Array.isArray(tbArray)) allTextbooks.push(...tbArray);
+          else allTextbooks.push(tbArray);
         });
       }
     });
     return allTextbooks;
   }, [subjects]);
 
-  // Group uploaded textbooks by subject and language
   const getTextbooksBySubject = () => {
     const groupedTextbooks = {};
-
     if (subjects) {
       Object.entries(subjects).forEach(([subjectId, subjectData]) => {
         if (subjectData.resources && subjectData.resources.textbooks) {
           const textbooksObj = subjectData.resources.textbooks;
-          // textbooksObj is { english: {...}, sinhala: {...} }
-
           groupedTextbooks[subjectId] = {};
-
           Object.entries(textbooksObj).forEach(([lang, dataArray]) => {
-            // DataContext now naturally provides an array
             groupedTextbooks[subjectId][lang] = Array.isArray(dataArray) ? dataArray : [dataArray];
           });
         }
       });
     }
-
     return groupedTextbooks;
   };
 
@@ -83,50 +74,43 @@ const TextbooksPage = () => {
 
   if (isLoading) {
     return (
-      <div className="container py-5 text-center">
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
-      </div>
+      <Container className="py-20 text-center flex flex-col items-center justify-center min-h-[50vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+        <p className="mt-4 text-text-muted">Loading textbooks...</p>
+      </Container>
     );
   }
 
   if (isGradeMissing) {
     return (
-      <div className="container py-5">
-        <div className="text-center">
-          <h2>Grade Not Found</h2>
-          <p>The requested grade does not exist.</p>
-          <Link to="/" className="btn btn-primary">Go Home</Link>
-        </div>
-      </div>
+      <Container className="py-20 text-center min-h-[50vh] flex flex-col items-center justify-center">
+        <h2 className="text-3xl font-bold text-text-primary mb-4">Grade Not Found</h2>
+        <p className="text-text-muted mb-8">The requested grade does not exist.</p>
+        <Link to="/" className="inline-flex items-center justify-center px-6 py-2.5 rounded-lg font-medium transition-colors bg-primary text-white hover:bg-primary-dark">
+          Go Home
+        </Link>
+      </Container>
     );
   }
 
-  // Generate uploaded textbook component
   const UploadedTextbookDownload = ({ files, language, onEdit }) => {
     if (!files || files.length === 0) {
       return (
-        <div className="text-center py-4">
-          <i className="bi bi-file-earmark text-muted" style={{ fontSize: '3rem' }}></i>
-          <p className="text-muted mt-2">No textbook available</p>
+        <div className="text-center py-8">
+          <FileText className="w-10 h-10 text-text-muted mx-auto mb-3 opacity-30" />
+          <p className="text-sm text-text-muted font-medium">No textbook available</p>
         </div>
       );
     }
-
     return (
-      <div className="uploaded-textbooks">
+      <div className="flex flex-col gap-3 p-2">
         {files.map((file, index) => (
-          <ResourceCard
+          <ModernResourceCard
             key={file.id || index}
             resource={file}
             title={file.title || file.name || file.originalName}
             description={file.description}
             language={language}
-            showViewButton={true}
-            showDownloadButton={true}
-            className="mb-3"
-            showLanguageLabel={false}
             onEdit={onEdit}
           />
         ))}
@@ -145,334 +129,204 @@ const TextbooksPage = () => {
     })
   );
 
-  if (isLoading) {
-    return (
-      <div className="container py-5">
-        <div className="text-center">
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </div>
-          <p className="mt-3">Loading textbooks...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="textbooks-page">
+    <div className="min-h-screen flex flex-col bg-bg-primary">
       {/* Header */}
-      <header className="grade-header">
-        <div className="container text-center">
-          <h1 className="display-4 fw-bold mb-0">{grade.display} Textbooks</h1>
-          <p className="lead mt-2">Official Government textbooks in your preferred medium</p>
-        </div>
+      <header className="bg-bg-secondary border-b border-border py-12">
+        <Container className="text-center">
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+            <h1 className="text-4xl md:text-5xl font-extrabold text-text-primary tracking-tight mb-3">{grade.display} Textbooks</h1>
+            <p className="text-lg text-text-muted max-w-2xl mx-auto">Official Government textbooks in your preferred medium</p>
+          </motion.div>
+        </Container>
       </header>
 
-      {/* Language Switcher Section */}
-      <section className="py-4 switcher-container border-bottom">
-        <div className="container">
-          <div className="d-flex flex-column flex-md-row align-items-center justify-content-center gap-3">
-            <span className="fw-bold text-uppercase tracking-wider small opacity-75">Select Content Medium:</span>
-            <div className="btn-group shadow-sm" role="group">
+      {/* Language Switcher */}
+      <div className="bg-bg-primary border-b border-border sticky top-[64px] sm:top-[64px] z-40 shadow-sm backdrop-blur-md bg-opacity-90">
+        <Container className="py-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <span className="text-xs font-bold text-text-muted uppercase tracking-wider">Select Content Medium:</span>
+            <div className="flex bg-bg-secondary p-1.5 rounded-xl shadow-inner border border-border">
               {['sinhala', 'tamil', 'english'].map(lang => (
                 <button
                   key={lang}
-                  type="button"
-                  className={`btn px-4 py-2 content-medium-btn ${selectedLanguage === lang ? 'btn-primary active' : 'btn-outline-custom'}`}
                   onClick={() => setLanguage(lang)}
-                  style={{ minWidth: '120px' }}
+                  className={cn(
+                    "px-4 py-2 text-sm font-semibold rounded-lg transition-all flex items-center gap-2",
+                    selectedLanguage === lang 
+                      ? "bg-card text-text-primary shadow-sm border border-border" 
+                      : "text-text-muted hover:text-text-primary hover:bg-bg-tertiary"
+                  )}
                 >
-                  <i className={`bi bi-circle-fill me-2`} style={{ color: languages[lang].color, fontSize: '0.7rem' }}></i>
+                  <span className="w-2.5 h-2.5 rounded-full shadow-sm" style={{ backgroundColor: languages[lang].color }}></span>
                   {languages[lang].display}
                 </button>
               ))}
             </div>
           </div>
-        </div>
-      </section>
+        </Container>
+      </div>
 
       {/* Breadcrumb */}
-      <section className="py-3 bg-light">
-        <div className="container">
-          <nav aria-label="breadcrumb">
-            <ol className="breadcrumb mb-0">
-              <li className="breadcrumb-item">
-                <Link to="/">Home</Link>
-              </li>
-              {parentGrade && (
-                <li className="breadcrumb-item">
-                  <Link to={`/grade/${gradeId}`}>{parentGrade.display}</Link>
-                </li>
-              )}
-              <li className="breadcrumb-item">
-                <Link to={streamId ? `/grade/${gradeId}/${streamId}` : `/grade/${gradeId}`}>{grade.display}</Link>
-              </li>
-              {subject && (
-                <li className="breadcrumb-item">
-                  <Link to={`/grade/${gradeId}/${streamId}/${selectedSubjectId}`}>{subject.display}</Link>
-                </li>
-              )}
-              <li className="breadcrumb-item active" aria-current="page">
-                {getResourceTypeName('textbooks', selectedLanguage)}
-              </li>
-            </ol>
+      <div className="bg-bg-secondary/50 border-b border-border">
+        <Container className="py-3">
+          <nav className="flex items-center text-sm font-medium text-text-muted whitespace-nowrap overflow-x-auto no-scrollbar">
+            <Link to="/" className="hover:text-primary transition-colors flex items-center">Home</Link>
+            <ChevronRight className="w-4 h-4 mx-2 flex-shrink-0 opacity-40" />
+            
+            {parentGrade && (
+              <>
+                <Link to={`/grade/${gradeId}`} className="hover:text-primary transition-colors">{parentGrade.display}</Link>
+                <ChevronRight className="w-4 h-4 mx-2 flex-shrink-0 opacity-40" />
+              </>
+            )}
+            
+            <Link to={streamId ? `/grade/${gradeId}/${streamId}` : `/grade/${gradeId}`} className="hover:text-primary transition-colors">{grade.display}</Link>
+            <ChevronRight className="w-4 h-4 mx-2 flex-shrink-0 opacity-40" />
+            
+            {subject && (
+              <>
+                <Link to={`/grade/${gradeId}/${streamId}/${selectedSubjectId}`} className="hover:text-primary transition-colors">{subject.display}</Link>
+                <ChevronRight className="w-4 h-4 mx-2 flex-shrink-0 opacity-40" />
+              </>
+            )}
+            
+            <span className="text-text-primary font-semibold">{getResourceTypeName('textbooks', selectedLanguage)}</span>
           </nav>
-        </div>
-      </section>
+        </Container>
+      </div>
 
-      {/* Header Ad Unit */}
-      <AdSenseComponent slot="TEXTBOOKS_HEADER_AD_SLOT" />
+      <Container className="mt-6">
+        <AdSenseComponent slot="TEXTBOOKS_HEADER_AD_SLOT" />
+      </Container>
 
       {/* Upload Status */}
       {uploadedFiles.length > 0 && (
-        <section className="py-2 bg-success bg-opacity-10">
-          <div className="container">
-            <div className="text-center">
-              <small className="text-success">
-                <i className="bi bi-cloud-check me-1"></i>
-                <strong>{uploadedFiles.length} uploaded textbook{uploadedFiles.length !== 1 ? 's' : ''}</strong> available for {grade.display}
-                {uploadedFiles.some(f => f.downloadUrl) && ' | 🔗 Server files available for download'}
-              </small>
-            </div>
+        <Container className="mt-6">
+          <div className="bg-success/5 border border-success/20 rounded-xl p-3 text-center shadow-sm">
+            <span className="text-success text-sm font-semibold flex items-center justify-center gap-2">
+              <Cloud className="w-4 h-4" />
+              <span>{uploadedFiles.length} uploaded textbook{uploadedFiles.length !== 1 ? 's' : ''} available for {grade.display}</span>
+            </span>
           </div>
-        </section>
+        </Container>
       )}
 
-      {/* Textbooks Content */}
-      <section className="py-5">
-        <div className="container">
-          <div className="row g-4">
-            {Object.entries(allSubjects).map(([subjectId, subject]) => {
-              const uploadedSubjectTextbooks = uploadedTextbooks[subjectId] || {};
+      {/* Content */}
+      <Section className="flex-1 pt-8">
+        <Grid cols={2} gap={8}>
+          {Object.entries(allSubjects).map(([subjectId, subject], index) => {
+            const uploadedSubjectTextbooks = uploadedTextbooks[subjectId] || {};
 
-              return (
-                <div key={subjectId} className="col-lg-6 mb-4">
-                  <div className="subject-section h-100 p-4 border rounded shadow-sm" style={{ backgroundColor: 'var(--card-bg)' }}>
-                    <div className="subject-header mb-4 border-bottom pb-2 d-flex justify-content-between align-items-center">
-                      <div className="d-flex align-items-center">
-                        <div className="subject-icon-large me-3">
-                          <i className={subject.icon} style={{ fontSize: '2rem', color: 'var(--primary)' }}></i>
-                        </div>
-                        <div>
-                          <h4 className="subject-title mb-0">
-                            {subjectTranslations.getTranslatedName(subjectId, subject, selectedLanguage)}
-                          </h4>
-                        </div>
+            return (
+              <motion.div
+                key={subjectId}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.05 }}
+              >
+                <Card className="flex flex-col h-full border-border hover:border-primary/40 transition-colors shadow-sm overflow-hidden group">
+                  <CardHeader className="flex flex-row items-center justify-between border-b border-border bg-bg-secondary/40 pb-4">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-bg-primary shadow-sm border border-border flex items-center justify-center group-hover:scale-105 transition-transform">
+                        <i className={cn(subject.icon, "text-2xl text-primary")}></i>
                       </div>
-
-                      {isManageMode && (
-                        <div className="admin-subject-actions d-flex gap-2">
-                          <button 
-                            className="btn btn-sm btn-outline-info"
-                            onClick={() => {
-                              setMetadataModal({
-                                isOpen: true,
-                                initialData: subject,
-                                type: 'subject',
-                                key: subjectId
-                              });
-                            }}
-                            title="Edit Subject"
-                          >
-                            <i className="bi bi-pencil"></i>
-                          </button>
-                          <button 
-                            className="btn btn-sm btn-outline-danger"
-                            onClick={() => {
-                              if (window.confirm(`Are you sure you want to delete "${subject.name}"?`)) {
-                                deleteSubject(subjectId);
-                                toast.success('Subject Deleted');
-                              }
-                            }}
-                            title="Delete Subject"
-                          >
-                            <i className="bi bi-trash"></i>
-                          </button>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="row g-3">
-                      {/* Sinhala Textbooks */}
-                      {shouldShowResource('sinhala') && (
-                        <div className="col-12 mb-3">
-                          <div className="textbook-medium-card h-100 w-100">
-                            <div className="card h-100 w-100 d-flex flex-column">
-                              <div className="card-header bg-danger text-white text-center py-2">
-                                <h6 className="mb-0">
-                                  <i className="bi bi-download me-2"></i>
-                                  {/* Removed as per request */}
-                                </h6>
-                              </div>
-                              <div className="card-body p-2 flex-grow-1 overflow-auto">
-                                {uploadedSubjectTextbooks.sinhala ? (
-                                  <UploadedTextbookDownload
-                                    files={uploadedSubjectTextbooks.sinhala}
-                                    language="sinhala"
-                                    onEdit={(r) => setEditingResource(r)}
-                                  />
-                                ) : (
-                                  <div className="text-center py-3">
-                                    <i className="bi bi-dash-circle text-muted" style={{ fontSize: '1.5rem' }}></i>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Tamil Textbooks */}
-                      {shouldShowResource('tamil') && (
-                        <div className="col-12 mb-3">
-                          <div className="textbook-medium-card h-100 w-100">
-                            <div className="card h-100 w-100 d-flex flex-column">
-                              <div className="card-header text-white text-center py-2" style={{ backgroundColor: 'var(--tamil)' }}>
-                                <h6 className="mb-0">
-                                  <i className="bi bi-download me-2"></i>
-                                  {/* Removed as per request */}
-                                </h6>
-                              </div>
-                              <div className="card-body p-2 flex-grow-1 overflow-auto">
-                                {uploadedSubjectTextbooks.tamil ? (
-                                  <UploadedTextbookDownload
-                                    files={uploadedSubjectTextbooks.tamil}
-                                    language="tamil"
-                                    onEdit={(r) => setEditingResource(r)}
-                                  />
-                                ) : (
-                                  <div className="text-center py-3">
-                                    <i className="bi bi-dash-circle text-muted" style={{ fontSize: '1.5rem' }}></i>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* English Textbooks */}
-                      {shouldShowResource('english') && (
-                        <div className="col-12 mb-3">
-                          <div className="textbook-medium-card h-100 w-100">
-                            <div className="card h-100 w-100 d-flex flex-column">
-                              <div className="card-header bg-primary text-white text-center py-2">
-                                <h6 className="mb-0">
-                                  <i className="bi bi-download me-2"></i>
-                                  {/* Removed as per request */}
-                                </h6>
-                              </div>
-                              <div className="card-body p-2 flex-grow-1 overflow-auto">
-                                {uploadedSubjectTextbooks.english ? (
-                                  <UploadedTextbookDownload
-                                    files={uploadedSubjectTextbooks.english}
-                                    language="english"
-                                    onEdit={(r) => setEditingResource(r)}
-                                  />
-                                ) : (
-                                  <div className="text-center py-3">
-                                    <i className="bi bi-dash-circle text-muted" style={{ fontSize: '1.5rem' }}></i>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      )}
+                      <CardTitle className="text-xl">
+                        {subjectTranslations.getTranslatedName(subjectId, subject, selectedLanguage)}
+                      </CardTitle>
                     </div>
 
                     {isManageMode && (
-                      <div className="mt-4 pt-3 border-top">
-                        <button 
-                          className="btn btn-outline-success w-100 py-2"
-                          style={{ borderStyle: 'dashed', borderWidth: '2px' }}
-                          onClick={() => {
-                            setAddModalInitialData({
-                              grade: gradeId,
-                              subject: subjectId,
-                              resourceType: 'textbooks',
-                              languages: ['sinhala', 'tamil', 'english']
-                            });
-                            setIsAddModalOpen(true);
-                          }}
-                        >
-                          <i className="bi bi-plus-lg me-2"></i>
-                          Add New Textbook
-                        </button>
+                      <div className="flex gap-1 bg-card rounded-lg border border-border p-1 shadow-sm">
+                        <Button size="icon" variant="ghost" onClick={() => setMetadataModal({ isOpen: true, initialData: subject, type: 'subject', key: subjectId })} className="h-8 w-8 text-info hover:bg-info/10">
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button size="icon" variant="ghost" onClick={() => {
+                          if (window.confirm(`Are you sure you want to delete "${subject.name}"?`)) {
+                            deleteSubject(subjectId);
+                            toast.success('Subject Deleted');
+                          }
+                        }} className="h-8 w-8 text-danger hover:bg-danger/10">
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
                       </div>
                     )}
-                  </div>
-                </div>
-              );
-            })}
+                  </CardHeader>
+                  
+                  <CardContent className="flex-1 flex flex-col gap-5 p-5 bg-bg-primary">
+                    {/* Sinhala */}
+                    {shouldShowResource('sinhala') && (
+                      <div className="border border-danger/20 rounded-xl overflow-hidden bg-bg-secondary shadow-sm">
+                        <div className="bg-danger/10 text-danger text-xs font-bold uppercase tracking-wider py-2.5 px-4 flex items-center gap-2 border-b border-danger/10">
+                          <Download className="w-4 h-4" /> Sinhala Medium
+                        </div>
+                        <div className="max-h-72 overflow-y-auto custom-scrollbar bg-card">
+                          <UploadedTextbookDownload files={uploadedSubjectTextbooks.sinhala} language="sinhala" onEdit={setEditingResource} />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Tamil */}
+                    {shouldShowResource('tamil') && (
+                      <div className="border rounded-xl overflow-hidden bg-bg-secondary shadow-sm" style={{ borderColor: 'var(--tamil)' }}>
+                        <div className="text-xs font-bold uppercase tracking-wider py-2.5 px-4 flex items-center gap-2 border-b" style={{ backgroundColor: 'rgba(230, 81, 0, 0.1)', color: 'var(--tamil)', borderColor: 'rgba(230, 81, 0, 0.1)' }}>
+                          <Download className="w-4 h-4" /> Tamil Medium
+                        </div>
+                        <div className="max-h-72 overflow-y-auto custom-scrollbar bg-card">
+                          <UploadedTextbookDownload files={uploadedSubjectTextbooks.tamil} language="tamil" onEdit={setEditingResource} />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* English */}
+                    {shouldShowResource('english') && (
+                      <div className="border border-primary/20 rounded-xl overflow-hidden bg-bg-secondary shadow-sm">
+                        <div className="bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider py-2.5 px-4 flex items-center gap-2 border-b border-primary/10">
+                          <Download className="w-4 h-4" /> English Medium
+                        </div>
+                        <div className="max-h-72 overflow-y-auto custom-scrollbar bg-card">
+                          <UploadedTextbookDownload files={uploadedSubjectTextbooks.english} language="english" onEdit={setEditingResource} />
+                        </div>
+                      </div>
+                    )}
+
+                    {isManageMode && (
+                      <Button 
+                        variant="outline" 
+                        className="w-full mt-auto border-dashed border-2 hover:bg-success/5 hover:text-success hover:border-success h-12 rounded-xl"
+                        onClick={() => {
+                          setAddModalInitialData({ grade: gradeId, subject: subjectId, resourceType: 'textbooks', languages: ['sinhala', 'tamil', 'english'] });
+                          setIsAddModalOpen(true);
+                        }}
+                      >
+                        <Plus className="w-4 h-4 mr-2" /> Add New Textbook
+                      </Button>
+                    )}
+                  </CardContent>
+                </Card>
+              </motion.div>
+            );
+          })}
+        </Grid>
+
+        {gradeId === 'al' && (
+          <div className="text-center py-24">
+            <ArrowUp className="w-16 h-16 text-text-muted mx-auto mb-6 opacity-40 animate-bounce" />
+            <h4 className="text-2xl font-bold text-text-primary mb-3">Select a Stream</h4>
+            <p className="text-text-muted max-w-md mx-auto">Please select your A/L stream from the navigation above to view available textbooks.</p>
           </div>
+        )}
+      </Section>
 
-          {/* No subjects for A/L without stream */}
-          {gradeId === 'al' && (
-            <div className="text-center py-5">
-              <i className="bi bi-arrow-up text-muted" style={{ fontSize: '4rem' }}></i>
-              <h4 className="mt-3 text-muted">Select a Stream</h4>
-              <p className="text-muted">Please select your A/L stream above to view available textbooks.</p>
-            </div>
-          )}
-        </div>
+      <div className="bg-bg-secondary border-t border-border py-8 text-center mt-auto">
+        <Link 
+          to={`/grade/${gradeId}`} 
+          className="inline-flex items-center justify-center px-6 py-2.5 rounded-lg font-medium transition-colors border border-border bg-card text-text-primary hover:bg-bg-tertiary shadow-sm"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" /> Back to {grade.display} Overview
+        </Link>
+      </div>
 
-
-      </section>
-
-
-
-      {/* Back to Grade Button */}
-      <section className="py-3 bg-light">
-        <div className="container text-center">
-          <Link to={`/grade/${gradeId}`} className="btn btn-outline-primary">
-            <i className="bi bi-arrow-left me-2"></i>Back to {grade.display} Overview
-          </Link>
-        </div>
-      </section>
-
-      <style>{`
-        .textbook-medium-card .card {
-          transition: all 0.3s ease;
-          border-color: #eee;
-        }
-
-        .textbook-medium-card .card:hover {
-          transform: translateY(-3px);
-          box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-          border-color: var(--primary);
-        }
-
-        .download-item {
-          transition: all 0.3s ease;
-          padding: 1rem;
-          border-radius: 10px;
-        }
-
-        .uploaded-textbooks {
-          max-height: 250px;
-          overflow-y: auto;
-        }
-
-        .subject-icon-large {
-          min-width: 60px;
-        }
-
-        .subject-section {
-          background-color: var(--card-bg);
-          transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .subject-section:hover {
-          transform: translateY(-5px);
-          box-shadow: 0 10px 25px var(--card-shadow) !important;
-        }
-
-        .textbook-medium-card .card {
-          background-color: var(--bg-tertiary) !important;
-        }
-      `}</style>
-      {/* Resource Editor Modal (Centralized) */}
       <ResourceEditorModal
         resource={editingResource || addModalInitialData}
         isOpen={!!editingResource || isAddModalOpen}
@@ -483,7 +337,6 @@ const TextbooksPage = () => {
         }}
       />
 
-      {/* Edit Subject Modal */}
       <MetadataEditorModal
         isOpen={metadataModal.isOpen}
         onClose={() => setMetadataModal({ ...metadataModal, isOpen: false })}
