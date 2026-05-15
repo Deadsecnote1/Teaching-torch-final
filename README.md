@@ -1,69 +1,76 @@
-# Teaching Torch React.js
+# Teaching Torch Platform 🇱🇰
 
-## Description
-Free Educational Resources for Sri Lankan Students - Built with React.js
+![Teaching Torch Banner](/public/logo512.png)
 
-## Features
-- Multi-language support (Sinhala, Tamil, English)
-- Dark/Light theme toggle
-- Responsive design
-- Grade-based organization
-- Resource management
-- **Google Drive Integration** - No backend needed! Store PDFs in Google Drive and link them
-- Embedded PDF viewer - View PDFs directly in the browser
-- Direct download support - Download PDFs from Google Drive
+**Teaching Torch** is a free, modern, and open-source educational resource platform built for Sri Lankan students. It provides centralized, organized access to government textbooks, past papers, short notes, and video tutorials across all grades and streams.
 
-## Getting Started
+## 🚀 Tech Stack
 
-### Install dependencies
+The application has been fully modernized and migrated from Create React App to **Vite**:
+- **Framework:** React.js 18 + Vite 8
+- **Styling:** Tailwind CSS + Vanilla CSS (Glassmorphism aesthetics)
+- **UI Components:** Radix UI (Headless, accessible components) + Framer Motion (Animations)
+- **Database & Auth:** Firebase Firestore & Firebase Auth
+- **Hosting & CI/CD:** Firebase Hosting + GitHub Actions
+
+## ✨ Key Features
+- **Multi-language Support:** Seamlessly switch between Sinhala, Tamil, and English mediums.
+- **Dynamic Theming:** Premium Dark/Light mode support with CSS variables.
+- **Grade & Stream Routing:** Distinct routing systems for general grades (6-11) and Advanced Level (A/L) streams.
+- **Google Drive Integration:** Direct link bypassing and embedded PDF viewers—no heavy backend required.
+- **Agentic Security:** Local staging environments separated from production databases via environment variables.
+
+---
+
+## 🛠️ Local Development Setup
+
+### 1. Install Dependencies
 ```bash
 npm install
 ```
 
-### Start development server
+### 2. Environment Configuration
+The project uses strict environment separation for local development. You need to configure your `.env` files. Ensure you never commit your API keys.
+
+- `.env` -> Main Production Environment (`tt-v1-c2a11`)
+- `.env.staging` -> Staging Environment (`tt-staging-5a60d`)
+
+### 3. Run the Development Server
+To run the app connected to the **Main Production** database:
 ```bash
-npm start
+npm run dev
 ```
 
-### Build for production
+To run the app connected to the **Staging** database (Recommended for Admin UI testing):
+```bash
+npm run dev:staging
+```
+
+### 4. Build for Production
+To build the optimized static bundle:
 ```bash
 npm run build
 ```
 
-## Project Structure
+---
+
+## 📁 Project Structure Overview
 ```
 src/
-├── components/     # Reusable components
-├── pages/          # Page components
-├── context/        # React contexts
-├── hooks/          # Custom hooks
-├── utils/          # Utility functions
-└── styles/         # Stylesheets
+├── components/     # Reusable UI components (Tailwind + Radix)
+│   ├── admin/      # Admin dashboard components
+│   ├── common/     # Global components (Navbar, Footer, Modals)
+│   └── ui/         # Base layout components (Container, Grid, Card)
+├── context/        # React Contexts (Auth, Data, AL, Language, Theme)
+├── hooks/          # Custom hooks (e.g., useDocumentTitle, useGradePage)
+├── pages/          # Main application views
+├── styles/         # Global stylesheets and modern base tokens
+└── utils/          # Helpers (Translations, Validations, YouTube/Drive parsers)
 ```
 
-## Google Drive Setup
+## 🔒 Admin Access
+The Admin Dashboard allows authorized users to manage grades, subjects, and resource URLs instantly.
+- **URL:** `/admin/login`
+- **Access:** Handled via Firebase Auth and protected by `ProtectedRoute`.
 
-This project uses **Google Drive** as a simple, free file storage solution. No backend server required!
-
-### Quick Start
-
-1. Upload PDFs to Google Drive
-2. Set files to "Anyone with the link can view"
-3. Add Google Drive links in the admin panel
-4. Users can view/download PDFs directly
-
-**See [GOOGLE_DRIVE_SETUP.md](./GOOGLE_DRIVE_SETUP.md) for detailed instructions.**
-
-### Admin Access
-
-- URL: `/admin/login`
-- Access: Use your Firebase Authentication credentials.
-
-## Development Notes
-
-- Data is stored in **Firebase Firestore**
-- Resources are linked via Google Drive or YouTube URLs
-- All file operations work client-side (no backend needed)
-- Add your logo to `public/assets/images/T.png`
-
-Made with ❤️ for Sri Lankan Education 🇱🇰
+*For detailed technical guidelines, refer to [PROJECT_ARCHITECTURE.md](./PROJECT_ARCHITECTURE.md).*
