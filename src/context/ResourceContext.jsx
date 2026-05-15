@@ -108,22 +108,16 @@ export const ResourceProvider = ({ children }) => {
     setError(null);
 
     try {
-      // Removed orderBy("uploadDate", "desc") to prevent composite index crashes
+      // Proper, scalable query
       const q = query(
         collection(db, "resources"), 
-        where("grade", "==", gradeId)
+        where("grade", "==", gradeId),
+        orderBy("uploadDate", "desc"),
+        limit(200)
       );
       
       const snapshot = await getDocs(q);
-      
-      // Sort client-side to bypass Firebase index requirements
-      const sortedDocs = [...snapshot.docs].sort((a, b) => {
-        const dateA = a.data().uploadDate || "";
-        const dateB = b.data().uploadDate || "";
-        return dateB.localeCompare(dateA);
-      });
-
-      const { structuredResources, structuredVideos, allResources: fresh } = processResources(sortedDocs);
+      const { structuredResources, structuredVideos, allResources: fresh } = processResources(snapshot.docs);
       
       setResources(prev => ({ ...prev, ...structuredResources }));
       setVideos(prev => ({ ...prev, ...structuredVideos }));
@@ -135,10 +129,6 @@ export const ResourceProvider = ({ children }) => {
       setFetchedGrades(prev => ({ ...prev, [gradeId]: true }));
     } catch (err) {
       console.error("Error fetching grade resources:", err);
-      // Let the user see the exact error on their screen so we know if it's an indexing issue
-      import('react-hot-toast').then(({ default: toast }) => {
-         toast.error("Resource fetch failed: " + err.message, { duration: 10000 });
-      });
       setError(err.message);
     } finally {
       setGradeLoading(prev => ({ ...prev, [gradeId]: false }));

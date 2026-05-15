@@ -13,10 +13,7 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Safe area for mobile notches */
-  body {
-    padding: max(1rem, env(safe-area-inset-bottom));
-  }
+  /* Safe area for mobile notches removed to fix white border on desktop */
 
   /* Touch-friendly tap targets (44px minimum) */
   button, a, input[type="checkbox"], input[type="radio"] {

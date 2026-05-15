@@ -12,8 +12,15 @@ import { Card, CardContent } from '../components/ui/Card';
 
 const GradePage = () => {
   const { gradeId, streamId } = useParams();
-  const { grades, resourceTypes: dynamicResourceTypes } = useData();
+  const { grades } = useData();
   const { selectedLanguage } = useLanguage();
+
+  const dynamicResourceTypes = [
+    { id: 'textbooks', name: 'Textbooks', icon: 'bi-book' },
+    { id: 'papers', name: 'Past Papers', icon: 'bi-file-earmark-text' },
+    { id: 'notes', name: 'Short Notes', icon: 'bi-sticky' },
+    { id: 'videos', name: 'Videos', icon: 'bi-play-circle' }
+  ];
 
   const targetGradeId = streamId || gradeId;
   const grade = grades[targetGradeId];
