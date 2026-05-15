@@ -4,6 +4,9 @@ import { useALData } from '../../context/ALContext';
 import { useAuth } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
+import { Pencil, Trash2, BookOpen, Layers, ChevronRight, Settings, Plus } from 'lucide-react';
+import { Container, Section, Grid } from '../../components/ui/Layout';
+import { Card, CardContent } from '../../components/ui/Card';
 
 const ALStreamsPage = () => {
   useDocumentTitle('Advanced Level Streams');
@@ -74,198 +77,196 @@ const ALStreamsPage = () => {
 
   if (loading) {
     return (
-      <div className="container py-5 text-center min-vh-100">
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
   }
 
   return (
-    <div className="al-page min-vh-100 pb-5">
+    <div className="min-h-screen pb-12 bg-bg-primary flex flex-col">
       {/* Header */}
-      <header className="grade-header text-center py-5" style={{ background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', color: 'white' }}>
-        <div className="container mt-5">
-          <h1 className="display-4 fw-bold">Advanced Level</h1>
-          <p className="lead">Select your specialization stream to continue</p>
+      <header className="bg-slate-900 text-center py-16 text-white border-b border-slate-800">
+        <Container>
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">Advanced Level</h1>
+          <p className="text-lg mt-3 text-slate-300 max-w-2xl mx-auto">Select your specialization stream to continue</p>
           {isManageMode && (
-            <Link to="/admin" className="btn btn-sm btn-outline-light mt-2">
-              <i className="bi bi-pencil-square me-2"></i>Edit in Admin
+            <Link to="/admin" className="mt-6 inline-flex items-center px-4 py-2 border border-slate-600 rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors">
+              <Settings className="w-4 h-4 mr-2" /> Edit in Admin
             </Link>
           )}
-        </div>
+        </Container>
       </header>
 
       {/* Content */}
-      <div className="container mt-5">
-        <div className="row justify-content-center g-4">
+      <Section className="flex-1 py-12">
+        <Grid cols={3} gap={8} className="max-w-5xl mx-auto">
           {alStreams.map((stream) => {
             const streamSubjects = alSubjects.filter(sub => sub.streamId === stream.id);
             const isActive = activeStreamId === stream.id;
 
             return (
-              <div key={stream.id} className="col-md-4">
-                <div
-                  className={`card h-100 shadow-sm border-0 stream-card ${isActive ? 'active' : ''}`}
+              <div key={stream.id} className="col-span-1 sm:col-span-2 md:col-span-1 flex justify-center">
+                <Card 
+                  className={`w-full max-w-sm transition-all duration-300 border-border overflow-hidden cursor-pointer ${isActive ? 'ring-2 ring-primary shadow-lg -translate-y-1' : 'hover:shadow-md hover:border-primary/50'}`}
                   onMouseEnter={() => setActiveStreamId(stream.id)}
                   onMouseLeave={() => setActiveStreamId(null)}
                   onClick={() => setActiveStreamId(isActive ? null : stream.id)}
-                  style={{ cursor: 'pointer', transition: 'all 0.3s ease', overflow: 'hidden' }}
                 >
-                  <div className="card-body text-center p-5 position-relative z-1">
-                    <div className="mb-4" style={{ color: stream.color || 'var(--primary)' }}>
-                      <i className={`bi ${stream.icon || 'bi-layers'} display-1`}></i>
+                  <CardContent className="p-8 flex flex-col items-center text-center relative z-10 h-full">
+                    <div className="w-20 h-20 rounded-2xl flex items-center justify-center mb-6 bg-bg-secondary border border-border shadow-sm transition-transform duration-300" style={{ color: stream.color || 'var(--primary)' }}>
+                      <i className={`bi ${stream.icon || 'bi-layers'} text-5xl`}></i>
                     </div>
-                    <h3 className="fw-bold">{stream.name}</h3>
-                    <p className="text-muted">{stream.description || 'Access specialized resources'}</p>
+                    <h3 className="text-2xl font-bold text-text-primary">{stream.name}</h3>
+                    <p className="text-text-muted mt-2 text-sm">{stream.description || 'Access specialized resources'}</p>
 
                     {isManageMode && (
-                      <div className="mt-2 d-flex justify-content-center gap-2">
-                        <button className="btn btn-sm btn-outline-info" onClick={(e) => {
+                      <div className="mt-4 flex gap-2">
+                        <button className="p-2 text-info hover:bg-info/10 rounded-lg border border-info/30 transition-colors" onClick={(e) => {
                           e.stopPropagation();
                           setEditingStream(stream);
                           setFormData(stream);
                         }}>
-                          <i className="bi bi-pencil"></i>
+                          <Pencil className="w-4 h-4" />
                         </button>
-                        <button className="btn btn-sm btn-outline-danger" onClick={(e) => handleDelete(e, 'al_streams', stream.id, stream.name)}>
-                          <i className="bi bi-trash"></i>
+                        <button className="p-2 text-danger hover:bg-danger/10 rounded-lg border border-danger/30 transition-colors" onClick={(e) => handleDelete(e, 'al_streams', stream.id, stream.name)}>
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
                     )}
 
                     {/* Subjects Dropdown / Menu */}
-                    <div className={`subjects-menu mt-4 ${isActive ? 'd-block' : 'd-none'}`} style={{ animation: 'fadeIn 0.3s ease' }}>
-                      <hr />
-                      <h6 className="text-muted mb-3 text-uppercase small fw-bold">Select Subject</h6>
-                      <div className="d-flex flex-column gap-2">
+                    <div className={`w-full mt-6 transition-all duration-300 ${isActive ? 'opacity-100 max-h-96' : 'opacity-0 max-h-0 overflow-hidden'}`}>
+                      <div className="h-px bg-border w-full mb-4"></div>
+                      <h6 className="text-xs font-bold text-text-muted uppercase tracking-wider mb-4">Select Subject</h6>
+                      <div className="flex flex-col gap-2">
                         {streamSubjects.map(subject => (
-                          <div key={subject.id} className="d-flex gap-2">
+                          <div key={subject.id} className="flex gap-2 w-full items-center">
                             <Link
                               to={`/al/${stream.id}/${subject.id}`}
-                              className="btn btn-outline-primary flex-grow-1 text-start d-flex justify-content-between align-items-center"
+                              className="flex-1 flex justify-between items-center px-4 py-2.5 border border-primary/20 text-primary hover:bg-primary hover:text-white rounded-lg transition-colors text-sm font-semibold bg-primary/5"
                             >
-                              <span><i className={`bi ${subject.icon || 'bi-book'} me-2`}></i>{subject.name}</span>
-                              <i className="bi bi-chevron-right small"></i>
+                              <span className="flex items-center"><i className={`bi ${subject.icon || 'bi-book'} mr-2.5 text-lg opacity-80`}></i>{subject.name}</span>
+                              <ChevronRight className="w-4 h-4 opacity-70" />
                             </Link>
                             {isManageMode && (
-                              <div className="d-flex flex-column gap-1">
-                                <button className="btn btn-sm btn-info text-white px-2 py-1" onClick={(e) => {
+                              <div className="flex flex-col gap-1">
+                                <button className="p-1.5 bg-info/10 text-info hover:bg-info hover:text-white rounded-md transition-colors" onClick={(e) => {
                                   e.preventDefault();
                                   setEditingSubject(subject);
                                   setFormData(subject);
                                 }}>
-                                  <i className="bi bi-pencil"></i>
+                                  <Pencil className="w-3.5 h-3.5" />
                                 </button>
-                                <button className="btn btn-sm btn-danger px-2 py-1" onClick={(e) => handleDelete(e, 'al_subjects', subject.id, subject.name)}>
-                                  <i className="bi bi-trash"></i>
+                                <button className="p-1.5 bg-danger/10 text-danger hover:bg-danger hover:text-white rounded-md transition-colors" onClick={(e) => handleDelete(e, 'al_subjects', subject.id, subject.name)}>
+                                  <Trash2 className="w-3.5 h-3.5" />
                                 </button>
                               </div>
                             )}
                           </div>
                         ))}
                         {streamSubjects.length === 0 && (
-                          <div className="text-muted small">No subjects available yet.</div>
+                          <div className="text-text-muted text-sm py-2">No subjects available yet.</div>
                         )}
                       </div>
                     </div>
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
               </div>
             );
           })}
 
           {alStreams.length === 0 && (
-            <div className="col-12 text-center text-muted py-5">
-              <h4>No Streams Available</h4>
+            <div className="col-span-3 text-center text-text-muted py-16 bg-card rounded-2xl border border-border">
+              <Layers className="w-16 h-16 mx-auto mb-4 opacity-20" />
+              <h4 className="text-xl font-bold text-text-primary mb-2">No Streams Available</h4>
               <p>Please contact the administrator to set up Advanced Level streams.</p>
             </div>
           )}
-        </div>
-      </div>
+        </Grid>
+      </Section>
 
-      {/* Stream Edit Modal */}
-      {editingStream && (
-        <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1050 }}>
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content" style={{ backgroundColor: 'var(--card-bg)' }}>
-              <div className="modal-header border-secondary">
-                <h5 className="modal-title">Edit Stream: {editingStream.name}</h5>
-                <button type="button" className="btn-close" onClick={() => setEditingStream(null)}></button>
-              </div>
-              <form onSubmit={handleUpdateStream}>
-                <div className="modal-body">
-                  <div className="mb-3">
-                    <label className="form-label">Stream Name</label>
-                    <input type="text" className="form-control" value={formData.name || ''} onChange={e => setFormData({ ...formData, name: e.target.value })} required />
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label">Description</label>
-                    <input type="text" className="form-control" value={formData.description || ''} onChange={e => setFormData({ ...formData, description: e.target.value })} />
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label">Order (Priority)</label>
-                    <input type="number" className="form-control" value={formData.order || 0} onChange={e => setFormData({ ...formData, order: parseInt(e.target.value) })} />
-                  </div>
-                </div>
-                <div className="modal-footer border-secondary">
-                  <button type="button" className="btn btn-secondary" onClick={() => setEditingStream(null)}>Cancel</button>
-                  <button type="submit" className="btn btn-primary">Save Changes</button>
-                </div>
-              </form>
+      {/* Tailwind Modals */}
+      {(editingStream || editingSubject) && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-opacity">
+          <div className="bg-card rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-border animate-fade-in">
+            <div className="flex justify-between items-center px-6 py-4 border-b border-border bg-bg-secondary/50">
+              <h5 className="text-lg font-bold text-text-primary">
+                {editingStream ? `Edit Stream: ${editingStream.name}` : `Edit Subject: ${editingSubject.name}`}
+              </h5>
+              <button 
+                type="button" 
+                className="text-text-muted hover:text-text-primary transition-colors" 
+                onClick={() => { setEditingStream(null); setEditingSubject(null); }}
+              >
+                <i className="bi bi-x-lg"></i>
+              </button>
             </div>
+            <form onSubmit={editingStream ? handleUpdateStream : handleUpdateSubject}>
+              <div className="p-6 space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-text-primary mb-1.5">
+                    {editingStream ? 'Stream Name' : 'Subject Name'}
+                  </label>
+                  <input 
+                    type="text" 
+                    className="w-full px-3 py-2 bg-bg-primary border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/50" 
+                    value={formData.name || ''} 
+                    onChange={e => setFormData({ ...formData, name: e.target.value })} 
+                    required 
+                  />
+                </div>
+                {editingStream && (
+                  <div>
+                    <label className="block text-sm font-semibold text-text-primary mb-1.5">Description</label>
+                    <input 
+                      type="text" 
+                      className="w-full px-3 py-2 bg-bg-primary border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/50" 
+                      value={formData.description || ''} 
+                      onChange={e => setFormData({ ...formData, description: e.target.value })} 
+                    />
+                  </div>
+                )}
+                {editingSubject && (
+                  <div>
+                    <label className="block text-sm font-semibold text-text-primary mb-1.5">Icon (Bootstrap class)</label>
+                    <input 
+                      type="text" 
+                      className="w-full px-3 py-2 bg-bg-primary border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/50" 
+                      value={formData.icon || ''} 
+                      onChange={e => setFormData({ ...formData, icon: e.target.value })} 
+                    />
+                  </div>
+                )}
+                <div>
+                  <label className="block text-sm font-semibold text-text-primary mb-1.5">Order (Priority)</label>
+                  <input 
+                    type="number" 
+                    className="w-full px-3 py-2 bg-bg-primary border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/50" 
+                    value={formData.order || 0} 
+                    onChange={e => setFormData({ ...formData, order: parseInt(e.target.value) })} 
+                  />
+                </div>
+              </div>
+              <div className="px-6 py-4 border-t border-border bg-bg-secondary/50 flex justify-end gap-3">
+                <button 
+                  type="button" 
+                  className="px-4 py-2 text-sm font-medium text-text-muted hover:text-text-primary bg-bg-primary border border-border rounded-lg hover:bg-bg-secondary transition-colors" 
+                  onClick={() => { setEditingStream(null); setEditingSubject(null); }}
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  className="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary-dark transition-colors shadow-sm"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
-
-      {/* Subject Edit Modal */}
-      {editingSubject && (
-        <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1050 }}>
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content" style={{ backgroundColor: 'var(--card-bg)' }}>
-              <div className="modal-header border-secondary">
-                <h5 className="modal-title">Edit Subject: {editingSubject.name}</h5>
-                <button type="button" className="btn-close" onClick={() => setEditingSubject(null)}></button>
-              </div>
-              <form onSubmit={handleUpdateSubject}>
-                <div className="modal-body">
-                  <div className="mb-3">
-                    <label className="form-label">Subject Name</label>
-                    <input type="text" className="form-control" value={formData.name || ''} onChange={e => setFormData({ ...formData, name: e.target.value })} required />
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label">Icon (Bootstrap class)</label>
-                    <input type="text" className="form-control" value={formData.icon || ''} onChange={e => setFormData({ ...formData, icon: e.target.value })} />
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label">Order (Priority)</label>
-                    <input type="number" className="form-control" value={formData.order || 0} onChange={e => setFormData({ ...formData, order: parseInt(e.target.value) })} />
-                  </div>
-                </div>
-                <div className="modal-footer border-secondary">
-                  <button type="button" className="btn btn-secondary" onClick={() => setEditingSubject(null)}>Cancel</button>
-                  <button type="submit" className="btn btn-primary">Save Changes</button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <style>{`
-        .stream-card {
-          border-radius: 20px;
-        }
-        .stream-card:hover, .stream-card.active {
-          transform: translateY(-5px);
-          box-shadow: 0 15px 35px rgba(0,0,0,0.1) !important;
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(-10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
     </div>
   );
 };

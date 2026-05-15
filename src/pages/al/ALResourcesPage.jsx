@@ -7,6 +7,8 @@ import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
 import { extractYouTubeId } from '../../utils/youtube';
+import { Pencil, Trash2, ChevronRight, FolderOpen, Plus, PlayCircle, X, Inbox } from 'lucide-react';
+import { Container, Section, Grid } from '../../components/ui/Layout';
 
 const ALResourcesPage = () => {
   const { streamId, subjectId, resourceTypeId } = useParams();
@@ -96,19 +98,17 @@ const ALResourcesPage = () => {
 
   if (loading) {
     return (
-      <div className="container py-5 text-center min-vh-100">
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
   }
 
   if (!stream || !subject || !resourceType) {
     return (
-      <div className="container py-5 text-center min-vh-100 mt-5">
-        <h2>Content Not Found</h2>
-        <Link to="/al" className="btn btn-primary mt-3">Back to Streams</Link>
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
+        <h2 className="text-3xl font-bold text-text-primary mb-4">Content Not Found</h2>
+        <Link to="/al" className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors font-medium">Back to Streams</Link>
       </div>
     );
   }
@@ -124,59 +124,66 @@ const ALResourcesPage = () => {
     r.alStreamId === streamId &&
     r.alSubjectId === subjectId &&
     r.alResourceTypeId === resourceTypeId &&
-    (r.languages ? r.languages.includes(selectedLanguage) : true) // Assuming AL resources have languages array
+    (r.languages ? r.languages.includes(selectedLanguage) : true)
   );
 
   return (
-    <div className="al-page min-vh-100 pb-5">
+    <div className="min-h-screen pb-12 bg-bg-primary flex flex-col">
       {/* Header */}
-      <header className="grade-header text-center py-5" style={{ background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', color: 'white' }}>
-        <div className="container mt-5">
-          <h1 className="display-4 fw-bold">{resourceType.name}</h1>
-          <p className="lead">{subject.name} - {stream.name.endsWith('Stream') ? stream.name : `${stream.name} Stream`}</p>
-        </div>
+      <header className="bg-slate-900 text-center py-16 text-white border-b border-slate-800">
+        <Container>
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">{resourceType.name}</h1>
+          <p className="text-lg mt-3 text-slate-300 max-w-2xl mx-auto">{subject.name} - {stream.name.endsWith('Stream') ? stream.name : `${stream.name} Stream`}</p>
+        </Container>
       </header>
 
-      {/* Language Switcher Section (Reused from standard resources) */}
-      <section className="py-4 switcher-container border-bottom">
-        <div className="container">
-          <div className="d-flex flex-column flex-md-row align-items-center justify-content-center gap-3">
-            <span className="fw-bold text-uppercase tracking-wider small opacity-75">Select Content Medium:</span>
-            <div className="btn-group shadow-sm" role="group">
+      {/* Language Switcher Section */}
+      <div className="py-4 border-b border-border bg-bg-secondary/50">
+        <Container>
+          <div className="flex flex-col md:flex-row items-center justify-center gap-4">
+            <span className="font-bold uppercase tracking-wider text-xs text-text-muted">Select Content Medium:</span>
+            <div className="inline-flex rounded-lg shadow-sm p-1 bg-bg-primary border border-border" role="group">
               {['sinhala', 'tamil', 'english'].map(lang => (
                 <button
                   key={lang}
                   type="button"
-                  className={`btn px-4 py-2 content-medium-btn ${selectedLanguage === lang ? 'btn-primary active' : 'btn-outline-custom'}`}
+                  className={`flex items-center px-6 py-2.5 text-sm font-medium rounded-md transition-all ${
+                    selectedLanguage === lang 
+                      ? 'bg-primary text-white shadow-sm' 
+                      : 'text-text-primary hover:bg-bg-secondary hover:text-primary'
+                  }`}
                   onClick={() => setLanguage(lang)}
-                  style={{ minWidth: '120px' }}
                 >
-                  <i className={`bi bi-circle-fill me-2`} style={{ color: languages[lang].color, fontSize: '0.7rem' }}></i>
+                  <span 
+                    className="w-2 h-2 rounded-full mr-2.5" 
+                    style={{ backgroundColor: selectedLanguage === lang ? 'white' : languages[lang].color }}
+                  ></span>
                   {languages[lang].display}
                 </button>
               ))}
             </div>
           </div>
-        </div>
-      </section>
+        </Container>
+      </div>
 
       {/* Breadcrumb */}
-      <section className="py-3 border-bottom">
-        <div className="container">
-          <nav aria-label="breadcrumb">
-            <ol className="breadcrumb mb-0">
-              <li className="breadcrumb-item"><Link to="/">Home</Link></li>
-              <li className="breadcrumb-item"><Link to="/al">A/L</Link></li>
-              <li className="breadcrumb-item"><Link to={`/al/${streamId}/${subjectId}`}>{subject.name}</Link></li>
-              <li className="breadcrumb-item active" aria-current="page">{resourceType.name}</li>
-            </ol>
+      <div className="py-4 border-b border-border bg-bg-secondary/30">
+        <Container>
+          <nav aria-label="breadcrumb" className="flex items-center space-x-1 sm:space-x-2 text-sm text-text-muted overflow-x-auto whitespace-nowrap pb-1">
+            <Link to="/" className="hover:text-primary transition-colors flex items-center">Home</Link>
+            <ChevronRight className="w-4 h-4 opacity-50 flex-shrink-0" />
+            <Link to="/al" className="hover:text-primary transition-colors flex items-center">A/L</Link>
+            <ChevronRight className="w-4 h-4 opacity-50 flex-shrink-0" />
+            <Link to={`/al/${streamId}/${subjectId}`} className="hover:text-primary transition-colors flex items-center">{subject.name}</Link>
+            <ChevronRight className="w-4 h-4 opacity-50 flex-shrink-0" />
+            <span className="text-text-primary font-medium">{resourceType.name}</span>
           </nav>
-        </div>
-      </section>
+        </Container>
+      </div>
 
       {/* Content */}
-      <div className="container mt-5">
-        <div className="row g-4">
+      <Section className="flex-1 py-12">
+        <Grid cols={2} gap={8}>
           {relevantSubCats.map(subCat => {
             const subCatResources = contextResources.filter(r => r.alSubCategoryId === subCat.id);
             
@@ -184,77 +191,78 @@ const ALResourcesPage = () => {
             if (subCatResources.length === 0 && !isManageMode) return null;
 
             return (
-              <div key={subCat.id} className="col-lg-6">
-                <div className="subject-section h-100 p-4 border rounded shadow-sm">
-                  <h5 className="mb-4 text-primary fw-bold border-bottom border-primary pb-2 d-flex justify-content-between align-items-center">
-                    <div>
-                      <i className="bi bi-folder2-open me-2"></i>
+              <div key={subCat.id} className="col-span-1 sm:col-span-2 lg:col-span-1">
+                <div className="bg-card h-full p-6 border border-border rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 flex flex-col">
+                  <div className="flex justify-between items-center mb-6 pb-4 border-b border-primary/20">
+                    <h5 className="text-xl font-bold text-primary flex items-center">
+                      <FolderOpen className="w-6 h-6 mr-3 opacity-80" />
                       {subCat.name}
-                    </div>
+                    </h5>
                     {isManageMode && (
-                      <div className="d-flex gap-1">
+                      <div className="flex gap-1.5">
                         <button 
-                          className="btn btn-sm btn-outline-info"
+                          className="p-1.5 text-info hover:bg-info/10 rounded-md border border-info/30 transition-colors"
                           onClick={() => {
                             setEditingSubCat(subCat);
                             setSubCatFormData(subCat);
                           }}
                         >
-                          <i className="bi bi-pencil"></i>
+                          <Pencil className="w-4 h-4" />
                         </button>
                         <button 
-                          className="btn btn-sm btn-outline-danger" 
+                          className="p-1.5 text-danger hover:bg-danger/10 rounded-md border border-danger/30 transition-colors" 
                           onClick={() => handleDeleteSubCat(subCat)}
                           title={`Hide from ${subject.name}`}
                         >
-                          <i className="bi bi-trash"></i>
+                          <Trash2 className="w-4 h-4" />
                         </button>
                         <button 
-                          className="btn btn-sm btn-success ms-2"
+                          className="ml-2 px-3 py-1.5 bg-success text-white text-sm font-medium rounded-md hover:bg-success/90 transition-colors flex items-center"
                           onClick={() => {
                             setEditingResource(null);
                             setEditFormData({ title: '', description: '', fileUrl: '', alSubCategoryId: subCat.id, order: 0, mediaType: '' });
                             setIsModalOpen(true);
                           }}
                         >
-                          <i className="bi bi-plus-lg me-1"></i> Add
+                          <Plus className="w-4 h-4 mr-1" /> Add
                         </button>
                       </div>
                     )}
-                  </h5>
+                  </div>
                   
-                  <div className="resources-list" style={{ maxHeight: '280px', overflowY: 'auto', paddingRight: '8px' }}>
+                  <div className="flex-1 overflow-y-auto pr-2" style={{ maxHeight: '400px' }}>
                     {subCatResources.length > 0 ? (
-                      subCatResources.map(resource => (
-                        <ResourceCard
-                          key={resource.id}
-                          resource={resource}
-                          title={resource.title}
-                          description={resource.description}
-                          language={selectedLanguage}
-                          showViewButton={true}
-                          showDownloadButton={true}
-                          className="mb-3"
-                          showLanguageLabel={false}
-                          onEdit={(r) => {
-                            setEditingResource(r);
-                            setEditFormData({
-                              title: r.title || '',
-                              description: r.description || '',
-                              fileUrl: r.fileUrl || '',
-                              order: r.order || 0,
-                              mediaType: r.mediaType || ''
-                            });
-                            setIsModalOpen(true);
-                          }}
-                          onDelete={(id) => deleteDocument('al_resources', id)}
-                          onPlayVideo={(r) => setActiveVideo(r)}
-                        />
-                      ))
+                      <div className="space-y-4">
+                        {subCatResources.map(resource => (
+                          <ResourceCard
+                            key={resource.id}
+                            resource={resource}
+                            title={resource.title}
+                            description={resource.description}
+                            language={selectedLanguage}
+                            showViewButton={true}
+                            showDownloadButton={true}
+                            showLanguageLabel={false}
+                            onEdit={(r) => {
+                              setEditingResource(r);
+                              setEditFormData({
+                                title: r.title || '',
+                                description: r.description || '',
+                                fileUrl: r.fileUrl || '',
+                                order: r.order || 0,
+                                mediaType: r.mediaType || ''
+                              });
+                              setIsModalOpen(true);
+                            }}
+                            onDelete={(id) => deleteDocument('al_resources', id)}
+                            onPlayVideo={(r) => setActiveVideo(r)}
+                          />
+                        ))}
+                      </div>
                     ) : (
-                      <div className="text-center py-4 text-muted border rounded" style={{ backgroundColor: 'var(--card-bg)' }}>
-                        <i className="bi bi-inbox fs-2 d-block mb-2"></i>
-                        No resources available in {selectedLanguage}.
+                      <div className="text-center py-10 text-text-muted bg-bg-secondary/30 rounded-xl border border-border border-dashed h-full flex flex-col items-center justify-center">
+                        <Inbox className="w-12 h-12 mb-3 opacity-30" />
+                        <p>No resources available in {selectedLanguage}.</p>
                       </div>
                     )}
                   </div>
@@ -264,15 +272,12 @@ const ALResourcesPage = () => {
           })}
 
           {relevantSubCats.length === 0 ? (
-            <div className="col-12">
-              <div className="alert alert-info text-center py-5">
-                <i className="bi bi-info-circle fs-1 d-block mb-3"></i>
-                <h4 className="alert-heading">No Categories Configured</h4>
-                <p>There are no sub-categories defined for this resource type yet.</p>
-              </div>
+            <div className="col-span-1 sm:col-span-2 text-center py-16 bg-blue-50/50 dark:bg-blue-900/10 rounded-2xl border border-blue-200 dark:border-blue-800/30">
+              <FolderOpen className="w-16 h-16 mx-auto mb-4 text-blue-500/50" />
+              <h4 className="text-xl font-bold text-blue-800 dark:text-blue-300 mb-2">No Categories Configured</h4>
+              <p className="text-blue-600/80 dark:text-blue-400/80">There are no sub-categories defined for this resource type yet.</p>
             </div>
           ) : (
-            // Check if any sub-category actually rendered something
             (() => {
               const hasVisibleContent = relevantSubCats.some(subCat => {
                 const subCatResources = contextResources.filter(r => r.alSubCategoryId === subCat.id);
@@ -281,12 +286,12 @@ const ALResourcesPage = () => {
 
               if (!hasVisibleContent) {
                 return (
-                  <div className="col-12 text-center py-5 text-muted">
-                    <i className="bi bi-inbox display-1 d-block mb-3 opacity-25"></i>
-                    <h4>No Resources Available</h4>
+                  <div className="col-span-1 sm:col-span-2 text-center py-20 text-text-muted">
+                    <Inbox className="w-20 h-20 mx-auto mb-6 opacity-20" />
+                    <h4 className="text-2xl font-bold text-text-primary mb-2">No Resources Available</h4>
                     <p>There are no resources uploaded for {resourceType.name} in {selectedLanguage} yet.</p>
                     {isManageMode && (
-                      <p className="small">Tip: Use the Admin Dashboard to upload resources or add them directly here.</p>
+                      <p className="text-sm mt-4 p-4 bg-bg-secondary rounded-lg inline-block">Tip: Use the Admin Dashboard to upload resources or add them directly here.</p>
                     )}
                   </div>
                 );
@@ -294,77 +299,55 @@ const ALResourcesPage = () => {
               return null;
             })()
           )}
-        </div>
-      </div>
-      
-      <style>{`
-        .subject-section {
-          background-color: var(--card-bg);
-          transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .subject-section:hover {
-          transform: translateY(-3px);
-          box-shadow: 0 10px 25px rgba(0,0,0,0.05) !important;
-        }
-        .resources-list::-webkit-scrollbar {
-          width: 5px;
-        }
-        .resources-list::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .resources-list::-webkit-scrollbar-thumb {
-          background: #cbd5e1;
-          border-radius: 10px;
-        }
-        .resources-list::-webkit-scrollbar-thumb:hover {
-          background: #94a3b8;
-        }
-      `}</style>
+        </Grid>
+      </Section>
 
       {/* Inline Resource Editor Modal */}
       {isModalOpen && (
-        <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1050 }}>
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content" style={{ backgroundColor: 'var(--card-bg)' }}>
-              <div className="modal-header border-bottom-0">
-                <h5 className="modal-title">{editingResource ? 'Edit Resource' : 'Add New Resource'}</h5>
-                <button type="button" className="btn-close" onClick={() => { setIsModalOpen(false); setEditingResource(null); }}></button>
-              </div>
-              <form onSubmit={handleEditSubmit}>
-                <div className="modal-body">
-                  <div className="mb-3">
-                    <label className="form-label">Title</label>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-opacity">
+          <div className="bg-card rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-border animate-fade-in max-h-[90vh] flex flex-col">
+            <div className="flex justify-between items-center px-6 py-4 border-b border-border bg-bg-secondary/50">
+              <h5 className="text-lg font-bold text-text-primary">{editingResource ? 'Edit Resource' : 'Add New Resource'}</h5>
+              <button type="button" className="text-text-muted hover:text-text-primary" onClick={() => { setIsModalOpen(false); setEditingResource(null); }}>
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="overflow-y-auto flex-1">
+              <form id="resourceForm" onSubmit={handleEditSubmit}>
+                <div className="p-6 space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-text-primary mb-1.5">Title</label>
                     <input 
                       type="text" 
-                      className="form-control" 
+                      className="w-full px-3 py-2 bg-bg-primary border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/50" 
                       value={editFormData.title} 
                       onChange={(e) => setEditFormData({...editFormData, title: e.target.value})} 
                       required 
                     />
                   </div>
-                  <div className="mb-3">
-                    <label className="form-label">Description (Optional)</label>
+                  <div>
+                    <label className="block text-sm font-semibold text-text-primary mb-1.5">Description (Optional)</label>
                     <textarea 
-                      className="form-control" 
+                      className="w-full px-3 py-2 bg-bg-primary border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/50" 
                       value={editFormData.description} 
                       onChange={(e) => setEditFormData({...editFormData, description: e.target.value})} 
-                      rows="2"
+                      rows="3"
                     ></textarea>
                   </div>
-                  <div className="mb-3">
-                    <label className="form-label">File URL / Drive Link</label>
+                  <div>
+                    <label className="block text-sm font-semibold text-text-primary mb-1.5">File URL / Drive Link</label>
                     <input 
                       type="url" 
-                      className="form-control" 
+                      className="w-full px-3 py-2 bg-bg-primary border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/50" 
                       value={editFormData.fileUrl} 
                       onChange={(e) => setEditFormData({...editFormData, fileUrl: e.target.value})} 
                       required 
                     />
                   </div>
-                  <div className="mb-3">
-                    <label className="form-label">Media Type (Optional Override)</label>
+                  <div>
+                    <label className="block text-sm font-semibold text-text-primary mb-1.5">Media Type (Optional Override)</label>
                     <select 
-                      className="form-select" 
+                      className="w-full px-3 py-2 bg-bg-primary border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/50" 
                       value={editFormData.mediaType || ''} 
                       onChange={(e) => setEditFormData({...editFormData, mediaType: e.target.value})}
                     >
@@ -375,23 +358,23 @@ const ALResourcesPage = () => {
                       <option value="image">Image</option>
                     </select>
                   </div>
-                  <div className="mb-3">
-                    <label className="form-label">Priority / Order</label>
+                  <div>
+                    <label className="block text-sm font-semibold text-text-primary mb-1.5">Priority / Order</label>
                     <input 
                       type="number" 
-                      className="form-control" 
+                      className="w-full px-3 py-2 bg-bg-primary border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/50" 
                       value={editFormData.order || 0} 
                       onChange={(e) => setEditFormData({...editFormData, order: parseInt(e.target.value)})} 
                     />
                   </div>
                 </div>
-                <div className="modal-footer border-top-0">
-                  <button type="button" className="btn btn-secondary" onClick={() => { setIsModalOpen(false); setEditingResource(null); }}>Cancel</button>
-                  <button type="submit" className="btn btn-primary" disabled={isSaving}>
-                    {isSaving ? 'Saving...' : (editingResource ? 'Save Changes' : 'Add Resource')}
-                  </button>
-                </div>
               </form>
+            </div>
+            <div className="px-6 py-4 border-t border-border bg-bg-secondary/50 flex justify-end gap-3">
+              <button type="button" className="px-4 py-2 text-sm font-medium text-text-muted hover:text-text-primary bg-bg-primary border border-border rounded-lg hover:bg-bg-secondary transition-colors" onClick={() => { setIsModalOpen(false); setEditingResource(null); }}>Cancel</button>
+              <button type="submit" form="resourceForm" className="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary-dark transition-colors shadow-sm disabled:opacity-50" disabled={isSaving}>
+                {isSaving ? 'Saving...' : (editingResource ? 'Save Changes' : 'Add Resource')}
+              </button>
             </div>
           </div>
         </div>
@@ -399,70 +382,69 @@ const ALResourcesPage = () => {
 
       {/* Sub-Category Editor Modal */}
       {editingSubCat && (
-        <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1050 }}>
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content" style={{ backgroundColor: 'var(--card-bg)' }}>
-              <div className="modal-header border-bottom-0">
-                <h5 className="modal-title">Edit Sub-Category</h5>
-                <button type="button" className="btn-close" onClick={() => setEditingSubCat(null)}></button>
-              </div>
-              <form onSubmit={handleSubCatSubmit}>
-                <div className="modal-body">
-                  <div className="mb-3">
-                    <label className="form-label">Name</label>
-                    <input 
-                      type="text" 
-                      className="form-control" 
-                      value={subCatFormData.name || ''} 
-                      onChange={(e) => setSubCatFormData({...subCatFormData, name: e.target.value})} 
-                      required 
-                    />
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label">Order</label>
-                    <input 
-                      type="number" 
-                      className="form-control" 
-                      value={subCatFormData.order || 0} 
-                      onChange={(e) => setSubCatFormData({...subCatFormData, order: parseInt(e.target.value)})} 
-                    />
-                  </div>
-                </div>
-                <div className="modal-footer border-top-0">
-                  <button type="button" className="btn btn-secondary" onClick={() => setEditingSubCat(null)}>Cancel</button>
-                  <button type="submit" className="btn btn-primary">Save Changes</button>
-                </div>
-              </form>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-opacity">
+          <div className="bg-card rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-border animate-fade-in">
+            <div className="flex justify-between items-center px-6 py-4 border-b border-border bg-bg-secondary/50">
+              <h5 className="text-lg font-bold text-text-primary">Edit Sub-Category</h5>
+              <button type="button" className="text-text-muted hover:text-text-primary" onClick={() => setEditingSubCat(null)}>
+                <X className="w-5 h-5" />
+              </button>
             </div>
+            <form onSubmit={handleSubCatSubmit}>
+              <div className="p-6 space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-text-primary mb-1.5">Name</label>
+                  <input 
+                    type="text" 
+                    className="w-full px-3 py-2 bg-bg-primary border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/50" 
+                    value={subCatFormData.name || ''} 
+                    onChange={(e) => setSubCatFormData({...subCatFormData, name: e.target.value})} 
+                    required 
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-text-primary mb-1.5">Order</label>
+                  <input 
+                    type="number" 
+                    className="w-full px-3 py-2 bg-bg-primary border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/50" 
+                    value={subCatFormData.order || 0} 
+                    onChange={(e) => setSubCatFormData({...subCatFormData, order: parseInt(e.target.value)})} 
+                  />
+                </div>
+              </div>
+              <div className="px-6 py-4 border-t border-border bg-bg-secondary/50 flex justify-end gap-3">
+                <button type="button" className="px-4 py-2 text-sm font-medium text-text-muted hover:text-text-primary bg-bg-primary border border-border rounded-lg hover:bg-bg-secondary transition-colors" onClick={() => setEditingSubCat(null)}>Cancel</button>
+                <button type="submit" className="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary-dark transition-colors shadow-sm">Save Changes</button>
+              </div>
+            </form>
           </div>
         </div>
       )}
 
       {/* Global Video Modal */}
       {activeVideo && (
-        <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.85)', zIndex: 2000, position: 'fixed', inset: 0 }} onClick={() => setActiveVideo(null)}>
-          <div className="modal-dialog modal-xl modal-dialog-centered" onClick={e => e.stopPropagation()}>
-            <div className="modal-content bg-dark text-white border-0 shadow-lg">
-              <div className="modal-header border-0 pb-0">
-                <h5 className="modal-title d-flex align-items-center">
-                  <i className="bi bi-play-circle-fill text-danger me-2"></i>
-                  {activeVideo.title}
-                </h5>
-                <button type="button" className="btn-close btn-close-white" onClick={() => setActiveVideo(null)}></button>
-              </div>
-              <div className="modal-body p-0 mt-3">
-                <div className="ratio ratio-16x9">
-                  <iframe
-                    src={`https://www.youtube.com/embed/${extractYouTubeId(activeVideo.fileUrl || activeVideo.url)}?autoplay=1`}
-                    title="YouTube video player"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  ></iframe>
-                </div>
-              </div>
-              <div className="modal-footer border-0">
-                <button className="btn btn-outline-light btn-sm" onClick={() => setActiveVideo(null)}>Close Player</button>
-              </div>
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md transition-opacity" onClick={() => setActiveVideo(null)}>
+          <div className="bg-slate-900 rounded-2xl shadow-2xl w-full max-w-6xl overflow-hidden border border-slate-700 animate-fade-in" onClick={e => e.stopPropagation()}>
+            <div className="flex justify-between items-center px-6 py-4 border-b border-slate-800">
+              <h5 className="text-lg font-bold text-white flex items-center">
+                <PlayCircle className="w-6 h-6 text-red-500 mr-2" />
+                {activeVideo.title}
+              </h5>
+              <button type="button" className="text-slate-400 hover:text-white transition-colors" onClick={() => setActiveVideo(null)}>
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            <div className="w-full aspect-video bg-black">
+              <iframe
+                className="w-full h-full"
+                src={`https://www.youtube.com/embed/${extractYouTubeId(activeVideo.fileUrl || activeVideo.url)}?autoplay=1`}
+                title="YouTube video player"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              ></iframe>
+            </div>
+            <div className="px-6 py-4 border-t border-slate-800 bg-slate-900/50 flex justify-end">
+              <button className="px-6 py-2 text-sm font-medium text-white bg-slate-800 border border-slate-700 rounded-lg hover:bg-slate-700 transition-colors" onClick={() => setActiveVideo(null)}>Close Player</button>
             </div>
           </div>
         </div>

@@ -43,21 +43,16 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import './styles/globals.css';
 
-// 404 Not Found Component
 const NotFound = () => (
-  <div className="container text-center py-5">
-    <div className="row justify-content-center">
-      <div className="col-md-6">
-        <div className="error-page">
-          <h1 className="display-1 text-primary">404</h1>
-          <h2 className="mb-4">Page Not Found</h2>
-          <p className="mb-4">The page you're looking for doesn't exist.</p>
-          <a href="/" className="btn btn-primary">
-            <i className="bi bi-house me-2"></i>
-            Go Home
-          </a>
-        </div>
-      </div>
+  <div className="flex items-center justify-center min-h-[70vh] px-4 py-16 bg-bg-primary">
+    <div className="text-center max-w-md w-full bg-card rounded-2xl p-10 shadow-sm border border-border">
+      <h1 className="text-7xl font-extrabold text-primary mb-4">404</h1>
+      <h2 className="text-3xl font-bold text-text-primary mb-4">Page Not Found</h2>
+      <p className="text-text-muted mb-8 text-lg">The page you're looking for doesn't exist or has been moved.</p>
+      <a href="/" className="inline-flex items-center justify-center px-6 py-3 rounded-lg font-medium transition-all bg-primary text-white hover:bg-primary-dark shadow-sm">
+        <i className="bi bi-house me-2"></i>
+        Go Home
+      </a>
     </div>
   </div>
 );
