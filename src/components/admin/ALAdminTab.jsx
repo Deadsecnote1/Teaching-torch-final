@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useALData } from '../../context/ALContext';
 import toast from 'react-hot-toast';
 import { isValidHttpsUrl } from '../../utils/validation';
+import { Layers, Book, Archive, FolderTree, UploadCloud, Pencil, Trash2, CheckCircle } from 'lucide-react';
+import { getLucideIcon } from '../../utils/iconUtils';
 
 const ALAdminTab = () => {
   const { 
@@ -26,7 +28,7 @@ const ALAdminTab = () => {
         name: formData.name,
         description: formData.description || '',
         color: formData.color || 'primary',
-        icon: formData.icon || 'bi-layers',
+        icon: formData.icon || 'layers',
         order: parseInt(formData.order) || 0
       };
       
@@ -57,7 +59,7 @@ const ALAdminTab = () => {
       const data = {
         name: formData.name,
         streamId: formData.streamId,
-        icon: formData.icon || 'bi-book',
+        icon: formData.icon || 'book',
         order: parseInt(formData.order) || 0
       };
       
@@ -88,7 +90,7 @@ const ALAdminTab = () => {
       const data = {
         name: formData.name,
         description: formData.description || '',
-        icon: formData.icon || 'bi-archive',
+        icon: formData.icon || 'archive',
         order: parseInt(formData.order) || 0,
         subjectIds: formData.subjectIds || []
       };
@@ -202,401 +204,412 @@ const ALAdminTab = () => {
     }
   };
 
+  const tabs = [
+    { id: 'streams', label: 'Streams', icon: <Layers className="w-4 h-4 mr-2" /> },
+    { id: 'subjects', label: 'Subjects', icon: <Book className="w-4 h-4 mr-2" /> },
+    { id: 'types', label: 'Resource Types', icon: <Archive className="w-4 h-4 mr-2" /> },
+    { id: 'subcats', label: 'Sub Categories', icon: <FolderTree className="w-4 h-4 mr-2" /> },
+    { id: 'resources', label: 'Upload Resources', icon: <UploadCloud className="w-4 h-4 mr-2" /> },
+  ];
+
   return (
-        <div className="card shadow-sm border-0">
-          <div className="card-header border-bottom-0 pt-4 pb-0 px-4" style={{ overflowX: 'auto', whiteSpace: 'nowrap', msOverflowStyle: 'none', scrollbarWidth: 'none' }}>
-            <ul className="nav nav-tabs card-header-tabs flex-nowrap" role="tablist" style={{ borderBottom: 'none' }}>
-              <li className="nav-item">
-                <button className={`nav-link ${activeTab === 'streams' ? 'active' : ''}`} onClick={() => {setActiveTab('streams'); setFormData({}); setEditingId(null);}}>Streams</button>
-              </li>
-              <li className="nav-item">
-                <button className={`nav-link ${activeTab === 'subjects' ? 'active' : ''}`} onClick={() => {setActiveTab('subjects'); setFormData({}); setEditingId(null);}}>Subjects</button>
-              </li>
-              <li className="nav-item">
-                <button className={`nav-link ${activeTab === 'types' ? 'active' : ''}`} onClick={() => {setActiveTab('types'); setFormData({}); setEditingId(null);}}>Resource Types</button>
-              </li>
-              <li className="nav-item">
-                <button className={`nav-link ${activeTab === 'subcats' ? 'active' : ''}`} onClick={() => {setActiveTab('subcats'); setFormData({}); setEditingId(null);}}>Sub Categories</button>
-              </li>
-              <li className="nav-item">
-                <button className={`nav-link ${activeTab === 'resources' ? 'active' : ''}`} onClick={() => {setActiveTab('resources'); setFormData({}); setEditingId(null);}}>Upload Resources</button>
-              </li>
-            </ul>
+    <div className="bg-bg-primary rounded-xl border border-border shadow-sm overflow-hidden min-h-[600px] flex flex-col">
+      <div className="border-b border-border bg-bg-secondary/50 px-2 sm:px-6 pt-4 flex overflow-x-auto scrollbar-hide">
+        {tabs.map(tab => (
+          <button 
+            key={tab.id}
+            className={`flex items-center whitespace-nowrap py-3 px-4 font-medium text-sm border-b-2 transition-colors ${activeTab === tab.id ? 'border-primary text-primary' : 'border-transparent text-text-muted hover:text-text-primary hover:border-border'}`} 
+            onClick={() => {setActiveTab(tab.id); setFormData({}); setEditingId(null);}}
+          >
+            {tab.icon}
+            {tab.label}
+          </button>
+        ))}
+      </div>
+      
+      <div className="p-6 flex-1 bg-bg-primary">
+        
+        {/* STREAMS TAB */}
+        {activeTab === 'streams' && (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div className="lg:col-span-5 border-b lg:border-b-0 lg:border-r border-border pb-8 lg:pb-0 lg:pr-8">
+              <h4 className="text-xl font-bold text-text-primary mb-6">{editingId ? 'Edit Stream' : 'Add Stream'}</h4>
+              <form onSubmit={handleAddStream} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-text-primary mb-1">Stream Name</label>
+                  <input type="text" className="w-full px-3 py-2 bg-bg-secondary border border-border rounded-lg text-text-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" name="name" value={formData.name || ''} onChange={handleInputChange} required placeholder="e.g. Science" />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-text-primary mb-1">Description</label>
+                  <input type="text" className="w-full px-3 py-2 bg-bg-secondary border border-border rounded-lg text-text-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" name="description" value={formData.description || ''} onChange={handleInputChange} />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-text-primary mb-1">Icon (Lucide name)</label>
+                  <input type="text" className="w-full px-3 py-2 bg-bg-secondary border border-border rounded-lg text-text-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" name="icon" value={formData.icon || ''} onChange={handleInputChange} placeholder="layers" />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-text-primary mb-1">Color (CSS var name)</label>
+                  <input type="text" className="w-full px-3 py-2 bg-bg-secondary border border-border rounded-lg text-text-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" name="color" value={formData.color || ''} onChange={handleInputChange} placeholder="primary" />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-text-primary mb-1">Order</label>
+                  <input type="number" className="w-full px-3 py-2 bg-bg-secondary border border-border rounded-lg text-text-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" name="order" value={formData.order || 0} onChange={handleInputChange} />
+                </div>
+                <div className="pt-2">
+                  <button type="submit" className="w-full py-2.5 bg-primary text-white font-medium rounded-lg hover:bg-primary-dark transition-colors">{editingId ? 'Update Stream' : 'Add Stream'}</button>
+                  {editingId && <button type="button" className="w-full mt-2 py-2.5 bg-bg-secondary text-text-primary border border-border font-medium rounded-lg hover:bg-border transition-colors" onClick={() => {setEditingId(null); setFormData({});}}>Cancel Edit</button>}
+                </div>
+              </form>
+            </div>
+            <div className="lg:col-span-7">
+              <h4 className="text-xl font-bold text-text-primary mb-6">Current Streams</h4>
+              <div className="space-y-3">
+                {alStreams.map(s => (
+                  <div key={s.id} className="flex justify-between items-center p-4 bg-bg-secondary border border-border rounded-lg hover:border-primary/30 transition-colors">
+                    <div>
+                      <strong className="text-text-primary block">{s.name}</strong>
+                      <span className="inline-block mt-1 px-2 py-0.5 bg-bg-tertiary border border-border rounded text-xs font-medium text-text-muted">Order: {s.order}</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <button className="p-2 text-info hover:bg-info/10 rounded-md transition-colors" onClick={() => {setEditingId(s.id); setFormData(s);}}><Pencil className="w-4 h-4" /></button>
+                      <button className="p-2 text-danger hover:bg-danger/10 rounded-md transition-colors" onClick={() => handleDeleteStream(s.id)}><Trash2 className="w-4 h-4" /></button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-          
-          <div className="card-body p-4">
-            
-            {/* STREAMS TAB */}
-            {activeTab === 'streams' && (
-              <div className="row">
-                <div className="col-md-5">
-                  <h4 className="mb-4">Add Stream</h4>
-                  <form onSubmit={handleAddStream}>
-                    <div className="mb-3">
-                      <label className="form-label">Stream Name</label>
-                      <input type="text" className="form-control" name="name" value={formData.name || ''} onChange={handleInputChange} required placeholder="e.g. Science" />
-                    </div>
-                    <div className="mb-3">
-                      <label className="form-label">Description</label>
-                      <input type="text" className="form-control" name="description" value={formData.description || ''} onChange={handleInputChange} />
-                    </div>
-                    <div className="mb-3">
-                      <label className="form-label">Icon (Bootstrap class)</label>
-                      <input type="text" className="form-control" name="icon" value={formData.icon || ''} onChange={handleInputChange} placeholder="bi-layers" />
-                    </div>
-                    <div className="mb-3">
-                      <label className="form-label">Color (CSS var name)</label>
-                      <input type="text" className="form-control" name="color" value={formData.color || ''} onChange={handleInputChange} placeholder="primary" />
-                    </div>
-                    <div className="mb-3">
-                      <label className="form-label">Order</label>
-                      <input type="number" className="form-control" name="order" value={formData.order || 0} onChange={handleInputChange} />
-                    </div>
-                    <button type="submit" className="btn btn-primary w-100">{editingId ? 'Update Stream' : 'Add Stream'}</button>
-                    {editingId && <button type="button" className="btn btn-outline-secondary w-100 mt-2" onClick={() => {setEditingId(null); setFormData({});}}>Cancel Edit</button>}
-                  </form>
+        )}
+
+        {/* SUBJECTS TAB */}
+        {activeTab === 'subjects' && (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div className="lg:col-span-5 border-b lg:border-b-0 lg:border-r border-border pb-8 lg:pb-0 lg:pr-8">
+              <h4 className="text-xl font-bold text-text-primary mb-6">{editingId ? 'Edit Subject' : 'Add Subject'}</h4>
+              <form onSubmit={handleAddSubject} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-text-primary mb-1">Select Stream</label>
+                  <select className="w-full px-3 py-2 bg-bg-secondary border border-border rounded-lg text-text-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary appearance-none" name="streamId" value={formData.streamId || ''} onChange={handleInputChange} required>
+                    <option value="">-- Choose Stream --</option>
+                    {alStreams.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                  </select>
                 </div>
-                <div className="col-md-7">
-                  <h4 className="mb-4">Current Streams</h4>
-                  <ul className="list-group">
-                    {alStreams.map(s => (
-                      <li key={s.id} className="list-group-item d-flex justify-content-between align-items-center">
-                        <div>
-                          <strong>{s.name}</strong> <span className="badge bg-secondary ms-2">Order: {s.order}</span>
-                        </div>
-                        <div>
-                          <button className="btn btn-sm btn-info text-white me-2" onClick={() => {setEditingId(s.id); setFormData(s);}}><i className="bi bi-pencil"></i></button>
-                          <button className="btn btn-sm btn-danger" onClick={() => handleDeleteStream(s.id)}><i className="bi bi-trash"></i></button>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
+                <div>
+                  <label className="block text-sm font-semibold text-text-primary mb-1">Subject Name</label>
+                  <input type="text" className="w-full px-3 py-2 bg-bg-secondary border border-border rounded-lg text-text-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" name="name" value={formData.name || ''} onChange={handleInputChange} required placeholder="e.g. Physics" />
                 </div>
+                <div>
+                  <label className="block text-sm font-semibold text-text-primary mb-1">Icon (Lucide name)</label>
+                  <input type="text" className="w-full px-3 py-2 bg-bg-secondary border border-border rounded-lg text-text-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" name="icon" value={formData.icon || ''} onChange={handleInputChange} placeholder="book" />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-text-primary mb-1">Order</label>
+                  <input type="number" className="w-full px-3 py-2 bg-bg-secondary border border-border rounded-lg text-text-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" name="order" value={formData.order || 0} onChange={handleInputChange} />
+                </div>
+                <div className="pt-2">
+                  <button type="submit" className="w-full py-2.5 bg-primary text-white font-medium rounded-lg hover:bg-primary-dark transition-colors">{editingId ? 'Update Subject' : 'Add Subject'}</button>
+                  {editingId && <button type="button" className="w-full mt-2 py-2.5 bg-bg-secondary text-text-primary border border-border font-medium rounded-lg hover:bg-border transition-colors" onClick={() => {setEditingId(null); setFormData({});}}>Cancel Edit</button>}
+                </div>
+              </form>
+            </div>
+            <div className="lg:col-span-7">
+              <h4 className="text-xl font-bold text-text-primary mb-6">Current Subjects</h4>
+              <div className="space-y-3">
+                {alSubjects.filter(s => alStreams.some(st => st.id === s.streamId)).map(s => {
+                  const stream = alStreams.find(st => st.id === s.streamId);
+                  return (
+                    <div key={s.id} className="flex justify-between items-center p-4 bg-bg-secondary border border-border rounded-lg hover:border-primary/30 transition-colors">
+                      <div>
+                        <strong className="text-text-primary block">{s.name}</strong>
+                        <span className="inline-block mt-1 text-xs text-text-muted bg-bg-tertiary px-2 py-0.5 rounded border border-border">{stream?.name || 'Unknown Stream'}</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <button className="p-2 text-info hover:bg-info/10 rounded-md transition-colors" onClick={() => {setEditingId(s.id); setFormData(s);}}><Pencil className="w-4 h-4" /></button>
+                        <button className="p-2 text-danger hover:bg-danger/10 rounded-md transition-colors" onClick={() => handleDeleteSubject(s.id)}><Trash2 className="w-4 h-4" /></button>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            )}
-
-            {/* SUBJECTS TAB */}
-            {activeTab === 'subjects' && (
-              <div className="row">
-                <div className="col-md-5">
-                  <h4 className="mb-4">Add Subject</h4>
-                  <form onSubmit={handleAddSubject}>
-                    <div className="mb-3">
-                      <label className="form-label">Select Stream</label>
-                      <select className="form-select" name="streamId" value={formData.streamId || ''} onChange={handleInputChange} required>
-                        <option value="">-- Choose Stream --</option>
-                        {alStreams.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-                      </select>
-                    </div>
-                    <div className="mb-3">
-                      <label className="form-label">Subject Name</label>
-                      <input type="text" className="form-control" name="name" value={formData.name || ''} onChange={handleInputChange} required placeholder="e.g. Physics" />
-                    </div>
-                    <div className="mb-3">
-                      <label className="form-label">Icon (Bootstrap class)</label>
-                      <input type="text" className="form-control" name="icon" value={formData.icon || ''} onChange={handleInputChange} placeholder="bi-book" />
-                    </div>
-                    <div className="mb-3">
-                      <label className="form-label">Order</label>
-                      <input type="number" className="form-control" name="order" value={formData.order || 0} onChange={handleInputChange} />
-                    </div>
-                    <button type="submit" className="btn btn-primary w-100">{editingId ? 'Update Subject' : 'Add Subject'}</button>
-                    {editingId && <button type="button" className="btn btn-outline-secondary w-100 mt-2" onClick={() => {setEditingId(null); setFormData({});}}>Cancel Edit</button>}
-                  </form>
-                </div>
-                <div className="col-md-7">
-                  <h4 className="mb-4">Current Subjects</h4>
-                  <ul className="list-group">
-                    {alSubjects.filter(s => alStreams.some(st => st.id === s.streamId)).map(s => {
-                      const stream = alStreams.find(st => st.id === s.streamId);
-                      return (
-                        <li key={s.id} className="list-group-item d-flex justify-content-between align-items-center">
-                          <div>
-                            <strong>{s.name}</strong> <span className="text-muted small ms-2">({stream?.name || 'Unknown Stream'})</span>
-                          </div>
-                          <div>
-                            <button className="btn btn-sm btn-info text-white me-2" onClick={() => {setEditingId(s.id); setFormData(s);}}><i className="bi bi-pencil"></i></button>
-                            <button className="btn btn-sm btn-danger" onClick={() => handleDeleteSubject(s.id)}><i className="bi bi-trash"></i></button>
-                          </div>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-              </div>
-            )}
-
-            {/* RESOURCE TYPES TAB */}
-            {activeTab === 'types' && (
-              <div className="row">
-                <div className="col-md-5">
-                  <h4 className="mb-4">Add Resource Type (Global)</h4>
-                  <form onSubmit={handleAddResourceType}>
-                    <div className="mb-3">
-                      <label className="form-label">Type Name</label>
-                      <input type="text" className="form-control" name="name" value={formData.name || ''} onChange={handleInputChange} required placeholder="e.g. Text Books" />
-                    </div>
-                    <div className="mb-3">
-                      <label className="form-label">Description</label>
-                      <input type="text" className="form-control" name="description" value={formData.description || ''} onChange={handleInputChange} />
-                    </div>
-                    <div className="mb-3">
-                      <label className="form-label">Icon (Bootstrap class)</label>
-                      <input type="text" className="form-control" name="icon" value={formData.icon || ''} onChange={handleInputChange} placeholder="bi-archive" />
-                    </div>
-                    <div className="mb-3">
-                      <label className="form-label">Order</label>
-                      <input type="number" className="form-control" name="order" value={formData.order || 0} onChange={handleInputChange} />
-                    </div>
-                    {/* Inline Checklist to avoid focus loss */}
-                    <div className="mb-3">
-                      <div className="d-flex justify-content-between align-items-center mb-2">
-                        <label className="form-label mb-0">Applicable Subjects</label>
-                        <div className="form-check form-switch mb-0">
-                          <input 
-                            className="form-check-input" 
-                            type="checkbox" 
-                            id="selectAllResourceTypes"
-                            checked={formData.subjectIds?.length === alSubjects.length && alSubjects.length > 0}
-                            onChange={(e) => handleSelectAllSubjects(e.target.checked)}
-                          />
-                          <label className="form-check-label small" htmlFor="selectAllResourceTypes">Select All (Global)</label>
-                        </div>
-                      </div>
-                      <div className="border rounded p-3 bg-light" style={{ maxHeight: '200px', overflowY: 'auto' }}>
-                        {alSubjects.filter(s => alStreams.some(st => st.id === s.streamId)).map(sub => (
-                          <div key={sub.id} className="form-check">
-                            <input 
-                              className="form-check-input" 
-                              type="checkbox" 
-                              id={`check-type-${sub.id}`}
-                              checked={(formData.subjectIds || []).includes(sub.id)}
-                              onChange={() => handleSubjectToggle(sub.id)}
-                            />
-                            <label className="form-check-label" htmlFor={`check-type-${sub.id}`}>
-                              {sub.name}
-                            </label>
-                          </div>
-                        ))}
-                      </div>
-                      <small className="text-muted">If none selected, it will show for ALL subjects.</small>
-                    </div>
-                    <button type="submit" className="btn btn-primary w-100">{editingId ? 'Update Resource Type' : 'Add Resource Type'}</button>
-                    {editingId && <button type="button" className="btn btn-outline-secondary w-100 mt-2" onClick={() => {setEditingId(null); setFormData({});}}>Cancel Edit</button>}
-                  </form>
-                </div>
-                <div className="col-md-7">
-                  <h4 className="mb-4">Current Types</h4>
-                  <ul className="list-group">
-                    {alResourceTypes.map(rt => (
-                      <li key={rt.id} className="list-group-item d-flex justify-content-between align-items-center">
-                        <div><strong>{rt.name}</strong></div>
-                        <div>
-                          <button className="btn btn-sm btn-info text-white me-2" onClick={() => {setEditingId(rt.id); setFormData(rt);}}><i className="bi bi-pencil"></i></button>
-                          <button className="btn btn-sm btn-danger" onClick={() => handleDeleteResourceType(rt.id)}><i className="bi bi-trash"></i></button>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            )}
-
-            {/* SUB CATEGORIES TAB */}
-            {activeTab === 'subcats' && (
-              <div className="row">
-                <div className="col-md-5">
-                  <h4 className="mb-4">Add Sub Category</h4>
-                  <form onSubmit={handleAddSubCategory}>
-                    <div className="mb-3">
-                      <label className="form-label">Select Resource Type</label>
-                      <select className="form-select" name="resourceTypeId" value={formData.resourceTypeId || ''} onChange={handleInputChange} required>
-                        <option value="">-- Choose Type --</option>
-                        {alResourceTypes.map(rt => <option key={rt.id} value={rt.id}>{rt.name}</option>)}
-                      </select>
-                    </div>
-                    <div className="mb-3">
-                      <label className="form-label">Sub Category Name</label>
-                      <input type="text" className="form-control" name="name" value={formData.name || ''} onChange={handleInputChange} required placeholder="e.g. Resource Books" />
-                    </div>
-                    <div className="mb-3">
-                      <label className="form-label">Order</label>
-                      <input type="number" className="form-control" name="order" value={formData.order || 0} onChange={handleInputChange} />
-                    </div>
-                    {/* Inline Checklist to avoid focus loss */}
-                    <div className="mb-3">
-                      <div className="d-flex justify-content-between align-items-center mb-2">
-                        <label className="form-label mb-0">Applicable Subjects</label>
-                        <div className="form-check form-switch mb-0">
-                          <input 
-                            className="form-check-input" 
-                            type="checkbox" 
-                            id="selectAllSubCats"
-                            checked={formData.subjectIds?.length === alSubjects.length && alSubjects.length > 0}
-                            onChange={(e) => handleSelectAllSubjects(e.target.checked)}
-                          />
-                          <label className="form-check-label small" htmlFor="selectAllSubCats">Select All (Global)</label>
-                        </div>
-                      </div>
-                      <div className="border rounded p-3 bg-light" style={{ maxHeight: '200px', overflowY: 'auto' }}>
-                        {alSubjects.filter(s => alStreams.some(st => st.id === s.streamId)).map(sub => (
-                          <div key={sub.id} className="form-check">
-                            <input 
-                              className="form-check-input" 
-                              type="checkbox" 
-                              id={`check-sub-${sub.id}`}
-                              checked={(formData.subjectIds || []).includes(sub.id)}
-                              onChange={() => handleSubjectToggle(sub.id)}
-                            />
-                            <label className="form-check-label" htmlFor={`check-sub-${sub.id}`}>
-                              {sub.name}
-                            </label>
-                          </div>
-                        ))}
-                      </div>
-                      <small className="text-muted">If none selected, it will show for ALL subjects.</small>
-                    </div>
-                    <button type="submit" className="btn btn-primary w-100">{editingId ? 'Update Sub Category' : 'Add Sub Category'}</button>
-                    {editingId && <button type="button" className="btn btn-outline-secondary w-100 mt-2" onClick={() => {setEditingId(null); setFormData({});}}>Cancel Edit</button>}
-                  </form>
-                </div>
-                <div className="col-md-7">
-                  <h4 className="mb-4">Current Sub Categories</h4>
-                  <ul className="list-group">
-                    {alSubCategories.map(sc => {
-                      const rt = alResourceTypes.find(t => t.id === sc.resourceTypeId);
-                      return (
-                        <li key={sc.id} className="list-group-item d-flex justify-content-between align-items-center">
-                          <div>
-                            <strong>{sc.name}</strong> <span className="text-muted small ms-2">({rt?.name || 'Unknown Type'})</span>
-                          </div>
-                          <div>
-                            <button className="btn btn-sm btn-info text-white me-2" onClick={() => {setEditingId(sc.id); setFormData(sc);}}><i className="bi bi-pencil"></i></button>
-                            <button className="btn btn-sm btn-danger" onClick={() => handleDeleteSubCategory(sc.id)}><i className="bi bi-trash"></i></button>
-                          </div>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-              </div>
-            )}
-
-            {/* RESOURCES UPLOAD TAB */}
-            {activeTab === 'resources' && (
-              <div className="row">
-                <div className="col-md-6 border-end">
-                  <h4 className="mb-4">Upload A/L Resource</h4>
-                  <form onSubmit={handleAddResource}>
-                    <div className="row">
-                      <div className="col-md-6 mb-3">
-                        <label className="form-label">Select Stream</label>
-                        <select className="form-select" name="alStreamId" value={formData.alStreamId || ''} onChange={handleInputChange} required>
-                          <option value="">-- Choose --</option>
-                          {alStreams.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-                        </select>
-                      </div>
-                      <div className="col-md-6 mb-3">
-                        <label className="form-label">Select Subject</label>
-                        <select className="form-select" name="alSubjectId" value={formData.alSubjectId || ''} onChange={handleInputChange} required disabled={!formData.alStreamId}>
-                          <option value="">-- Choose --</option>
-                          {alSubjects
-                            .filter(s => s.streamId === formData.alStreamId)
-                            .map(s => <option key={s.id} value={s.id}>{s.name}</option>)
-                          }
-                        </select>
-                      </div>
-                    </div>
-                    
-                    <div className="row">
-                      <div className="col-md-6 mb-3">
-                        <label className="form-label">Resource Type</label>
-                        <select className="form-select" name="alResourceTypeId" value={formData.alResourceTypeId || ''} onChange={handleInputChange} required>
-                          <option value="">-- Choose --</option>
-                          {alResourceTypes.map(rt => <option key={rt.id} value={rt.id}>{rt.name}</option>)}
-                        </select>
-                      </div>
-                      <div className="col-md-6 mb-3">
-                        <label className="form-label">Sub Category</label>
-                        <select className="form-select" name="alSubCategoryId" value={formData.alSubCategoryId || ''} onChange={handleInputChange} required disabled={!formData.alResourceTypeId}>
-                          <option value="">-- Choose --</option>
-                          {alSubCategories
-                            .filter(sc => sc.resourceTypeId === formData.alResourceTypeId)
-                            .filter(sc => !sc.subjectIds || sc.subjectIds.length === 0 || (formData.alSubjectId && sc.subjectIds.includes(formData.alSubjectId)))
-                            .map(sc => <option key={sc.id} value={sc.id}>{sc.name}</option>)
-                          }
-                        </select>
-                      </div>
-                    </div>
-
-                    <div className="mb-3">
-                      <label className="form-label">Resource Title</label>
-                      <input type="text" className="form-control" name="title" value={formData.title || ''} onChange={handleInputChange} required placeholder="e.g. Unit 1 Physics Note" />
-                    </div>
-
-                    <div className="mb-3">
-                      <label className="form-label">Language Medium</label>
-                      <select className="form-select" name="language" value={formData.language || ''} onChange={handleInputChange} required>
-                        <option value="">-- Choose --</option>
-                        <option value="sinhala">Sinhala</option>
-                        <option value="tamil">Tamil</option>
-                        <option value="english">English</option>
-                      </select>
-                    </div>
-
-                    <div className="mb-3">
-                      <label className="form-label">File/Google Drive URL</label>
-                      <input type="url" className="form-control" name="fileUrl" value={formData.fileUrl || ''} onChange={handleInputChange} required placeholder="https://..." />
-                    </div>
-                    <div className="mb-3">
-                      <label className="form-label">Media Type (Optional Override)</label>
-                      <select 
-                        className="form-select" 
-                        name="mediaType" 
-                        value={formData.mediaType || ''} 
-                        onChange={handleInputChange}
-                      >
-                        <option value="">Auto Detect (Default)</option>
-                        <option value="document">Document (PDF/Word)</option>
-                        <option value="video">Video (YouTube/MP4)</option>
-                        <option value="audio">Audio (MP3/WAV)</option>
-                        <option value="image">Image</option>
-                      </select>
-                    </div>
-                    <div className="mb-3">
-                      <label className="form-label">Priority / Order</label>
-                      <input type="number" className="form-control" name="order" value={formData.order || 0} onChange={handleInputChange} />
-                    </div>
-
-                    <button type="submit" className="btn btn-primary w-100">{editingId ? 'Update Resource' : 'Upload Resource'}</button>
-                    {editingId && <button type="button" className="btn btn-outline-secondary w-100 mt-2" onClick={() => {setEditingId(null); setFormData({});}}>Cancel Edit</button>}
-                  </form>
-                </div>
-                <div className="col-md-6">
-                  <h4 className="mb-4">Recently Uploaded</h4>
-                  <ul className="list-group" style={{ maxHeight: '500px', overflowY: 'auto' }}>
-                    {alResources.slice().sort((a,b) => new Date(b.uploadDate) - new Date(a.uploadDate)).map(r => {
-                      const subject = alSubjects.find(s => s.id === r.alSubjectId);
-                      return (
-                        <li key={r.id} className="list-group-item d-flex justify-content-between align-items-center">
-                          <div className="text-truncate me-3">
-                            <strong>{r.title}</strong>
-                            <div className="text-muted small">{subject?.name || 'Unknown'} - {r.languages?.[0]}</div>
-                          </div>
-                          <div>
-                            <button className="btn btn-sm btn-info text-white me-2" onClick={() => {setEditingId(r.id); setFormData({...r, language: r.languages?.[0]});}}><i className="bi bi-pencil"></i></button>
-                            <button className="btn btn-sm btn-danger" onClick={() => handleDeleteResource(r.id)}><i className="bi bi-trash"></i></button>
-                          </div>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-              </div>
-            )}
-
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* RESOURCE TYPES TAB */}
+        {activeTab === 'types' && (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div className="lg:col-span-5 border-b lg:border-b-0 lg:border-r border-border pb-8 lg:pb-0 lg:pr-8">
+              <h4 className="text-xl font-bold text-text-primary mb-6">{editingId ? 'Edit Resource Type' : 'Add Resource Type'}</h4>
+              <form onSubmit={handleAddResourceType} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-text-primary mb-1">Type Name</label>
+                  <input type="text" className="w-full px-3 py-2 bg-bg-secondary border border-border rounded-lg text-text-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" name="name" value={formData.name || ''} onChange={handleInputChange} required placeholder="e.g. Text Books" />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-text-primary mb-1">Description</label>
+                  <input type="text" className="w-full px-3 py-2 bg-bg-secondary border border-border rounded-lg text-text-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" name="description" value={formData.description || ''} onChange={handleInputChange} />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-text-primary mb-1">Icon (Lucide name)</label>
+                  <input type="text" className="w-full px-3 py-2 bg-bg-secondary border border-border rounded-lg text-text-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" name="icon" value={formData.icon || ''} onChange={handleInputChange} placeholder="archive" />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-text-primary mb-1">Order</label>
+                  <input type="number" className="w-full px-3 py-2 bg-bg-secondary border border-border rounded-lg text-text-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" name="order" value={formData.order || 0} onChange={handleInputChange} />
+                </div>
+                {/* Inline Checklist */}
+                <div>
+                  <div className="flex justify-between items-center mb-2">
+                    <label className="block text-sm font-semibold text-text-primary">Applicable Subjects</label>
+                    <label className="flex items-center cursor-pointer group">
+                      <input 
+                        className="w-4 h-4 rounded border-border text-primary focus:ring-primary cursor-pointer" 
+                        type="checkbox" 
+                        checked={formData.subjectIds?.length === alSubjects.length && alSubjects.length > 0}
+                        onChange={(e) => handleSelectAllSubjects(e.target.checked)}
+                      />
+                      <span className="ml-2 text-xs font-medium text-text-primary group-hover:text-primary transition-colors">Select All (Global)</span>
+                    </label>
+                  </div>
+                  <div className="border border-border rounded-lg p-3 bg-bg-secondary max-h-[200px] overflow-y-auto space-y-2">
+                    {alSubjects.filter(s => alStreams.some(st => st.id === s.streamId)).map(sub => (
+                      <label key={sub.id} className="flex items-center gap-2 cursor-pointer group">
+                        <input 
+                          className="w-4 h-4 rounded border-border text-primary focus:ring-primary cursor-pointer" 
+                          type="checkbox" 
+                          checked={(formData.subjectIds || []).includes(sub.id)}
+                          onChange={() => handleSubjectToggle(sub.id)}
+                        />
+                        <span className="text-sm font-medium text-text-primary group-hover:text-primary transition-colors">{sub.name}</span>
+                      </label>
+                    ))}
+                  </div>
+                  <p className="text-xs text-text-muted mt-1.5">If none selected, it will show for ALL subjects.</p>
+                </div>
+                <div className="pt-2">
+                  <button type="submit" className="w-full py-2.5 bg-primary text-white font-medium rounded-lg hover:bg-primary-dark transition-colors">{editingId ? 'Update Resource Type' : 'Add Resource Type'}</button>
+                  {editingId && <button type="button" className="w-full mt-2 py-2.5 bg-bg-secondary text-text-primary border border-border font-medium rounded-lg hover:bg-border transition-colors" onClick={() => {setEditingId(null); setFormData({});}}>Cancel Edit</button>}
+                </div>
+              </form>
+            </div>
+            <div className="lg:col-span-7">
+              <h4 className="text-xl font-bold text-text-primary mb-6">Current Types</h4>
+              <div className="space-y-3">
+                {alResourceTypes.map(rt => (
+                  <div key={rt.id} className="flex justify-between items-center p-4 bg-bg-secondary border border-border rounded-lg hover:border-primary/30 transition-colors">
+                    <div><strong className="text-text-primary">{rt.name}</strong></div>
+                    <div className="flex gap-2">
+                      <button className="p-2 text-info hover:bg-info/10 rounded-md transition-colors" onClick={() => {setEditingId(rt.id); setFormData(rt);}}><Pencil className="w-4 h-4" /></button>
+                      <button className="p-2 text-danger hover:bg-danger/10 rounded-md transition-colors" onClick={() => handleDeleteResourceType(rt.id)}><Trash2 className="w-4 h-4" /></button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* SUB CATEGORIES TAB */}
+        {activeTab === 'subcats' && (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div className="lg:col-span-5 border-b lg:border-b-0 lg:border-r border-border pb-8 lg:pb-0 lg:pr-8">
+              <h4 className="text-xl font-bold text-text-primary mb-6">{editingId ? 'Edit Sub Category' : 'Add Sub Category'}</h4>
+              <form onSubmit={handleAddSubCategory} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-text-primary mb-1">Select Resource Type</label>
+                  <select className="w-full px-3 py-2 bg-bg-secondary border border-border rounded-lg text-text-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary appearance-none" name="resourceTypeId" value={formData.resourceTypeId || ''} onChange={handleInputChange} required>
+                    <option value="">-- Choose Type --</option>
+                    {alResourceTypes.map(rt => <option key={rt.id} value={rt.id}>{rt.name}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-text-primary mb-1">Sub Category Name</label>
+                  <input type="text" className="w-full px-3 py-2 bg-bg-secondary border border-border rounded-lg text-text-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" name="name" value={formData.name || ''} onChange={handleInputChange} required placeholder="e.g. Resource Books" />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-text-primary mb-1">Order</label>
+                  <input type="number" className="w-full px-3 py-2 bg-bg-secondary border border-border rounded-lg text-text-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" name="order" value={formData.order || 0} onChange={handleInputChange} />
+                </div>
+                {/* Inline Checklist */}
+                <div>
+                  <div className="flex justify-between items-center mb-2">
+                    <label className="block text-sm font-semibold text-text-primary">Applicable Subjects</label>
+                    <label className="flex items-center cursor-pointer group">
+                      <input 
+                        className="w-4 h-4 rounded border-border text-primary focus:ring-primary cursor-pointer" 
+                        type="checkbox" 
+                        checked={formData.subjectIds?.length === alSubjects.length && alSubjects.length > 0}
+                        onChange={(e) => handleSelectAllSubjects(e.target.checked)}
+                      />
+                      <span className="ml-2 text-xs font-medium text-text-primary group-hover:text-primary transition-colors">Select All (Global)</span>
+                    </label>
+                  </div>
+                  <div className="border border-border rounded-lg p-3 bg-bg-secondary max-h-[200px] overflow-y-auto space-y-2">
+                    {alSubjects.filter(s => alStreams.some(st => st.id === s.streamId)).map(sub => (
+                      <label key={sub.id} className="flex items-center gap-2 cursor-pointer group">
+                        <input 
+                          className="w-4 h-4 rounded border-border text-primary focus:ring-primary cursor-pointer" 
+                          type="checkbox" 
+                          checked={(formData.subjectIds || []).includes(sub.id)}
+                          onChange={() => handleSubjectToggle(sub.id)}
+                        />
+                        <span className="text-sm font-medium text-text-primary group-hover:text-primary transition-colors">{sub.name}</span>
+                      </label>
+                    ))}
+                  </div>
+                  <p className="text-xs text-text-muted mt-1.5">If none selected, it will show for ALL subjects.</p>
+                </div>
+                <div className="pt-2">
+                  <button type="submit" className="w-full py-2.5 bg-primary text-white font-medium rounded-lg hover:bg-primary-dark transition-colors">{editingId ? 'Update Sub Category' : 'Add Sub Category'}</button>
+                  {editingId && <button type="button" className="w-full mt-2 py-2.5 bg-bg-secondary text-text-primary border border-border font-medium rounded-lg hover:bg-border transition-colors" onClick={() => {setEditingId(null); setFormData({});}}>Cancel Edit</button>}
+                </div>
+              </form>
+            </div>
+            <div className="lg:col-span-7">
+              <h4 className="text-xl font-bold text-text-primary mb-6">Current Sub Categories</h4>
+              <div className="space-y-3">
+                {alSubCategories.map(sc => {
+                  const rt = alResourceTypes.find(t => t.id === sc.resourceTypeId);
+                  return (
+                    <div key={sc.id} className="flex justify-between items-center p-4 bg-bg-secondary border border-border rounded-lg hover:border-primary/30 transition-colors">
+                      <div>
+                        <strong className="text-text-primary block">{sc.name}</strong>
+                        <span className="inline-block mt-1 text-xs text-text-muted bg-bg-tertiary px-2 py-0.5 rounded border border-border">{rt?.name || 'Unknown Type'}</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <button className="p-2 text-info hover:bg-info/10 rounded-md transition-colors" onClick={() => {setEditingId(sc.id); setFormData(sc);}}><Pencil className="w-4 h-4" /></button>
+                        <button className="p-2 text-danger hover:bg-danger/10 rounded-md transition-colors" onClick={() => handleDeleteSubCategory(sc.id)}><Trash2 className="w-4 h-4" /></button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* RESOURCES UPLOAD TAB */}
+        {activeTab === 'resources' && (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div className="lg:col-span-6 border-b lg:border-b-0 lg:border-r border-border pb-8 lg:pb-0 lg:pr-8">
+              <h4 className="text-xl font-bold text-text-primary mb-6">{editingId ? 'Edit Resource' : 'Upload A/L Resource'}</h4>
+              <form onSubmit={handleAddResource} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-text-primary mb-1">Select Stream</label>
+                    <select className="w-full px-3 py-2 bg-bg-secondary border border-border rounded-lg text-text-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary appearance-none" name="alStreamId" value={formData.alStreamId || ''} onChange={handleInputChange} required>
+                      <option value="">-- Choose --</option>
+                      {alStreams.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-text-primary mb-1">Select Subject</label>
+                    <select className="w-full px-3 py-2 bg-bg-secondary border border-border rounded-lg text-text-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary appearance-none disabled:opacity-50" name="alSubjectId" value={formData.alSubjectId || ''} onChange={handleInputChange} required disabled={!formData.alStreamId}>
+                      <option value="">-- Choose --</option>
+                      {alSubjects
+                        .filter(s => s.streamId === formData.alStreamId)
+                        .map(s => <option key={s.id} value={s.id}>{s.name}</option>)
+                      }
+                    </select>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-text-primary mb-1">Resource Type</label>
+                    <select className="w-full px-3 py-2 bg-bg-secondary border border-border rounded-lg text-text-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary appearance-none" name="alResourceTypeId" value={formData.alResourceTypeId || ''} onChange={handleInputChange} required>
+                      <option value="">-- Choose --</option>
+                      {alResourceTypes.map(rt => <option key={rt.id} value={rt.id}>{rt.name}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-text-primary mb-1">Sub Category</label>
+                    <select className="w-full px-3 py-2 bg-bg-secondary border border-border rounded-lg text-text-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary appearance-none disabled:opacity-50" name="alSubCategoryId" value={formData.alSubCategoryId || ''} onChange={handleInputChange} required disabled={!formData.alResourceTypeId}>
+                      <option value="">-- Choose --</option>
+                      {alSubCategories
+                        .filter(sc => sc.resourceTypeId === formData.alResourceTypeId)
+                        .filter(sc => !sc.subjectIds || sc.subjectIds.length === 0 || (formData.alSubjectId && sc.subjectIds.includes(formData.alSubjectId)))
+                        .map(sc => <option key={sc.id} value={sc.id}>{sc.name}</option>)
+                      }
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-text-primary mb-1">Resource Title</label>
+                  <input type="text" className="w-full px-3 py-2 bg-bg-secondary border border-border rounded-lg text-text-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" name="title" value={formData.title || ''} onChange={handleInputChange} required placeholder="e.g. Unit 1 Physics Note" />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-text-primary mb-1">Language Medium</label>
+                  <select className="w-full px-3 py-2 bg-bg-secondary border border-border rounded-lg text-text-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary appearance-none" name="language" value={formData.language || ''} onChange={handleInputChange} required>
+                    <option value="">-- Choose --</option>
+                    <option value="sinhala">Sinhala</option>
+                    <option value="tamil">Tamil</option>
+                    <option value="english">English</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-text-primary mb-1">File/Google Drive URL</label>
+                  <input type="url" className="w-full px-3 py-2 bg-bg-secondary border border-border rounded-lg text-text-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" name="fileUrl" value={formData.fileUrl || ''} onChange={handleInputChange} required placeholder="https://..." />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-text-primary mb-1">Media Type (Optional)</label>
+                    <select 
+                      className="w-full px-3 py-2 bg-bg-secondary border border-border rounded-lg text-text-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary appearance-none" 
+                      name="mediaType" 
+                      value={formData.mediaType || ''} 
+                      onChange={handleInputChange}
+                    >
+                      <option value="">Auto Detect</option>
+                      <option value="document">Document (PDF/Word)</option>
+                      <option value="video">Video (YouTube/MP4)</option>
+                      <option value="audio">Audio (MP3/WAV)</option>
+                      <option value="image">Image</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-text-primary mb-1">Priority / Order</label>
+                    <input type="number" className="w-full px-3 py-2 bg-bg-secondary border border-border rounded-lg text-text-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" name="order" value={formData.order || 0} onChange={handleInputChange} />
+                  </div>
+                </div>
+
+                <div className="pt-2">
+                  <button type="submit" className="w-full py-2.5 bg-primary text-white font-medium rounded-lg hover:bg-primary-dark transition-colors flex justify-center items-center">
+                    {editingId ? <><CheckCircle className="w-5 h-5 mr-2" /> Update Resource</> : <><UploadCloud className="w-5 h-5 mr-2" /> Upload Resource</>}
+                  </button>
+                  {editingId && <button type="button" className="w-full mt-2 py-2.5 bg-bg-secondary text-text-primary border border-border font-medium rounded-lg hover:bg-border transition-colors" onClick={() => {setEditingId(null); setFormData({});}}>Cancel Edit</button>}
+                </div>
+              </form>
+            </div>
+            <div className="lg:col-span-6">
+              <h4 className="text-xl font-bold text-text-primary mb-6">Recently Uploaded</h4>
+              <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2">
+                {alResources.slice().sort((a,b) => new Date(b.uploadDate) - new Date(a.uploadDate)).map(r => {
+                  const subject = alSubjects.find(s => s.id === r.alSubjectId);
+                  return (
+                    <div key={r.id} className="flex justify-between items-center p-4 bg-bg-secondary border border-border rounded-lg hover:border-primary/30 transition-colors">
+                      <div className="truncate mr-4 flex-1">
+                        <strong className="text-text-primary text-sm block truncate">{r.title}</strong>
+                        <div className="text-text-muted text-xs mt-1">{subject?.name || 'Unknown'} - <span className="capitalize">{r.languages?.[0]}</span></div>
+                      </div>
+                      <div className="flex gap-2 flex-shrink-0">
+                        <button className="p-2 text-info hover:bg-info/10 rounded-md transition-colors" onClick={() => {setEditingId(r.id); setFormData({...r, language: r.languages?.[0]});}}><Pencil className="w-4 h-4" /></button>
+                        <button className="p-2 text-danger hover:bg-danger/10 rounded-md transition-colors" onClick={() => handleDeleteResource(r.id)}><Trash2 className="w-4 h-4" /></button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+
+      </div>
+    </div>
   );
 };
 

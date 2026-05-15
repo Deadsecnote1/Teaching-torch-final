@@ -1,8 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
 import { useData } from '../../context/DataContext';
 import { useAuth } from '../../context/AuthContext';
+import { Home, Info, Mail, Book, GraduationCap, LayoutDashboard, Settings2, LogOut, Moon, Sun, Menu, X, ChevronRight, User } from 'lucide-react';
+import { Container } from '../ui/Layout';
 
 const Navbar = () => {
   const { theme, toggleTheme } = useTheme();
@@ -10,9 +12,13 @@ const Navbar = () => {
   const { currentUser: user, logout, isManageMode, toggleManageMode } = useAuth();
   const location = useLocation();
 
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [showGradesDropdown, setShowGradesDropdown] = useState(false);
+  const [showAdminDropdown, setShowAdminDropdown] = useState(false);
 
   const gradesDropdownRef = useRef(null);
+  const adminDropdownRef = useRef(null);
+  const mobileMenuRef = useRef(null);
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -20,308 +26,224 @@ const Navbar = () => {
       if (gradesDropdownRef.current && !gradesDropdownRef.current.contains(event.target)) {
         setShowGradesDropdown(false);
       }
+      if (adminDropdownRef.current && !adminDropdownRef.current.contains(event.target)) {
+        setShowAdminDropdown(false);
+      }
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target) && !event.target.closest('button[aria-label="Toggle Menu"]')) {
+        setShowMobileMenu(false);
+      }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Check if link is active
-  const isActive = React.useCallback((path) => {
+  // Close mobile menu on route change
+  useEffect(() => {
+    setShowMobileMenu(false);
+    setShowGradesDropdown(false);
+    setShowAdminDropdown(false);
+  }, [location.pathname]);
+
+  const isActive = useCallback((path) => {
     if (path === '/' && location.pathname === '/') return true;
     if (path !== '/' && location.pathname.startsWith(path)) return true;
     return false;
   }, [location.pathname]);
 
-  // Memoize sorted grades
-  const sortedGrades = React.useMemo(() => {
-    return Object.entries(grades)
-      .sort((a, b) => {
-        const orderA = a[1].order !== undefined ? a[1].order : 999;
-        const orderB = b[1].order !== undefined ? b[1].order : 999;
-        return orderA - orderB;
-      });
+  const sortedGrades = useMemo(() => {
+    return Object.entries(grades).sort((a, b) => {
+      const orderA = a[1].order !== undefined ? a[1].order : 999;
+      const orderB = b[1].order !== undefined ? b[1].order : 999;
+      return orderA - orderB;
+    });
   }, [grades]);
 
-
-
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark fixed-top py-2" style={{ background: 'var(--primary-gradient)' }}>
-      <div className="container">
-        {/* Brand */}
-        <Link className="navbar-brand d-flex align-items-center h-100" to="/">
-          <img
-            src="/logo192.png"
-            alt="Teaching Torch Logo"
-            className=""
-            loading="lazy"
-            style={{ width: 'clamp(40px, 8vw, 60px)', height: 'clamp(40px, 8vw, 60px)', objectFit: 'contain' }}
-          />
-        </Link>
+    <nav className="fixed top-0 w-full z-50 bg-gradient-to-r from-primary to-primary-dark shadow-md">
+      <Container>
+        <div className="flex items-center justify-between h-16">
+          {/* Brand */}
+          <Link to="/" className="flex items-center gap-3 group">
+            <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center group-hover:bg-white/20 transition-colors p-1">
+              <img src="/logo192.png" alt="Teaching Torch" className="w-full h-full object-contain" loading="lazy" />
+            </div>
+            <span className="font-extrabold text-xl text-white tracking-tight hidden sm:block">Teaching Torch</span>
+          </Link>
 
-        {/* Mobile Toggle */}
-        <button
-          className="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-          aria-controls="navbarNav"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span className="navbar-toggler-icon"></span>
-        </button>
+          {/* Desktop Navigation */}
+          <div className="hidden lg:flex items-center space-x-1">
+            <Link to="/" className={`px-4 py-2 rounded-lg text-sm font-semibold flex items-center transition-colors ${isActive('/') ? 'bg-white/20 text-white' : 'text-white/80 hover:bg-white/10 hover:text-white'}`}>
+              <Home className="w-4 h-4 mr-2" /> Home
+            </Link>
+            <Link to="/about" className={`px-4 py-2 rounded-lg text-sm font-semibold flex items-center transition-colors ${isActive('/about') ? 'bg-white/20 text-white' : 'text-white/80 hover:bg-white/10 hover:text-white'}`}>
+              <Info className="w-4 h-4 mr-2" /> About
+            </Link>
+            <Link to="/contact" className={`px-4 py-2 rounded-lg text-sm font-semibold flex items-center transition-colors ${isActive('/contact') ? 'bg-white/20 text-white' : 'text-white/80 hover:bg-white/10 hover:text-white'}`}>
+              <Mail className="w-4 h-4 mr-2" /> Contact
+            </Link>
 
-        {/* Navigation Content */}
-        <div className="collapse navbar-collapse" id="navbarNav">
-          <div className="navbar-mobile-container d-lg-flex w-100 justify-content-between align-items-center">
-            {/* Main Navigation */}
-            <ul className="navbar-nav me-auto">
-              <li className="nav-item">
-                <Link
-                  className={`nav-link text-white ${isActive('/') ? 'active fw-bold' : ''}`}
-                  to="/"
-                >
-                  <i className="bi bi-house-fill me-1"></i>Home
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link
-                  className={`nav-link text-white ${isActive('/about') ? 'active fw-bold' : ''}`}
-                  to="/about"
-                >
-                  <i className="bi bi-info-circle-fill me-1"></i>About
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link
-                  className={`nav-link text-white ${isActive('/contact') ? 'active fw-bold' : ''}`}
-                  to="/contact"
-                >
-                  <i className="bi bi-envelope-fill me-1"></i>Contact
-                </Link>
-              </li>
-  
-              {/* Grades Dropdown */}
-              <li className="nav-item dropdown" ref={gradesDropdownRef}>
-                <button
-                  className="nav-link dropdown-toggle text-white btn btn-link border-0"
-                  type="button"
-                  onClick={() => {
-                    setShowGradesDropdown(!showGradesDropdown);
-                  }}
-                  aria-expanded={showGradesDropdown}
-                  style={{ background: 'none', padding: '0.5rem 0.75rem' }}
-                >
-                  <i className="bi bi-book-fill me-1"></i>Grades
-                </button>
-                <ul className={`dropdown-menu ${showGradesDropdown ? 'show' : ''}`}>
+            {/* Grades Dropdown */}
+            <div className="relative" ref={gradesDropdownRef}>
+              <button 
+                onClick={() => setShowGradesDropdown(!showGradesDropdown)}
+                className={`px-4 py-2 rounded-lg text-sm font-semibold flex items-center transition-colors ${showGradesDropdown || isActive('/grade') || isActive('/al') ? 'bg-white/20 text-white' : 'text-white/80 hover:bg-white/10 hover:text-white'}`}
+              >
+                <Book className="w-4 h-4 mr-2" /> Grades
+              </button>
+              
+              {showGradesDropdown && (
+                <div className="absolute top-full left-0 mt-2 w-56 bg-bg-secondary border border-border rounded-xl shadow-xl py-2 overflow-hidden animate-fade-in-down origin-top">
                   {gradesLoading ? (
-                    <li><span className="dropdown-item text-muted">Loading grades...</span></li>
+                    <div className="px-4 py-3 text-sm text-text-muted">Loading grades...</div>
                   ) : (
-                    sortedGrades.map(([key, gradeData]) => (
-                      <li key={key}>
-                        <Link
-                          className="dropdown-item fw-bold"
-                          to={`/grade/${key}`}
-                          onClick={() => setShowGradesDropdown(false)}
-                        >
-                          <i className="bi bi-chevron-right me-2 text-primary" style={{ fontSize: '0.8rem' }}></i>
-                          {gradeData.display}
+                    <>
+                      {sortedGrades.map(([key, gradeData]) => (
+                        <Link key={key} to={`/grade/${key}`} className="flex items-center px-4 py-2.5 text-sm font-medium text-text-primary hover:bg-bg-tertiary transition-colors">
+                          <ChevronRight className="w-4 h-4 mr-2 text-primary opacity-50" /> {gradeData.display}
                         </Link>
-                      </li>
-                    ))
+                      ))}
+                      <div className="h-px bg-border my-2 mx-4"></div>
+                      <Link to="/al" className="flex items-center px-4 py-2.5 text-sm font-bold text-success hover:bg-success/10 transition-colors mx-2 rounded-lg">
+                        <GraduationCap className="w-5 h-5 mr-2" /> Advanced Level (A/L)
+                      </Link>
+                    </>
                   )}
-                  <li><hr className="dropdown-divider" /></li>
-                  <li>
-                    <Link
-                      className="dropdown-item fw-bold text-success"
-                      to="/al"
-                      onClick={() => setShowGradesDropdown(false)}
-                    >
-                      <i className="bi bi-mortarboard-fill me-2"></i>
-                      Advanced Level (A/L)
-                    </Link>
-                  </li>
-                </ul>
-              </li>
-            </ul>
-  
-            {/* Right Side Controls */}
-            <ul className="navbar-nav">
-              {/* Admin Link (Only visible when logged in) */}
-              {user && (
-                <li className="nav-item">
-                  <div className="dropdown">
-                    <button 
-                      className="nav-link btn btn-link text-white border-0 dropdown-toggle" 
-                      type="button" 
-                      data-bs-toggle="dropdown"
-                    >
-                      <i className="bi bi-person-circle me-1"></i> Admin
-                    </button>
-                    <ul className="dropdown-menu dropdown-menu-end">
-                      <li><Link className="dropdown-item" to="/admin"><i className="bi bi-speedometer2 me-2"></i>Dashboard</Link></li>
-                      <li>
-                        <button 
-                          className="dropdown-item d-flex align-items-center justify-content-between"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            toggleManageMode();
-                          }}
-                        >
-                          <span>
-                            <i className={`bi ${isManageMode ? 'bi-toggle-on' : 'bi-toggle-off'} me-2 ${isManageMode ? 'text-success' : ''}`}></i>
-                            Manage Mode
-                          </span>
-                          <span className={`badge ${isManageMode ? 'bg-success' : 'bg-secondary'} ms-2`}>
-                            {isManageMode ? 'ON' : 'OFF'}
-                          </span>
-                        </button>
-                      </li>
-                      <li><hr className="dropdown-divider" /></li>
-                      <li><button className="dropdown-item text-danger" onClick={logout}><i className="bi bi-box-arrow-right me-2"></i>Logout</button></li>
-                    </ul>
-                  </div>
-                </li>
+                </div>
               )}
-  
-              {/* Theme Toggle */}
-              <li className="nav-item">
-                <button
-                  className="nav-link btn btn-link border-0"
-                  id="themeToggle"
-                  title="Toggle Dark Mode"
-                  onClick={toggleTheme}
-                  style={{ background: 'none', padding: '0.5rem 0.75rem' }}
+            </div>
+          </div>
+
+          {/* Right Side Controls (Desktop & Mobile) */}
+          <div className="flex items-center space-x-2">
+            
+            {/* Theme Toggle */}
+            <button 
+              onClick={toggleTheme} 
+              className="p-2 text-white/80 hover:bg-white/10 hover:text-white rounded-lg transition-colors"
+              aria-label="Toggle Theme"
+            >
+              {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
+
+            {/* Admin Controls (Desktop) */}
+            {user && (
+              <div className="hidden lg:block relative" ref={adminDropdownRef}>
+                <button 
+                  onClick={() => setShowAdminDropdown(!showAdminDropdown)}
+                  className={`px-3 py-2 rounded-lg text-sm font-semibold flex items-center transition-colors ${showAdminDropdown || isActive('/admin') ? 'bg-white/20 text-white' : 'text-white/80 hover:bg-white/10 hover:text-white'}`}
                 >
-                  <i className={`bi ${theme === 'dark' ? 'bi-sun-fill' : 'bi-moon-fill'}`}
-                    id="themeIcon"></i>
+                  <User className="w-5 h-5 sm:mr-2" /> <span className="hidden sm:inline">Admin</span>
                 </button>
-              </li>
-            </ul>
+                
+                {showAdminDropdown && (
+                  <div className="absolute top-full right-0 mt-2 w-64 bg-bg-secondary border border-border rounded-xl shadow-xl py-2 overflow-hidden animate-fade-in-down origin-top-right">
+                    <div className="px-4 py-3 border-b border-border bg-bg-tertiary/50">
+                      <p className="text-sm font-medium text-text-primary truncate">{user.email}</p>
+                      <p className="text-xs text-text-muted mt-0.5">Administrator</p>
+                    </div>
+                    <div className="p-2">
+                      <Link to="/admin" className="flex items-center px-3 py-2.5 text-sm font-medium text-text-primary hover:bg-primary hover:text-white rounded-lg transition-colors">
+                        <LayoutDashboard className="w-4 h-4 mr-3" /> Dashboard
+                      </Link>
+                      <button 
+                        onClick={() => toggleManageMode()}
+                        className="w-full flex items-center justify-between px-3 py-2.5 text-sm font-medium text-text-primary hover:bg-bg-tertiary rounded-lg transition-colors"
+                      >
+                        <span className="flex items-center">
+                          <Settings2 className="w-4 h-4 mr-3 text-text-muted" /> Manage Mode
+                        </span>
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${isManageMode ? 'bg-success text-white' : 'bg-bg-tertiary border border-border text-text-muted'}`}>
+                          {isManageMode ? 'ON' : 'OFF'}
+                        </span>
+                      </button>
+                    </div>
+                    <div className="p-2 border-t border-border">
+                      <button 
+                        onClick={logout}
+                        className="w-full flex items-center px-3 py-2.5 text-sm font-medium text-danger hover:bg-danger/10 rounded-lg transition-colors"
+                      >
+                        <LogOut className="w-4 h-4 mr-3" /> Sign Out
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Mobile Menu Toggle */}
+            <button 
+              className="lg:hidden p-2 text-white/80 hover:bg-white/10 hover:text-white rounded-lg transition-colors"
+              onClick={() => setShowMobileMenu(!showMobileMenu)}
+              aria-label="Toggle Menu"
+            >
+              {showMobileMenu ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
           </div>
         </div>
+      </Container>
+
+      {/* Mobile Menu */}
+      <div 
+        ref={mobileMenuRef}
+        className={`lg:hidden absolute top-full left-0 w-full bg-bg-secondary border-b border-border shadow-xl transition-all duration-300 overflow-hidden ${showMobileMenu ? 'max-h-[calc(100vh-4rem)] opacity-100' : 'max-h-0 opacity-0'}`}
+      >
+        <div className="p-4 space-y-1 overflow-y-auto max-h-[calc(100vh-4rem)]">
+          <Link to="/" className={`flex items-center px-4 py-3 rounded-xl text-sm font-semibold transition-colors ${isActive('/') ? 'bg-primary/10 text-primary' : 'text-text-primary hover:bg-bg-tertiary'}`}>
+            <Home className="w-5 h-5 mr-3 opacity-70" /> Home
+          </Link>
+          <Link to="/about" className={`flex items-center px-4 py-3 rounded-xl text-sm font-semibold transition-colors ${isActive('/about') ? 'bg-primary/10 text-primary' : 'text-text-primary hover:bg-bg-tertiary'}`}>
+            <Info className="w-5 h-5 mr-3 opacity-70" /> About
+          </Link>
+          <Link to="/contact" className={`flex items-center px-4 py-3 rounded-xl text-sm font-semibold transition-colors ${isActive('/contact') ? 'bg-primary/10 text-primary' : 'text-text-primary hover:bg-bg-tertiary'}`}>
+            <Mail className="w-5 h-5 mr-3 opacity-70" /> Contact
+          </Link>
+
+          <div className="pt-4 mt-2 border-t border-border">
+            <p className="px-4 text-xs font-bold text-text-muted uppercase tracking-wider mb-2">Grades</p>
+            {gradesLoading ? (
+              <div className="px-4 py-2 text-sm text-text-muted">Loading grades...</div>
+            ) : (
+              <>
+                {sortedGrades.map(([key, gradeData]) => (
+                  <Link key={key} to={`/grade/${key}`} className="flex items-center px-4 py-2.5 text-sm font-medium text-text-primary hover:bg-bg-tertiary rounded-lg transition-colors">
+                    <ChevronRight className="w-4 h-4 mr-3 text-primary opacity-50" /> {gradeData.display}
+                  </Link>
+                ))}
+                <Link to="/al" className="flex items-center px-4 py-3 mt-2 text-sm font-bold bg-success/10 text-success rounded-xl hover:bg-success/20 transition-colors border border-success/20">
+                  <GraduationCap className="w-5 h-5 mr-3" /> Advanced Level (A/L)
+                </Link>
+              </>
+            )}
+          </div>
+
+          {user && (
+            <div className="pt-4 mt-2 border-t border-border">
+              <p className="px-4 text-xs font-bold text-text-muted uppercase tracking-wider mb-2">Admin</p>
+              <Link to="/admin" className="flex items-center px-4 py-3 rounded-xl text-sm font-semibold text-text-primary hover:bg-bg-tertiary transition-colors">
+                <LayoutDashboard className="w-5 h-5 mr-3 opacity-70" /> Dashboard
+              </Link>
+              <button 
+                onClick={() => toggleManageMode()}
+                className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold text-text-primary hover:bg-bg-tertiary transition-colors"
+              >
+                <span className="flex items-center">
+                  <Settings2 className="w-5 h-5 mr-3 opacity-70" /> Manage Mode
+                </span>
+                <span className={`px-2 py-1 rounded text-[10px] font-bold ${isManageMode ? 'bg-success text-white' : 'bg-bg-tertiary border border-border text-text-muted'}`}>
+                  {isManageMode ? 'ON' : 'OFF'}
+                </span>
+              </button>
+              <button 
+                onClick={logout}
+                className="w-full flex items-center px-4 py-3 mt-2 rounded-xl text-sm font-semibold text-danger hover:bg-danger/10 transition-colors"
+              >
+                <LogOut className="w-5 h-5 mr-3 opacity-70" /> Sign Out
+              </button>
+            </div>
+          )}
+        </div>
       </div>
-
-      {/* Custom Navbar Styles */}
-      <style>{`
-        .navbar {
-          background-color: var(--primary) !important;
-          box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-          z-index: 1030;
-        }
-        
-        .navbar-brand .brand-text {
-          font-size: 1.25rem;
-          font-weight: 700;
-        }
-        
-        .nav-link {
-          color: rgba(255,255,255,0.9) !important;
-          font-weight: 500;
-          transition: all 0.3s ease;
-          border-radius: 5px;
-          margin: 0 2px;
-        }
-        
-        .nav-link:hover {
-          color: white !important;
-          background-color: rgba(255,255,255,0.1);
-        }
-        
-        .nav-link.active {
-          color: white !important;
-          background-color: rgba(255,255,255,0.2);
-        }
-        
-        .dropdown-menu {
-          border: none;
-          box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-          border-radius: 8px;
-          margin-top: 0.5rem;
-          background-color: var(--card-bg);
-          min-width: 200px;
-        }
-        
-        .dropdown-menu.show {
-          display: block;
-        }
-        
-        .dropdown-item {
-          padding: 0.75rem 1rem;
-          transition: all 0.2s ease;
-          color: var(--text-primary);
-        }
-        
-        .dropdown-item:hover, .dropdown-item:focus {
-          background-color: var(--primary);
-          color: white;
-        }
-        
-        .dropdown-item.active {
-          background-color: var(--primary);
-          color: white;
-        }
-        
-        .dropdown-divider {
-          border-color: var(--border-color);
-        }
-        
-        .navbar-toggler {
-          border: 1px solid rgba(255,255,255,0.3);
-        }
-        
-        .navbar-toggler:focus {
-          box-shadow: 0 0 0 0.25rem rgba(255,255,255,0.25);
-        }
-        
-        @media (max-width: 991.98px) {
-          .navbar-mobile-container {
-            background-color: var(--card-bg, white);
-            border-radius: 8px;
-            padding: 0.5rem;
-            margin-top: 0.5rem;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-          }
-          
-          .navbar-nav {
-            background-color: transparent !important;
-            padding: 0;
-            margin-top: 0;
-          }
-          
-          .dropdown-menu {
-            position: static !important;
-            float: none;
-            width: 100%;
-            margin-top: 0;
-            background-color: transparent !important;
-            box-shadow: none !important;
-            border: none !important;
-          }
-          
-          .nav-link {
-            color: var(--text-primary) !important;
-          }
-          
-          .nav-link:hover {
-            background-color: var(--bg-secondary) !important;
-            color: var(--primary) !important;
-          }
-          
-          [data-theme='dark'] .nav-link {
-            color: rgba(255,255,255,0.9) !important;
-          }
-
-          [data-theme='dark'] .nav-link:hover {
-            background-color: rgba(255,255,255,0.1) !important;
-            color: white !important;
-          }
-        }
-      `}</style>
     </nav>
   );
 };

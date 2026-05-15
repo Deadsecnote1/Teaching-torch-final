@@ -1,308 +1,235 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Heart, Languages, Laptop, CheckCircle2, GraduationCap, ShieldCheck, Clock, Users, Unlock, Star, Globe, Lightbulb, Book, Mail, ChevronRight } from 'lucide-react';
+import { Container, Section, Grid } from '../components/ui/Layout';
+import { Card, CardContent } from '../components/ui/Card';
 
 const About = () => {
   return (
-    <div className="about-page">
+    <div className="min-h-screen bg-bg-primary flex flex-col">
       {/* Page Header */}
-      <header className="page-header">
-        <div className="container text-center">
-          <h1 className="display-4 fw-bold">About Teaching Torch</h1>
-          <p className="lead">Empowering Sri Lankan students with free educational resources</p>
-        </div>
+      <header className="bg-slate-900 text-center py-16 text-white border-b border-slate-800">
+        <Container>
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">About Teaching Torch</h1>
+          <p className="text-lg mt-3 text-slate-300 max-w-2xl mx-auto">Empowering Sri Lankan students with free educational resources</p>
+        </Container>
       </header>
 
       {/* Breadcrumb */}
-      <section className="py-3 bg-light">
-        <div className="container">
-          <nav aria-label="breadcrumb">
-            <ol className="breadcrumb mb-0">
-              <li className="breadcrumb-item">
-                <Link to="/">Home</Link>
-              </li>
-              <li className="breadcrumb-item active" aria-current="page">
-                About Us
-              </li>
-            </ol>
+      <div className="bg-bg-secondary border-b border-border py-3">
+        <Container>
+          <nav className="flex items-center text-sm font-medium text-text-muted">
+            <Link to="/" className="hover:text-primary transition-colors">Home</Link>
+            <ChevronRight className="w-4 h-4 mx-2 flex-shrink-0 opacity-50" />
+            <span className="text-primary">About Us</span>
           </nav>
-        </div>
-      </section>
+        </Container>
+      </div>
 
       {/* Mission Section */}
-      <section className="py-5">
-        <div className="container">
-          <div className="row justify-content-center">
-            <div className="col-lg-8">
-              <div className="text-center mb-5">
-                <h2 className="mb-4">Our Mission</h2>
-                <p className="lead text-muted">
-                  To provide free, accessible, and comprehensive educational resources for all Sri Lankan students, breaking down barriers to quality education and fostering academic excellence across the nation.
-                </p>
-              </div>
-            </div>
+      <Section className="py-16">
+        <Container>
+          <div className="max-w-3xl mx-auto text-center mb-12">
+            <h2 className="text-3xl font-extrabold text-text-primary mb-4">Our Mission</h2>
+            <p className="text-lg text-text-muted">
+              To provide free, accessible, and comprehensive educational resources for all Sri Lankan students, breaking down barriers to quality education and fostering academic excellence across the nation.
+            </p>
           </div>
 
-          <div className="row g-4">
-            <div className="col-md-4">
-              <div className="mission-card text-center">
-                <div className="mission-icon mb-3">
-                  <i className="bi bi-heart-fill text-danger" style={{ fontSize: '3rem' }}></i>
-                </div>
-                <h4>Free Education</h4>
-                <p>We believe education should be accessible to everyone. All our resources are completely free to download and use, ensuring no student is left behind due to financial constraints.</p>
-              </div>
+          <Grid cols={3} gap={8}>
+            <div className="col-span-1 sm:col-span-3 md:col-span-1">
+              <Card className="h-full border-border hover:border-primary/50 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 text-center">
+                <CardContent className="p-8 flex flex-col items-center">
+                  <div className="w-20 h-20 bg-danger/10 text-danger rounded-2xl flex items-center justify-center mb-6 shadow-[inset_0_0_10px_rgba(239,68,68,0.2)]">
+                    <Heart className="w-10 h-10" />
+                  </div>
+                  <h4 className="text-xl font-bold text-text-primary mb-3">Free Education</h4>
+                  <p className="text-text-muted text-sm leading-relaxed">
+                    We believe education should be accessible to everyone. All our resources are completely free to download and use, ensuring no student is left behind due to financial constraints.
+                  </p>
+                </CardContent>
+              </Card>
             </div>
-            <div className="col-md-4">
-              <div className="mission-card text-center">
-                <div className="mission-icon mb-3">
-                  <i className="bi bi-translate text-primary" style={{ fontSize: '3rem' }}></i>
-                </div>
-                <h4>Multi-Medium Support</h4>
-                <p>Recognizing Sri Lanka's linguistic diversity, we provide resources in Sinhala, Tamil, and English, ensuring every student can learn in their preferred language.</p>
-              </div>
+            
+            <div className="col-span-1 sm:col-span-3 md:col-span-1">
+              <Card className="h-full border-border hover:border-primary/50 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 text-center">
+                <CardContent className="p-8 flex flex-col items-center">
+                  <div className="w-20 h-20 bg-primary/10 text-primary rounded-2xl flex items-center justify-center mb-6 shadow-[inset_0_0_10px_rgba(56,189,248,0.2)]">
+                    <Languages className="w-10 h-10" />
+                  </div>
+                  <h4 className="text-xl font-bold text-text-primary mb-3">Multi-Medium Support</h4>
+                  <p className="text-text-muted text-sm leading-relaxed">
+                    Recognizing Sri Lanka's linguistic diversity, we provide resources in Sinhala, Tamil, and English, ensuring every student can learn in their preferred language.
+                  </p>
+                </CardContent>
+              </Card>
             </div>
-            <div className="col-md-4">
-              <div className="mission-card text-center">
-                <div className="mission-icon mb-3">
-                  <i className="bi bi-laptop text-success" style={{ fontSize: '3rem' }}></i>
-                </div>
-                <h4>Digital Innovation</h4>
-                <p>Leveraging modern technology to create an intuitive, mobile-friendly platform that makes learning resources available 24/7 to students across the island.</p>
-              </div>
+
+            <div className="col-span-1 sm:col-span-3 md:col-span-1">
+              <Card className="h-full border-border hover:border-primary/50 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 text-center">
+                <CardContent className="p-8 flex flex-col items-center">
+                  <div className="w-20 h-20 bg-success/10 text-success rounded-2xl flex items-center justify-center mb-6 shadow-[inset_0_0_10px_rgba(34,197,94,0.2)]">
+                    <Laptop className="w-10 h-10" />
+                  </div>
+                  <h4 className="text-xl font-bold text-text-primary mb-3">Digital Innovation</h4>
+                  <p className="text-text-muted text-sm leading-relaxed">
+                    Leveraging modern technology to create an intuitive, mobile-friendly platform that makes learning resources available 24/7 to students across the island.
+                  </p>
+                </CardContent>
+              </Card>
             </div>
-          </div>
-        </div>
-      </section>
+          </Grid>
+        </Container>
+      </Section>
 
       {/* Vision Section */}
-      <section className="py-5 bg-light">
-        <div className="container">
-          <div className="row align-items-center">
-            <div className="col-lg-6 mb-4 mb-lg-0">
-              <h2 className="mb-4">Our Vision</h2>
-              <p className="mb-4">
-                To become the leading digital educational platform in Sri Lanka, serving as the primary resource hub for students from Grade 6 to Advanced Level.
-              </p>
-              <p className="mb-4">
-                We envision a future where every student has equal access to quality educational materials, regardless of their location or background.
-              </p>
-              <p className="mb-4">
-                Through technology and community collaboration, we aim to bridge the educational gap and create equal opportunities for all students across the country.
-              </p>
-              <h3 className="h5 mb-3">What We Offer:</h3>
-              <ul className="list-unstyled">
-                <li className="mb-2">
-                  <i className="bi bi-check-circle-fill text-success me-2"></i>
-                  Complete textbook collections in all three languages
-                </li>
-                <li className="mb-2">
-                  <i className="bi bi-check-circle-fill text-success me-2"></i>
-                  Past examination papers for practice
-                </li>
-                <li className="mb-2">
-                  <i className="bi bi-check-circle-fill text-success me-2"></i>
-                  Concise chapter-wise study notes
-                </li>
-                <li className="mb-2">
-                  <i className="bi bi-check-circle-fill text-success me-2"></i>
-                  Educational video lessons and tutorials
-                </li>
-                <li className="mb-2">
-                  <i className="bi bi-check-circle-fill text-success me-2"></i>
-                  Mobile-friendly access anytime, anywhere
-                </li>
+      <Section className="py-16 bg-bg-secondary border-y border-border">
+        <Container>
+          <div className="flex flex-col lg:flex-row items-center gap-12">
+            <div className="lg:w-1/2">
+              <h2 className="text-3xl font-extrabold text-text-primary mb-6">Our Vision</h2>
+              <div className="space-y-4 text-text-muted mb-8">
+                <p>To become the leading digital educational platform in Sri Lanka, serving as the primary resource hub for students from Grade 6 to Advanced Level.</p>
+                <p>We envision a future where every student has equal access to quality educational materials, regardless of their location or background.</p>
+                <p>Through technology and community collaboration, we aim to bridge the educational gap and create equal opportunities for all students across the country.</p>
+              </div>
+              
+              <h3 className="text-lg font-bold text-text-primary mb-4">What We Offer:</h3>
+              <ul className="space-y-3">
+                {[
+                  "Complete textbook collections in all three languages",
+                  "Past examination papers for practice",
+                  "Concise chapter-wise study notes",
+                  "Educational video lessons and tutorials",
+                  "Mobile-friendly access anytime, anywhere"
+                ].map((item, idx) => (
+                  <li key={idx} className="flex items-start text-text-muted">
+                    <CheckCircle2 className="w-5 h-5 text-success mr-3 mt-0.5 flex-shrink-0" />
+                    <span>{item}</span>
+                  </li>
+                ))}
               </ul>
             </div>
-            <div className="col-lg-6">
-              <div className="vision-graphic text-center">
-                <div className="icon-stack">
-                  <i className="bi bi-mortarboard-fill text-primary" style={{ fontSize: '6rem' }}></i>
-                  <div className="mt-3">
-                    <h4 className="text-primary">Education for All</h4>
-                    <p className="text-muted">Building a brighter future for Sri Lankan students</p>
+            
+            <div className="lg:w-1/2 flex justify-center mt-12 lg:mt-0">
+              <div className="relative text-center">
+                <div className="absolute inset-0 bg-primary/20 blur-[100px] rounded-full z-0"></div>
+                <div className="relative z-10">
+                  <GraduationCap className="w-48 h-48 text-primary mx-auto opacity-90" />
+                  <div className="mt-6">
+                    <h4 className="text-2xl font-bold text-primary mb-2">Education for All</h4>
+                    <p className="text-text-muted font-medium">Building a brighter future for Sri Lankan students</p>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </Container>
+      </Section>
 
       {/* Commitment Section */}
-      <section className="py-5">
-        <div className="container">
-          <div className="text-center mb-5">
-            <h2>Our Commitment</h2>
-            <p className="text-muted">Dedicated to excellence in educational support</p>
+      <Section className="py-16">
+        <Container>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-extrabold text-text-primary mb-4">Our Commitment</h2>
+            <p className="text-lg text-text-muted">Dedicated to excellence in educational support</p>
           </div>
 
-          <div className="row g-4">
-            <div className="col-md-4">
-              <div className="commitment-card text-center">
-                <i className="bi bi-shield-check text-success mb-3" style={{ fontSize: '3rem' }}></i>
-                <h5>Quality Assurance</h5>
-                <p className="text-muted">All resources are carefully reviewed and aligned with the Sri Lankan curriculum to ensure accuracy and relevance.</p>
-              </div>
+          <Grid cols={3} gap={8}>
+            <div className="col-span-1 sm:col-span-3 md:col-span-1">
+              <Card className="h-full border-border hover:border-primary/50 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 text-center bg-transparent">
+                <CardContent className="p-8">
+                  <ShieldCheck className="w-16 h-16 text-success mx-auto mb-6" />
+                  <h5 className="text-xl font-bold text-text-primary mb-3">Quality Assurance</h5>
+                  <p className="text-text-muted text-sm">All resources are carefully reviewed and aligned with the Sri Lankan curriculum to ensure accuracy and relevance.</p>
+                </CardContent>
+              </Card>
             </div>
-            <div className="col-md-4">
-              <div className="commitment-card text-center">
-                <i className="bi bi-clock text-info mb-3" style={{ fontSize: '3rem' }}></i>
-                <h5>Regular Updates</h5>
-                <p className="text-muted">We continuously add new resources and update existing content to keep pace with curriculum changes and student needs.</p>
-              </div>
+            <div className="col-span-1 sm:col-span-3 md:col-span-1">
+              <Card className="h-full border-border hover:border-primary/50 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 text-center bg-transparent">
+                <CardContent className="p-8">
+                  <Clock className="w-16 h-16 text-info mx-auto mb-6" />
+                  <h5 className="text-xl font-bold text-text-primary mb-3">Regular Updates</h5>
+                  <p className="text-text-muted text-sm">We continuously add new resources and update existing content to keep pace with curriculum changes and student needs.</p>
+                </CardContent>
+              </Card>
             </div>
-            <div className="col-md-4">
-              <div className="commitment-card text-center">
-                <i className="bi bi-people text-warning mb-3" style={{ fontSize: '3rem' }}></i>
-                <h5>Community Driven</h5>
-                <p className="text-muted">Built by educators and students for the educational community, fostering collaboration and shared learning experiences.</p>
-              </div>
+            <div className="col-span-1 sm:col-span-3 md:col-span-1">
+              <Card className="h-full border-border hover:border-primary/50 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 text-center bg-transparent">
+                <CardContent className="p-8">
+                  <Users className="w-16 h-16 text-warning mx-auto mb-6" />
+                  <h5 className="text-xl font-bold text-text-primary mb-3">Community Driven</h5>
+                  <p className="text-text-muted text-sm">Built by educators and students for the educational community, fostering collaboration and shared learning experiences.</p>
+                </CardContent>
+              </Card>
             </div>
-          </div>
-        </div>
-      </section>
+          </Grid>
+        </Container>
+      </Section>
 
       {/* Values Section */}
-      <section className="py-5 bg-light">
-        <div className="container">
-          <div className="text-center mb-5">
-            <h2>Our Values</h2>
-            <p className="text-muted">The principles that guide everything we do</p>
+      <Section className="py-16 bg-bg-secondary border-t border-border">
+        <Container>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-extrabold text-text-primary mb-4">Our Values</h2>
+            <p className="text-lg text-text-muted">The principles that guide everything we do</p>
           </div>
 
-          <div className="row g-4">
-            <div className="col-lg-3 col-md-6">
-              <div className="value-card text-center h-100">
-                <div className="value-icon mb-3">
-                  <i className="bi bi-unlock-fill text-primary" style={{ fontSize: '2.5rem' }}></i>
-                </div>
-                <h5>Accessibility</h5>
-                <p className="text-muted small">Making quality education accessible to every student, regardless of economic background.</p>
+          <Grid cols={4} gap={6}>
+            <div className="col-span-1 sm:col-span-2 md:col-span-1">
+              <div className="text-center h-full p-6 bg-bg-primary rounded-2xl border border-border hover:border-primary/50 transition-colors shadow-sm">
+                <Unlock className="w-12 h-12 text-primary mx-auto mb-4" />
+                <h5 className="font-bold text-text-primary mb-2">Accessibility</h5>
+                <p className="text-text-muted text-sm">Making quality education accessible to every student, regardless of economic background.</p>
               </div>
             </div>
-            <div className="col-lg-3 col-md-6">
-              <div className="value-card text-center h-100">
-                <div className="value-icon mb-3">
-                  <i className="bi bi-star-fill text-warning" style={{ fontSize: '2.5rem' }}></i>
-                </div>
-                <h5>Excellence</h5>
-                <p className="text-muted small">Striving for the highest quality in all our educational resources and services.</p>
+            <div className="col-span-1 sm:col-span-2 md:col-span-1">
+              <div className="text-center h-full p-6 bg-bg-primary rounded-2xl border border-border hover:border-primary/50 transition-colors shadow-sm">
+                <Star className="w-12 h-12 text-warning mx-auto mb-4" />
+                <h5 className="font-bold text-text-primary mb-2">Excellence</h5>
+                <p className="text-text-muted text-sm">Striving for the highest quality in all our educational resources and services.</p>
               </div>
             </div>
-            <div className="col-lg-3 col-md-6">
-              <div className="value-card text-center h-100">
-                <div className="value-icon mb-3">
-                  <i className="bi bi-globe text-info" style={{ fontSize: '2.5rem' }}></i>
-                </div>
-                <h5>Inclusivity</h5>
-                <p className="text-muted small">Embracing linguistic and cultural diversity to serve all Sri Lankan students.</p>
+            <div className="col-span-1 sm:col-span-2 md:col-span-1">
+              <div className="text-center h-full p-6 bg-bg-primary rounded-2xl border border-border hover:border-primary/50 transition-colors shadow-sm">
+                <Globe className="w-12 h-12 text-info mx-auto mb-4" />
+                <h5 className="font-bold text-text-primary mb-2">Inclusivity</h5>
+                <p className="text-text-muted text-sm">Embracing linguistic and cultural diversity to serve all Sri Lankan students.</p>
               </div>
             </div>
-            <div className="col-lg-3 col-md-6">
-              <div className="value-card text-center h-100">
-                <div className="value-icon mb-3">
-                  <i className="bi bi-lightbulb-fill text-success" style={{ fontSize: '2.5rem' }}></i>
-                </div>
-                <h5>Innovation</h5>
-                <p className="text-muted small">Leveraging technology to create better learning experiences for modern students.</p>
+            <div className="col-span-1 sm:col-span-2 md:col-span-1">
+              <div className="text-center h-full p-6 bg-bg-primary rounded-2xl border border-border hover:border-primary/50 transition-colors shadow-sm">
+                <Lightbulb className="w-12 h-12 text-success mx-auto mb-4" />
+                <h5 className="font-bold text-text-primary mb-2">Innovation</h5>
+                <p className="text-text-muted text-sm">Leveraging technology to create better learning experiences for modern students.</p>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
+          </Grid>
+        </Container>
+      </Section>
 
       {/* Call to Action */}
-      <section className="py-5">
-        <div className="container">
-          <div className="cta-section text-center">
-            <div className="row justify-content-center">
-              <div className="col-lg-8">
-                <h2 className="mb-4">Join Our Educational Journey</h2>
-                <p className="lead mb-4">
-                  Whether you're a student seeking quality resources or an educator looking to support your students, Teaching Torch is here to help you succeed.
-                </p>
-                <div className="cta-buttons">
-                  <Link to="/" className="btn btn-primary btn-lg me-3">
-                    <i className="bi bi-book me-2"></i>Explore Resources
-                  </Link>
-                  <Link to="/contact" className="btn btn-outline-primary btn-lg">
-                    <i className="bi bi-envelope me-2"></i>Contact Us
-                  </Link>
-                </div>
+      <Section className="py-16">
+        <Container>
+          <div className="bg-gradient-to-r from-primary to-primary-dark rounded-3xl p-10 md:p-16 text-center text-white shadow-xl relative overflow-hidden">
+            <div className="absolute inset-0 bg-[url('/bg-pattern.svg')] opacity-10"></div>
+            <div className="relative z-10 max-w-3xl mx-auto">
+              <h2 className="text-3xl md:text-4xl font-extrabold mb-6 text-white">Join Our Educational Journey</h2>
+              <p className="text-lg md:text-xl mb-10 text-white/90">
+                Whether you're a student seeking quality resources or an educator looking to support your students, Teaching Torch is here to help you succeed.
+              </p>
+              <div className="flex flex-col sm:flex-row justify-center gap-4">
+                <Link to="/" className="inline-flex items-center justify-center px-8 py-3.5 bg-white text-primary rounded-xl font-bold hover:bg-gray-100 transition-colors shadow-lg hover:shadow-xl hover:-translate-y-0.5">
+                  <Book className="w-5 h-5 mr-2" /> Explore Resources
+                </Link>
+                <Link to="/contact" className="inline-flex items-center justify-center px-8 py-3.5 bg-transparent border-2 border-white text-white rounded-xl font-bold hover:bg-white/10 transition-colors">
+                  <Mail className="w-5 h-5 mr-2" /> Contact Us
+                </Link>
               </div>
             </div>
           </div>
-        </div>
-      </section>
-
-      <style>{`
-        .mission-card,
-        .commitment-card,
-        .value-card {
-          background: var(--card-bg);
-          border-radius: 15px;
-          padding: 2rem;
-          box-shadow: 0 5px 20px var(--card-shadow);
-          transition: all 0.3s ease;
-          border: 2px solid transparent;
-          height: 100%;
-        }
-
-        .mission-card:hover,
-        .commitment-card:hover,
-        .value-card:hover {
-          transform: translateY(-5px);
-          border-color: var(--primary);
-          box-shadow: 0 10px 30px var(--card-shadow);
-        }
-
-        .mission-icon,
-        .value-icon {
-          transition: transform 0.3s ease;
-        }
-
-        .mission-card:hover .mission-icon,
-        .value-card:hover .value-icon {
-          transform: scale(1.1);
-        }
-
-        .cta-section {
-          background: var(--hero-gradient);
-          border-radius: 20px;
-          padding: 3rem 2rem;
-          color: white;
-        }
-
-        .cta-section h2 {
-          color: white;
-        }
-
-        .cta-section .lead {
-          color: rgba(255, 255, 255, 0.9);
-        }
-
-        .cta-buttons .btn {
-          margin: 0.5rem;
-        }
-
-        .icon-stack {
-          position: relative;
-        }
-
-        .vision-graphic::before {
-          content: '';
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          width: 200px;
-          height: 200px;
-          background: linear-gradient(45deg, var(--primary), transparent);
-          border-radius: 50%;
-          opacity: 0.1;
-          z-index: -1;
-        }
-      `}</style>
+        </Container>
+      </Section>
     </div>
   );
 };

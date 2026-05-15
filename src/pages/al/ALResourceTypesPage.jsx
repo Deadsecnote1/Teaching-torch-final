@@ -4,7 +4,8 @@ import { useALData } from '../../context/ALContext';
 import { useAuth } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
-import { Pencil, Trash2, Settings, ChevronRight, FolderX } from 'lucide-react';
+import { Pencil, Trash2, Settings, ChevronRight, FolderX, X, Archive } from 'lucide-react';
+import { getLucideIcon } from '../../utils/iconUtils';
 import { Container, Section, Grid } from '../../components/ui/Layout';
 import { Card, CardContent } from '../../components/ui/Card';
 
@@ -52,7 +53,7 @@ const ALResourceTypesPage = () => {
       const sanitizedData = {
         ...editFormData,
         description: editFormData.description || '',
-        icon: editFormData.icon || 'bi-archive'
+        icon: editFormData.icon || 'archive'
       };
       await updateDocument('al_resource_types', editingType.id, sanitizedData);
       setEditingType(null);
@@ -61,6 +62,8 @@ const ALResourceTypesPage = () => {
       toast.error('Update failed');
     }
   };
+
+
 
   if (loading) {
     return (
@@ -99,9 +102,9 @@ const ALResourceTypesPage = () => {
         <Container>
           <nav aria-label="breadcrumb" className="flex items-center space-x-1 sm:space-x-2 text-sm text-text-muted overflow-x-auto whitespace-nowrap pb-1">
             <Link to="/" className="hover:text-primary transition-colors flex items-center">Home</Link>
-            <ChevronRight className="w-4 h-4 opacity-50 flex-shrink-0" />
+            <ChevronRight className="w-4 h-4 mx-2 flex-shrink-0 opacity-40" />
             <Link to="/al" className="hover:text-primary transition-colors flex items-center">Advanced Level</Link>
-            <ChevronRight className="w-4 h-4 opacity-50 flex-shrink-0" />
+            <ChevronRight className="w-4 h-4 mx-2 flex-shrink-0 opacity-40" />
             <span className="text-text-primary font-medium">{subject.name}</span>
           </nav>
         </Container>
@@ -132,7 +135,7 @@ const ALResourceTypesPage = () => {
                           className="w-full h-full object-contain scale-110"
                         />
                       ) : (
-                        <i className={`bi ${rt.icon || 'bi-archive'} text-3xl`}></i>
+                        getLucideIcon(rt.icon, "w-8 h-8")
                       )}
                     </div>
                     <h4 className="text-xl font-bold text-text-primary mb-2">{rt.name}</h4>
@@ -182,7 +185,7 @@ const ALResourceTypesPage = () => {
                 className="text-text-muted hover:text-text-primary transition-colors" 
                 onClick={() => setEditingType(null)}
               >
-                <i className="bi bi-x-lg"></i>
+                <X className="w-5 h-5" />
               </button>
             </div>
             <form onSubmit={handleUpdateType}>
@@ -198,7 +201,7 @@ const ALResourceTypesPage = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-text-primary mb-1.5">Icon (Bootstrap class)</label>
+                  <label className="block text-sm font-semibold text-text-primary mb-1.5">Icon (Lucide name)</label>
                   <input 
                     type="text" 
                     className="w-full px-3 py-2 bg-bg-primary border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/50" 

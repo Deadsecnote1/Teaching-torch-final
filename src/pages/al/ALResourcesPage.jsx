@@ -171,11 +171,11 @@ const ALResourcesPage = () => {
         <Container>
           <nav aria-label="breadcrumb" className="flex items-center space-x-1 sm:space-x-2 text-sm text-text-muted overflow-x-auto whitespace-nowrap pb-1">
             <Link to="/" className="hover:text-primary transition-colors flex items-center">Home</Link>
-            <ChevronRight className="w-4 h-4 opacity-50 flex-shrink-0" />
+            <ChevronRight className="w-4 h-4 mx-2 flex-shrink-0 opacity-40" />
             <Link to="/al" className="hover:text-primary transition-colors flex items-center">A/L</Link>
-            <ChevronRight className="w-4 h-4 opacity-50 flex-shrink-0" />
+            <ChevronRight className="w-4 h-4 mx-2 flex-shrink-0 opacity-40" />
             <Link to={`/al/${streamId}/${subjectId}`} className="hover:text-primary transition-colors flex items-center">{subject.name}</Link>
-            <ChevronRight className="w-4 h-4 opacity-50 flex-shrink-0" />
+            <ChevronRight className="w-4 h-4 mx-2 flex-shrink-0 opacity-40" />
             <span className="text-text-primary font-medium">{resourceType.name}</span>
           </nav>
         </Container>

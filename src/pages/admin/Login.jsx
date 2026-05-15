@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { Shield, AlertTriangle, LogIn, ArrowLeft, Eye, EyeOff } from 'lucide-react';
+import { Container, Section } from '../../components/ui/Layout';
+import { Card, CardContent } from '../../components/ui/Card';
 
 const AdminLogin = () => {
   const [email, setEmail] = useState('');
@@ -57,89 +60,92 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="admin-login-page">
+    <div className="min-h-screen bg-bg-primary flex flex-col">
       {/* Page Header */}
-      <header className="page-header">
-        <div className="container text-center">
-          <h1 className="display-4 fw-bold">Admin Login</h1>
-          <p className="lead">Access the Teaching Torch administration panel</p>
-        </div>
+      <header className="bg-slate-900 text-center py-16 text-white border-b border-slate-800">
+        <Container>
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">Admin Login</h1>
+          <p className="text-lg mt-3 text-slate-300 max-w-2xl mx-auto">Access the Teaching Torch administration panel</p>
+        </Container>
       </header>
 
       {/* Login Form */}
-      <section className="py-5">
-        <div className="container">
-          <div className="row justify-content-center">
-            <div className="col-md-6 col-lg-4">
-              <div className="card">
-                <div className="card-body p-4">
-                  <h3 className="card-title text-center mb-4">
-                    <i className="bi bi-shield-lock me-2"></i>
-                    Admin Access
-                  </h3>
+      <Section className="py-12 flex-1 flex flex-col justify-center">
+        <Container className="max-w-md mx-auto">
+          <Card className="border-border shadow-lg">
+            <CardContent className="p-8">
+              <h3 className="text-2xl font-bold text-center mb-6 text-text-primary flex items-center justify-center">
+                <Shield className="w-6 h-6 mr-2 text-primary" />
+                Admin Access
+              </h3>
 
-                  {error && (
-                    <div className="alert alert-danger" role="alert">
-                      <i className="bi bi-exclamation-triangle me-2"></i>
-                      {error}
-                    </div>
-                  )}
+              {error && (
+                <div className="bg-danger/10 border border-danger/30 text-danger px-4 py-3 rounded-lg mb-6 flex items-center">
+                  <AlertTriangle className="w-5 h-5 mr-3 flex-shrink-0" />
+                  <span className="text-sm font-medium">{error}</span>
+                </div>
+              )}
 
-                  <form onSubmit={handleLogin}>
-                    <div className="mb-3">
-                      <label htmlFor="email" className="form-label">Email Address</label>
-                      <input
-                        type="email"
-                        className="form-control"
-                        id="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="Enter admin email"
-                        required
-                      />
-                    </div>
+              <form onSubmit={handleLogin} className="space-y-5">
+                <div>
+                  <label htmlFor="email" className="block text-sm font-semibold text-text-primary mb-1.5">Email Address</label>
+                  <input
+                    type="email"
+                    className="w-full px-4 py-2.5 bg-bg-secondary border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+                    id="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Enter admin email"
+                    required
+                  />
+                </div>
 
-                    <div className="mb-3">
-                      <label htmlFor="password" className="form-label">Password</label>
-                      <div className="input-group">
-                        <input
-                          type={showPassword ? "text" : "password"}
-                          className="form-control"
-                          id="password"
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          placeholder="Enter admin password"
-                          required
-                        />
-                        <button
-                          className="btn btn-outline-secondary"
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--card-bg)' }}
-                        >
-                          <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`}></i>
-                        </button>
-                      </div>
-                    </div>
-
-                    <button disabled={loading} type="submit" className="btn btn-primary w-100">
-                      <i className="bi bi-box-arrow-in-right me-2"></i>
-                      {loading ? 'Logging in...' : 'Login'}
+                <div>
+                  <label htmlFor="password" className="block text-sm font-semibold text-text-primary mb-1.5">Password</label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      className="w-full px-4 py-2.5 pr-12 bg-bg-secondary border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+                      id="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Enter admin password"
+                      required
+                    />
+                    <button
+                      className="absolute inset-y-0 right-0 flex items-center px-4 text-text-muted hover:text-primary transition-colors focus:outline-none"
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
-                  </form>
-
-                  <div className="text-center mt-3">
-                    <Link to="/" className="text-muted">
-                      <i className="bi bi-arrow-left me-1"></i>
-                      Back to Home
-                    </Link>
                   </div>
                 </div>
+
+                <button 
+                  disabled={loading} 
+                  type="submit" 
+                  className="w-full py-3 bg-primary text-white font-bold rounded-lg hover:bg-primary-dark transition-all shadow-sm flex justify-center items-center disabled:opacity-70 disabled:cursor-not-allowed mt-2"
+                >
+                  {loading ? (
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></div>
+                  ) : (
+                    <LogIn className="w-5 h-5 mr-2" />
+                  )}
+                  {loading ? 'Logging in...' : 'Login'}
+                </button>
+              </form>
+
+              <div className="text-center mt-6">
+                <Link to="/" className="inline-flex items-center text-sm font-medium text-text-muted hover:text-primary transition-colors">
+                  <ArrowLeft className="w-4 h-4 mr-1.5" />
+                  Back to Home
+                </Link>
               </div>
-            </div>
-          </div>
-        </div>
-      </section>
+            </CardContent>
+          </Card>
+        </Container>
+      </Section>
     </div>
   );
 };

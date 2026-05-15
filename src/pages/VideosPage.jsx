@@ -14,6 +14,7 @@ import { subjectTranslations } from '../utils/subjectTranslations';
 import { getResourceTypeName } from '../utils/resourceTranslations';
 import { logEvent } from 'firebase/analytics';
 import AdSenseComponent from '../components/common/AdSenseComponent';
+import { getLucideIcon } from '../utils/iconUtils';
 import toast from 'react-hot-toast';
 import { ChevronRight, ArrowLeft, Edit, Trash2, Plus, Video, Play, X, Search, Calendar, Bookmark } from 'lucide-react';
 import { Container, Section, Grid } from '../components/ui/Layout';
@@ -229,15 +230,15 @@ const VideosPage = () => {
             <ChevronRight className="w-4 h-4 mx-2 flex-shrink-0 opacity-40" />
             {parentGrade && (
               <>
-                <Link to={`/grade/${gradeId}`} className="hover:text-primary transition-colors">{parentGrade.display}</Link>
+                <Link to={`/grade/${gradeId}`} className="hover:text-primary transition-colors flex items-center">{parentGrade.display}</Link>
                 <ChevronRight className="w-4 h-4 mx-2 flex-shrink-0 opacity-40" />
               </>
             )}
-            <Link to={streamId ? `/grade/${gradeId}/${streamId}` : `/grade/${gradeId}`} className="hover:text-primary transition-colors">{grade.display}</Link>
+            <Link to={streamId ? `/grade/${gradeId}/${streamId}` : `/grade/${gradeId}`} className="hover:text-primary transition-colors flex items-center">{grade.display}</Link>
             <ChevronRight className="w-4 h-4 mx-2 flex-shrink-0 opacity-40" />
             {subject && (
               <>
-                <Link to={`/grade/${gradeId}/${streamId}/${selectedSubjectId}`} className="hover:text-primary transition-colors">{subject.display}</Link>
+                <Link to={`/grade/${gradeId}/${streamId}/${selectedSubjectId}`} className="hover:text-primary transition-colors flex items-center">{subject.display}</Link>
                 <ChevronRight className="w-4 h-4 mx-2 flex-shrink-0 opacity-40" />
               </>
             )}
@@ -274,7 +275,7 @@ const VideosPage = () => {
                   <CardHeader className="flex flex-row items-center justify-between border-b border-border bg-bg-secondary/40 pb-4">
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 rounded-xl bg-bg-primary shadow-sm border border-border flex items-center justify-center">
-                        <i className={cn(subject.icon, "text-2xl text-primary")}></i>
+                        {getLucideIcon(subject.icon, "text-2xl text-primary")}
                       </div>
                       <div>
                         <CardTitle className="text-xl">

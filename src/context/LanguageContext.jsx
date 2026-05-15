@@ -15,25 +15,21 @@ export const LanguageProvider = ({ children }) => {
     'all': { 
       name: 'All Languages', 
       display: 'All Languages',
-      icon: 'bi-globe',
       color: '#6c757d'
     },
     'sinhala': { 
       name: 'Sinhala', 
       display: 'සිංහල',
-      icon: 'bi-circle-fill',
       color: '#FF5722'
     },
     'tamil': { 
       name: 'Tamil', 
       display: 'தமிழ்',
-      icon: 'bi-circle-fill',
       color: '#9C27B0'
     },
     'english': { 
       name: 'English', 
       display: 'English',
-      icon: 'bi-circle-fill',
       color: '#2196F3'
     }
   };

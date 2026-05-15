@@ -3,6 +3,7 @@ import LoadingSpinner from '../common/LoadingSpinner';
 import { getResourceTypeName } from '../../utils/resourceTranslations';
 import { isYouTubeLink, extractYouTubeId } from '../../utils/youtube';
 import { isGoogleDriveLink } from '../../utils/googleDrive';
+import { CloudUpload, Link as LinkIcon, Type, FileText, SortAsc, PlaySquare, AlertTriangle, CheckCircle, Info } from 'lucide-react';
 
 const AdminResourceUpload = ({
   selectedGrade,
@@ -34,22 +35,23 @@ const AdminResourceUpload = ({
   isSubmitting
 }) => {
   return (
-    <div className="row justify-content-center">
-      <div className="col-lg-8">
-        <div className="card shadow-sm">
-          <div className="card-header bg-primary text-white">
-            <h5 className="mb-0">
-              <i className="bi bi-cloud-upload me-2"></i>
-              Upload New Resource
-            </h5>
+    <div className="flex justify-center p-6">
+      <div className="w-full max-w-4xl">
+        <div className="bg-bg-primary rounded-xl border border-border shadow-sm overflow-hidden">
+          <div className="bg-primary px-6 py-4 flex items-center">
+            <div className="bg-white/20 p-1.5 rounded-lg mr-3 backdrop-blur-sm">
+              <CloudUpload className="w-5 h-5 text-white" />
+            </div>
+            <h5 className="mb-0 text-white font-bold text-lg">Upload New Resource</h5>
           </div>
-          <div className="card-body">
+          
+          <div className="p-6 sm:p-8 space-y-8">
             {/* Selection Controls */}
-            <div className="row g-3 mb-4">
-              <div className="col-md-4">
-                <label className="form-label">Select Grade</label>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div>
+                <label className="block text-sm font-semibold text-text-primary mb-1.5">Select Grade</label>
                 <select
-                  className="form-select"
+                  className="w-full px-3 py-2.5 bg-bg-secondary border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow appearance-none"
                   value={selectedGrade}
                   onChange={(e) => {
                     setSelectedGrade(e.target.value);
@@ -67,10 +69,10 @@ const AdminResourceUpload = ({
                   ))}
                 </select>
               </div>
-              <div className="col-md-4">
-                <label className="form-label">Select Subject</label>
+              <div>
+                <label className="block text-sm font-semibold text-text-primary mb-1.5">Select Subject</label>
                 <select
-                  className="form-select"
+                  className="w-full px-3 py-2.5 bg-bg-secondary border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow appearance-none disabled:opacity-50"
                   value={selectedSubject}
                   onChange={(e) => setSelectedSubject(e.target.value)}
                   disabled={Object.keys(getSubjectsForGrade(selectedGrade)).length === 0}
@@ -84,10 +86,10 @@ const AdminResourceUpload = ({
                   )}
                 </select>
               </div>
-              <div className="col-md-4">
-                <label className="form-label">Resource Type</label>
+              <div>
+                <label className="block text-sm font-semibold text-text-primary mb-1.5">Resource Type</label>
                 <select
-                  className="form-select"
+                  className="w-full px-3 py-2.5 bg-bg-secondary border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow appearance-none"
                   value={selectedResourceType}
                   onChange={(e) => {
                     setSelectedResourceType(e.target.value);
@@ -108,72 +110,75 @@ const AdminResourceUpload = ({
 
             {/* Paper Type Selection (only for papers) */}
             {selectedResourceType === 'papers' && (
-              <div className="row g-3 mb-4">
-                <div className="col-md-6">
-                  <label className="form-label">Paper Type</label>
-                  <select
-                    className="form-select"
-                    value={selectedPaperType}
-                    onChange={(e) => {
-                      setSelectedPaperType(e.target.value);
-                      if (e.target.value === 'term') {
-                        setSelectedPaperCategory('term1');
-                      } else {
-                        setSelectedPaperCategory('chapter1');
-                      }
-                    }}
-                  >
-                    <option value="term">Term Papers</option>
-                    <option value="chapter">Chapter Papers</option>
-                  </select>
-                </div>
-                <div className="col-md-6">
-                  <label className="form-label">
-                    {selectedPaperType === 'term' ? 'Term' : 'Chapter'}
-                  </label>
-                  {selectedPaperType === 'term' ? (
+              <div className="bg-bg-secondary/50 p-5 rounded-xl border border-border space-y-4 animate-fade-in">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-text-primary mb-1.5">Paper Type</label>
                     <select
-                      className="form-select"
-                      value={selectedPaperCategory}
-                      onChange={(e) => setSelectedPaperCategory(e.target.value)}
+                      className="w-full px-3 py-2 bg-bg-primary border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 appearance-none"
+                      value={selectedPaperType}
+                      onChange={(e) => {
+                        setSelectedPaperType(e.target.value);
+                        if (e.target.value === 'term') {
+                          setSelectedPaperCategory('term1');
+                        } else {
+                          setSelectedPaperCategory('chapter1');
+                        }
+                      }}
                     >
-                      <option value="term1">1st Term</option>
-                      <option value="term2">2nd Term</option>
-                      <option value="term3">3rd Term</option>
+                      <option value="term">Term Papers</option>
+                      <option value="chapter">Chapter Papers</option>
                     </select>
-                  ) : (
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-text-primary mb-1.5">
+                      {selectedPaperType === 'term' ? 'Term' : 'Chapter'}
+                    </label>
+                    {selectedPaperType === 'term' ? (
+                      <select
+                        className="w-full px-3 py-2 bg-bg-primary border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 appearance-none"
+                        value={selectedPaperCategory}
+                        onChange={(e) => setSelectedPaperCategory(e.target.value)}
+                      >
+                        <option value="term1">1st Term</option>
+                        <option value="term2">2nd Term</option>
+                        <option value="term3">3rd Term</option>
+                      </select>
+                    ) : (
+                      <input
+                        type="text"
+                        className="w-full px-3 py-2 bg-bg-primary border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/50"
+                        placeholder="e.g., Chapter 1, Chapter 2, etc."
+                        value={selectedPaperCategory}
+                        onChange={(e) => setSelectedPaperCategory(e.target.value)}
+                      />
+                    )}
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-semibold text-text-primary mb-1.5">School Name (Optional)</label>
                     <input
                       type="text"
-                      className="form-control"
-                      placeholder="e.g., Chapter 1, Chapter 2, etc."
-                      value={selectedPaperCategory}
-                      onChange={(e) => setSelectedPaperCategory(e.target.value)}
+                      className="w-full px-3 py-2 bg-bg-primary border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/50"
+                      placeholder="e.g., Royal College, Ananda College"
+                      value={schoolName}
+                      onChange={(e) => setSchoolName(e.target.value)}
                     />
-                  )}
-                </div>
-                <div className="col-md-12">
-                  <label className="form-label">School Name (Optional)</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="e.g., Royal College, Ananda College"
-                    value={schoolName}
-                    onChange={(e) => setSchoolName(e.target.value)}
-                  />
+                  </div>
                 </div>
               </div>
             )}
 
+            <div className="h-px bg-border my-6"></div>
+
             {/* Language Selection */}
-            <div className="mb-4">
-              <label className="form-label d-block">Select Language(s)</label>
-              <div className="d-flex gap-3 flex-wrap">
+            <div>
+              <label className="block text-sm font-semibold text-text-primary mb-2">Select Language(s)</label>
+              <div className="flex flex-wrap gap-4">
                 {['english', 'sinhala', 'tamil'].map(lang => (
-                  <div className="form-check" key={lang}>
+                  <label key={lang} className="flex items-center gap-2 cursor-pointer group">
                     <input
-                      className="form-check-input"
                       type="checkbox"
-                      id={`lang-${lang}`}
+                      className="w-5 h-5 rounded border-border text-primary focus:ring-primary transition-colors cursor-pointer"
                       checked={selectedLanguages.includes(lang)}
                       onChange={(e) => {
                         if (e.target.checked) {
@@ -183,114 +188,118 @@ const AdminResourceUpload = ({
                         }
                       }}
                     />
-                    <label className="form-check-label text-capitalize" htmlFor={`lang-${lang}`}>
-                      {lang === 'sinhala' ? 'සිංහල' : lang === 'tamil' ? 'தமிழ்' : lang}
-                    </label>
-                  </div>
+                    <span className="text-sm font-medium text-text-primary capitalize group-hover:text-primary transition-colors">
+                      {lang === 'sinhala' ? 'සිංහල (Sinhala)' : lang === 'tamil' ? 'தமிழ் (Tamil)' : lang}
+                    </span>
+                  </label>
                 ))}
               </div>
-              <small className="text-muted d-block mt-1">Select all languages that this resource applies to.</small>
+              <p className="text-xs text-text-muted mt-2">Select all languages that this resource applies to.</p>
             </div>
 
             {/* Link Input (Google Drive or YouTube) */}
-            <div className="mb-4">
-              <label className="form-label">
-                <i className="bi bi-link-45deg me-2"></i>
-                {selectedResourceType === 'videos' ? 'YouTube URL or Google Drive Link' : 'Google Drive Link'} <span className="text-danger">*</span>
+            <div>
+              <label className="flex items-center text-sm font-semibold text-text-primary mb-1.5">
+                <LinkIcon className="w-4 h-4 mr-1.5 text-primary" />
+                {selectedResourceType === 'videos' ? 'YouTube URL or Google Drive Link' : 'Google Drive Link'} 
+                <span className="text-danger ml-1">*</span>
               </label>
               <input
                 type="text"
-                className="form-control"
+                className="w-full px-4 py-3 bg-bg-secondary border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow"
                 placeholder={selectedResourceType === 'videos'
                   ? "https://www.youtube.com/watch?v=VIDEO_ID or Google Drive link"
                   : "https://drive.google.com/file/d/FILE_ID/view"}
                 value={driveLink}
                 onChange={(e) => setDriveLink(e.target.value)}
               />
-              <div className="form-text">
-                <small>
-                  <i className="bi bi-info-circle me-1"></i>
+              <div className="mt-2 text-xs text-text-muted flex items-start">
+                <Info className="w-3.5 h-3.5 mr-1 mt-0.5 flex-shrink-0" />
+                <span>
                   {selectedResourceType === 'videos'
                     ? 'Paste YouTube URL or Google Drive link. For YouTube: Use the full watch URL.'
                     : 'Paste the Google Drive share link here. Make sure the file is set to "Anyone with the link can view"'}
-                </small>
+                </span>
               </div>
-              {driveLink && selectedResourceType === 'videos' && isYouTubeLink(driveLink) && (
-                <div className="alert alert-success mt-2 mb-0">
-                  <small>
-                    <i className="bi bi-youtube me-1"></i>
+              
+              {/* Validation Feedback */}
+              <div className="mt-2 space-y-2">
+                {driveLink && selectedResourceType === 'videos' && isYouTubeLink(driveLink) && (
+                  <div className="flex items-center text-xs text-success bg-success/10 px-3 py-2 rounded-md border border-success/20">
+                    <PlaySquare className="w-4 h-4 mr-1.5" />
                     Valid YouTube URL detected! Video ID: {extractYouTubeId(driveLink)}
-                  </small>
-                </div>
-              )}
-              {driveLink && (selectedResourceType === 'videos' ? !isYouTubeLink(driveLink) && !isGoogleDriveLink(driveLink) : !isGoogleDriveLink(driveLink)) && (
-                <div className="alert alert-warning mt-2 mb-0">
-                  <small>
-                    <i className="bi bi-exclamation-triangle me-1"></i>
+                  </div>
+                )}
+                {driveLink && (selectedResourceType === 'videos' ? !isYouTubeLink(driveLink) && !isGoogleDriveLink(driveLink) : !isGoogleDriveLink(driveLink)) && (
+                  <div className="flex items-center text-xs text-warning bg-warning/10 px-3 py-2 rounded-md border border-warning/20">
+                    <AlertTriangle className="w-4 h-4 mr-1.5" />
                     Please enter a valid link
-                  </small>
-                </div>
-              )}
-              {driveLink && isGoogleDriveLink(driveLink) && (
-                <div className="alert alert-success mt-2 mb-0">
-                  <small>
-                    <i className="bi bi-check-circle me-1"></i>
+                  </div>
+                )}
+                {driveLink && isGoogleDriveLink(driveLink) && (
+                  <div className="flex items-center text-xs text-success bg-success/10 px-3 py-2 rounded-md border border-success/20">
+                    <CheckCircle className="w-4 h-4 mr-1.5" />
                     Valid Google Drive link detected!
-                  </small>
-                </div>
-              )}
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Resource Title */}
-            <div className="mb-4">
-              <label className="form-label">
-                <i className="bi bi-type me-2"></i>
-                Resource Title <span className="text-danger">*</span>
+            <div>
+              <label className="flex items-center text-sm font-semibold text-text-primary mb-1.5">
+                <Type className="w-4 h-4 mr-1.5 text-primary" />
+                Resource Title <span className="text-danger ml-1">*</span>
               </label>
               <input
                 type="text"
-                className="form-control"
+                className="w-full px-4 py-3 bg-bg-secondary border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow"
                 placeholder="e.g., Grade 6 Mathematics Textbook - Sinhala"
                 value={resourceTitle}
                 onChange={(e) => setResourceTitle(e.target.value)}
               />
             </div>
 
-            {/* Resource Description (Optional) */}
-            <div className="mb-4">
-              <label className="form-label">
-                <i className="bi bi-card-text me-2"></i>
-                Description (Optional)
-              </label>
-              <textarea
-                className="form-control"
-                rows="3"
-                placeholder="Additional information about this resource..."
-                value={resourceDescription}
-                onChange={(e) => setResourceDescription(e.target.value)}
-              />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Resource Description (Optional) */}
+              <div className="md:col-span-2">
+                <label className="flex items-center text-sm font-semibold text-text-primary mb-1.5">
+                  <FileText className="w-4 h-4 mr-1.5 text-primary" />
+                  Description <span className="text-text-muted font-normal ml-1">(Optional)</span>
+                </label>
+                <textarea
+                  className="w-full px-4 py-3 bg-bg-secondary border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow resize-none"
+                  rows="3"
+                  placeholder="Additional information about this resource..."
+                  value={resourceDescription}
+                  onChange={(e) => setResourceDescription(e.target.value)}
+                />
+              </div>
+
+              {/* Resource Order (Optional) */}
+              <div>
+                <label className="flex items-center text-sm font-semibold text-text-primary mb-1.5">
+                  <SortAsc className="w-4 h-4 mr-1.5 text-primary" />
+                  Display Order <span className="text-text-muted font-normal ml-1">(Opt)</span>
+                </label>
+                <input
+                  type="number"
+                  className="w-full px-4 py-3 bg-bg-secondary border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow"
+                  placeholder="e.g., 1"
+                  value={resourceOrder}
+                  onChange={(e) => setResourceOrder(e.target.value)}
+                  min="1"
+                />
+                <p className="text-xs text-text-muted mt-1.5">Lower numbers appear first</p>
+              </div>
             </div>
 
-            {/* Resource Order (Optional) */}
-            <div className="mb-4">
-              <label className="form-label">
-                <i className="bi bi-sort-numeric-down me-2"></i>
-                Display Order (Optional)
-              </label>
-              <input
-                type="number"
-                className="form-control"
-                placeholder="e.g., 1, 2, 3 (Lower numbers appear first)"
-                value={resourceOrder}
-                onChange={(e) => setResourceOrder(e.target.value)}
-                min="1"
-              />
-            </div>
+            <div className="h-px bg-border my-6"></div>
 
             {/* Add Resource Button */}
-            <div className="d-flex gap-2">
+            <div className="flex justify-end">
               <button
-                className="btn btn-primary"
+                className="px-6 py-3 bg-primary text-white font-medium rounded-xl hover:bg-primary-dark transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center w-full sm:w-auto"
                 onClick={handleAddDriveLink}
                 disabled={!driveLink.trim() || !resourceTitle.trim() || selectedLanguages.length === 0 || isSubmitting}
               >
@@ -298,7 +307,7 @@ const AdminResourceUpload = ({
                   <LoadingSpinner size="small" color="light" text="Adding..." />
                 ) : (
                   <>
-                    <i className="bi bi-plus-circle me-2"></i>
+                    <CloudUpload className="w-5 h-5 mr-2" />
                     Add Resource
                   </>
                 )}

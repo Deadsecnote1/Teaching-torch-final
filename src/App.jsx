@@ -30,6 +30,8 @@ const NotesPage = React.lazy(() => import('./pages/NotesPage'));
 const VideosPage = React.lazy(() => import('./pages/VideosPage'));
 const PrivacyPolicy = React.lazy(() => import('./pages/PrivacyPolicy'));
 const AdminLogin = React.lazy(() => import('./pages/admin/Login'));
+import { Home as HomeIcon } from 'lucide-react';
+
 const AdminDashboard = React.lazy(() => import('./pages/admin/AdminDashboard'));
 const SubjectHubPage = React.lazy(() => import('./pages/SubjectHubPage'));
 
@@ -39,8 +41,7 @@ const ALResourceTypesPage = React.lazy(() => import('./pages/al/ALResourceTypesP
 const ALResourcesPage = React.lazy(() => import('./pages/al/ALResourcesPage'));
 
 // Styles
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap-icons/font/bootstrap-icons.css';
+// Bootstrap icons removed
 import './styles/globals.css';
 
 const NotFound = () => (
@@ -50,7 +51,7 @@ const NotFound = () => (
       <h2 className="text-3xl font-bold text-text-primary mb-4">Page Not Found</h2>
       <p className="text-text-muted mb-8 text-lg">The page you're looking for doesn't exist or has been moved.</p>
       <a href="/" className="inline-flex items-center justify-center px-6 py-3 rounded-lg font-medium transition-all bg-primary text-white hover:bg-primary-dark shadow-sm">
-        <i className="bi bi-house me-2"></i>
+        <HomeIcon className="w-5 h-5 mr-2" />
         Go Home
       </a>
     </div>
@@ -73,7 +74,7 @@ const AppContent = () => {
         <ModernNavbar />
         <main className="main-content">
           <ErrorBoundary>
-            <React.Suspense fallback={<div className="p-5 text-center"><div className="spinner-border text-primary"></div></div>}>
+            <React.Suspense fallback={<div className="flex items-center justify-center p-12"><div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div></div>}>
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/about" element={<About />} />

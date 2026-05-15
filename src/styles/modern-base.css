@@ -39,7 +39,7 @@
 /* Focus states for accessibility */
 @layer components {
   .focus-ring {
-    @apply outline-none ring-2 ring-primary ring-offset-2;
+    @apply outline-none ring-2 ring-primary;
   }
 
   /* Responsive container */

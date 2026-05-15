@@ -5,6 +5,7 @@ import { Input } from '../ui/Input';
 import { Grid } from '../ui/Layout';
 import { GraduationCap, BookOpen, Plus, Check, X, Edit2, Trash2 } from 'lucide-react';
 import { cn } from '../../utils/cn';
+import { getLucideIcon } from '../../utils/iconUtils';
 
 const AdminGradeManager = ({
   grades,
@@ -148,7 +149,7 @@ const AdminGradeManager = ({
                    <Input placeholder="Name Tamil (Optional)" value={newSubjectTamil} onChange={e => setNewSubjectTamil(e.target.value)} />
                 </div>
                 <div className="col-span-12">
-                   <Input placeholder="Icon Class (bi-book or lucide)" value={newSubjectIcon} onChange={e => setNewSubjectIcon(e.target.value)} />
+                   <Input placeholder="Icon Name (e.g. book, calculator, lab)" value={newSubjectIcon} onChange={e => setNewSubjectIcon(e.target.value)} />
                 </div>
                 <div className="col-span-12">
                   <div className="border border-border rounded-lg p-3 bg-bg-secondary h-[120px] overflow-y-auto">
@@ -213,7 +214,7 @@ const AdminGradeManager = ({
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
-                          <i className={cn(subject.icon || 'bi-book', "text-success text-lg")}></i>
+                          {getLucideIcon(subject.icon, "text-success w-5 h-5")}
                           <strong className="text-text-primary">{subject.name}</strong>
                           <span className="text-[10px] uppercase font-bold bg-bg-tertiary text-text-muted px-2 py-0.5 rounded-full border border-border">ID: {key}</span>
                         </div>

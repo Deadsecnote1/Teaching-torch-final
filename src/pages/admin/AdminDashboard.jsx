@@ -6,6 +6,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import toast from 'react-hot-toast';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import ALAdminTab from '../../components/admin/ALAdminTab';
+import { LayoutDashboard, LogOut, ToggleRight, ToggleLeft } from 'lucide-react';
 
 // Refactored Components
 import AdminOverview from '../../components/admin/AdminOverview';
@@ -70,7 +71,7 @@ const AdminDashboard = () => {
   const [newSubjectSinhala, setNewSubjectSinhala] = useState('');
   const [newSubjectTamil, setNewSubjectTamil] = useState('');
   const [newSubjectCode, setNewSubjectCode] = useState('');
-  const [newSubjectIcon, setNewSubjectIcon] = useState('bi-book');
+  const [newSubjectIcon, setNewSubjectIcon] = useState('book');
   const [newSubjectOrder, setNewSubjectOrder] = useState('');
   const [selectedGradesForSubject, setSelectedGradesForSubject] = useState([]);
 
@@ -305,30 +306,45 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="admin-dashboard py-5" style={{ backgroundColor: 'var(--bg-secondary)', minHeight: '100vh' }}>
-      <section className="container">
-        <div className="d-flex justify-content-between align-items-center mb-4">
-          <h2 className="mb-0 fw-bold"><i className="bi bi-speedometer2 me-2"></i>Admin Dashboard</h2>
-          <div className="d-flex gap-2">
-            <button className={`btn btn-sm ${isManageMode ? 'btn-success' : 'btn-outline-success'}`} onClick={toggleManageMode}>
-              <i className={`bi ${isManageMode ? 'bi-toggle-on' : 'bi-toggle-off'} me-2`}></i>
+    <div className="min-h-screen py-10 bg-bg-secondary text-text-primary">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+          <h2 className="text-3xl font-extrabold flex items-center text-text-primary">
+            <LayoutDashboard className="w-8 h-8 mr-3 text-primary" />
+            Admin Dashboard
+          </h2>
+          <div className="flex flex-wrap gap-3">
+            <button 
+              className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-colors shadow-sm border ${isManageMode ? 'bg-success text-white border-success hover:bg-success/90' : 'bg-transparent text-success border-success hover:bg-success/10'}`} 
+              onClick={toggleManageMode}
+            >
+              {isManageMode ? <ToggleRight className="w-5 h-5 mr-2" /> : <ToggleLeft className="w-5 h-5 mr-2" />}
               Manage Mode: {isManageMode ? 'ON' : 'OFF'}
             </button>
-            <button className="btn btn-outline-danger btn-sm" onClick={handleLogout}><i className="bi bi-box-arrow-right me-2"></i>Logout</button>
+            <button 
+              className="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-colors border border-danger text-danger hover:bg-danger/10" 
+              onClick={handleLogout}
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Logout
+            </button>
           </div>
         </div>
 
-        <ul className="nav nav-tabs mb-4 border-bottom-0">
+        {/* Custom Tabs */}
+        <div className="flex overflow-x-auto border-b border-border mb-8 scrollbar-hide">
           {['overview', 'upload', 'files', 'grades', 'al', 'settings'].map(tab => (
-            <li className="nav-item" key={tab}>
-              <button className={`nav-link text-capitalize ${activeTab === tab ? 'active' : ''}`} onClick={() => setActiveTab(tab)}>
-                {tab === 'al' ? 'A/L Admin' : tab === 'files' ? 'File Manager' : tab}
-              </button>
-            </li>
+            <button 
+              key={tab}
+              className={`whitespace-nowrap py-4 px-6 font-medium text-sm border-b-2 transition-colors ${activeTab === tab ? 'border-primary text-primary' : 'border-transparent text-text-muted hover:text-text-primary hover:border-border'}`} 
+              onClick={() => setActiveTab(tab)}
+            >
+              {tab === 'al' ? 'A/L Admin' : tab === 'files' ? 'File Manager' : tab.charAt(0).toUpperCase() + tab.slice(1)}
+            </button>
           ))}
-        </ul>
+        </div>
 
-        <div className="tab-content">
+        <div className="bg-card rounded-2xl shadow-sm border border-border overflow-hidden">
           {activeTab === 'overview' && (
             <AdminOverview 
               stats={getStats()} 
@@ -363,13 +379,7 @@ const AdminDashboard = () => {
             <AdminSettingsManager {...{ settingsData, setSettingsData, handleSaveSettings, isSavingSettings }} />
           )}
         </div>
-      </section>
-
-      <style>{`
-        .nav-tabs .nav-link { color: var(--text-primary); border: none; padding: 1rem 1.5rem; transition: all 0.2s; }
-        .nav-tabs .nav-link.active { border-bottom: 3px solid var(--primary); font-weight: bold; color: var(--primary); }
-        .nav-tabs .nav-link:hover:not(.active) { background-color: rgba(0,0,0,0.05); }
-      `}</style>
+      </div>
     </div>
   );
 };

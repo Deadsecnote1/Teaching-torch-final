@@ -176,7 +176,7 @@ const ModernResourceCard = ({
               onClick={handleDownload}
               className={cn(
                 "inline-flex items-center justify-center gap-1.5 h-8 px-3 rounded-lg text-xs font-medium transition-colors flex-1 sm:flex-none",
-                isManageMode ? "bg-bg-secondary text-text-primary hover:bg-bg-tertiary border border-border" : "bg-primary text-white hover:bg-primary-dark shadow-sm"
+                "border border-primary text-primary hover:bg-primary-light"
               )}
             >
               <Download className="w-4 h-4 sm:mr-0" />

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useData } from '../../context/DataContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { getResourceTypeName } from '../../utils/resourceTranslations';
+import { History, Book, FileText, StickyNote, PlayCircle, File, ArrowRight } from 'lucide-react';
 
 const RecentResources = ({ limit = 6, gradeId = null, className = '' }) => {
     const { allResources, grades, subjects, resourceTypes } = useData();
@@ -39,11 +40,11 @@ const RecentResources = ({ limit = 6, gradeId = null, className = '' }) => {
 
     const getResourceIcon = (type) => {
         switch (type) {
-            case 'textbooks': return 'bi-book text-primary';
-            case 'papers': return 'bi-file-text text-info';
-            case 'notes': return 'bi-sticky text-warning';
-            case 'videos': return 'bi-play-circle text-danger';
-            default: return 'bi-file-earmark text-secondary';
+            case 'textbooks': return <Book className="w-8 h-8 text-primary" />;
+            case 'papers': return <FileText className="w-8 h-8 text-info" />;
+            case 'notes': return <StickyNote className="w-8 h-8 text-warning" />;
+            case 'videos': return <PlayCircle className="w-8 h-8 text-danger" />;
+            default: return <File className="w-8 h-8 text-text-muted" />;
         }
     };
 
@@ -60,61 +61,44 @@ const RecentResources = ({ limit = 6, gradeId = null, className = '' }) => {
     };
 
     return (
-        <div className={`recent-resources-section ${className}`}>
-            <h3 className="mb-4 text-center">
-                <i className="bi bi-clock-history me-2"></i>
+        <div className={`py-8 ${className}`}>
+            <h3 className="mb-6 text-center text-2xl font-bold text-text-primary flex items-center justify-center">
+                <History className="w-6 h-6 mr-2 text-primary" />
                 {t.title}
             </h3>
-            <div className="row g-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {recentResources.map((resource) => (
-                    <div key={resource.id} className="col-lg-4 col-md-6">
-                        <Link to={getResourceLink(resource)} className="recent-resource-card text-decoration-none text-dark">
-                            <div className="card h-100 border hover-shadow transition-all">
-                                <div className="card-body">
-                                    <div className="d-flex align-items-start mb-3">
-                                        <div className="resource-icon me-3">
-                                            <i className={`bi ${getResourceIcon(resource.resourceType)}`} style={{ fontSize: '2rem' }}></i>
-                                        </div>
-                                        <div className="flex-grow-1" style={{ minWidth: 0 }}>
-                                            <span className="badge bg-light text-secondary mb-2 border">
-                                                {grades[resource.grade]?.display || resource.grade}
-                                            </span>
-                                            <h6 className="card-title mb-1 text-truncate" title={resource.title || resource.name}>
-                                                {resource.title || resource.name || 'Untitled'}
-                                            </h6>
-                                            <small className="text-muted d-block text-capitalize">
-                                                {(() => {
-                                                    const rt = resourceTypes?.find(t => t.id === resource.resourceType);
-                                                    const typeName = rt?.name?.[selectedLanguage] || getResourceTypeName(resource.resourceType, selectedLanguage) || rt?.name?.english || resource.resourceType;
-                                                    return `${subjects[resource.subject]?.display || resource.subject} • ${typeName}`;
-                                                })()}
-                                            </small>
-                                        </div>
-                                    </div>
-                                    <div className="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
-                                        <small className="text-muted">
-                                            {/* Date removed as per request */}
-                                        </small>
-                                        <small className="text-primary fw-bold">
-                                            {t.view} <i className="bi bi-arrow-right"></i>
-                                        </small>
-                                    </div>
+                    <Link key={resource.id} to={getResourceLink(resource)} className="block group">
+                        <div className="h-full bg-bg-secondary border border-border rounded-xl p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-primary/50 transition-all duration-300 flex flex-col">
+                            <div className="flex items-start mb-4">
+                                <div className="mr-4 flex-shrink-0">
+                                    {getResourceIcon(resource.resourceType)}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <span className="inline-block px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-text-muted bg-bg-tertiary border border-border rounded mb-2">
+                                        {grades[resource.grade]?.display || resource.grade}
+                                    </span>
+                                    <h6 className="font-bold text-text-primary mb-1 truncate" title={resource.title || resource.name}>
+                                        {resource.title || resource.name || 'Untitled'}
+                                    </h6>
+                                    <p className="text-xs text-text-muted capitalize truncate">
+                                        {(() => {
+                                            const rt = resourceTypes?.find(t => t.id === resource.resourceType);
+                                            const typeName = rt?.name?.[selectedLanguage] || getResourceTypeName(resource.resourceType, selectedLanguage) || rt?.name?.english || resource.resourceType;
+                                            return `${subjects[resource.subject]?.display || resource.subject} • ${typeName}`;
+                                        })()}
+                                    </p>
                                 </div>
                             </div>
-                        </Link>
-                    </div>
+                            <div className="mt-auto pt-4 border-t border-border flex justify-end items-center">
+                                <span className="text-sm font-bold text-primary flex items-center group-hover:translate-x-1 transition-transform">
+                                    {t.view} <ArrowRight className="w-4 h-4 ml-1" />
+                                </span>
+                            </div>
+                        </div>
+                    </Link>
                 ))}
             </div>
-            <style>{`
-        .hover-shadow:hover {
-          box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
-          transform: translateY(-3px);
-          border-color: var(--primary) !important;
-        }
-        .transition-all {
-          transition: all 0.3s ease;
-        }
-      `}</style>
         </div>
     );
 };

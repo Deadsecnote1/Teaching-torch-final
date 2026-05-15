@@ -4,7 +4,8 @@ import { useALData } from '../../context/ALContext';
 import { useAuth } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
-import { Pencil, Trash2, BookOpen, Layers, ChevronRight, Settings, Plus } from 'lucide-react';
+import { Pencil, Trash2, BookOpen, Layers, ChevronRight, Settings, Plus, X } from 'lucide-react';
+import { getLucideIcon } from '../../utils/iconUtils';
 import { Container, Section, Grid } from '../../components/ui/Layout';
 import { Card, CardContent } from '../../components/ui/Card';
 
@@ -17,6 +18,8 @@ const ALStreamsPage = () => {
   React.useEffect(() => {
     initializeALData();
   }, [initializeALData]);
+
+
 
   // Editor States
   const [editingStream, setEditingStream] = useState(null);
@@ -53,7 +56,7 @@ const ALStreamsPage = () => {
       const sanitizedData = {
         ...formData,
         description: formData.description || '',
-        icon: formData.icon || 'bi-book'
+        icon: formData.icon || 'book'
       };
       await updateDocument('al_subjects', editingSubject.id, sanitizedData);
       setEditingSubject(null);
@@ -115,7 +118,7 @@ const ALStreamsPage = () => {
                 >
                   <CardContent className="p-8 flex flex-col items-center text-center relative z-10 h-full">
                     <div className="w-20 h-20 rounded-2xl flex items-center justify-center mb-6 bg-bg-secondary border border-border shadow-sm transition-transform duration-300" style={{ color: stream.color || 'var(--primary)' }}>
-                      <i className={`bi ${stream.icon || 'bi-layers'} text-5xl`}></i>
+                      {getLucideIcon(stream.icon, "w-12 h-12")}
                     </div>
                     <h3 className="text-2xl font-bold text-text-primary">{stream.name}</h3>
                     <p className="text-text-muted mt-2 text-sm">{stream.description || 'Access specialized resources'}</p>
@@ -146,7 +149,10 @@ const ALStreamsPage = () => {
                               to={`/al/${stream.id}/${subject.id}`}
                               className="flex-1 flex justify-between items-center px-4 py-2.5 border border-primary/20 text-primary hover:bg-primary hover:text-white rounded-lg transition-colors text-sm font-semibold bg-primary/5"
                             >
-                              <span className="flex items-center"><i className={`bi ${subject.icon || 'bi-book'} mr-2.5 text-lg opacity-80`}></i>{subject.name}</span>
+                              <span className="flex items-center">
+                                {getLucideIcon(subject.icon, "w-5 h-5 mr-2.5 opacity-80")}
+                                {subject.name}
+                              </span>
                               <ChevronRight className="w-4 h-4 opacity-70" />
                             </Link>
                             {isManageMode && (
@@ -199,7 +205,7 @@ const ALStreamsPage = () => {
                 className="text-text-muted hover:text-text-primary transition-colors" 
                 onClick={() => { setEditingStream(null); setEditingSubject(null); }}
               >
-                <i className="bi bi-x-lg"></i>
+                <X className="w-5 h-5" />
               </button>
             </div>
             <form onSubmit={editingStream ? handleUpdateStream : handleUpdateSubject}>
@@ -227,9 +233,20 @@ const ALStreamsPage = () => {
                     />
                   </div>
                 )}
+                {editingStream && (
+                  <div>
+                    <label className="block text-sm font-semibold text-text-primary mb-1.5">Icon (Lucide name, e.g. layers, book)</label>
+                    <input 
+                      type="text" 
+                      className="w-full px-3 py-2 bg-bg-primary border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/50" 
+                      value={formData.icon || ''} 
+                      onChange={e => setFormData({ ...formData, icon: e.target.value })} 
+                    />
+                  </div>
+                )}
                 {editingSubject && (
                   <div>
-                    <label className="block text-sm font-semibold text-text-primary mb-1.5">Icon (Bootstrap class)</label>
+                    <label className="block text-sm font-semibold text-text-primary mb-1.5">Icon (Lucide name, e.g. book, calculator)</label>
                     <input 
                       type="text" 
                       className="w-full px-3 py-2 bg-bg-primary border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/50" 

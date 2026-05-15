@@ -173,8 +173,8 @@ const MetadataEditorModal = ({ isOpen, onClose, onSave, title, initialData, type
                   <>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="flex flex-col gap-2">
-                        <label className="text-xs font-bold text-text-muted uppercase tracking-wider">Icon Class</label>
-                        <Input placeholder="bi-archive or lucide" value={formData.icon} onChange={e => setFormData({ ...formData, icon: e.target.value })} />
+                        <label className="text-xs font-bold text-text-muted uppercase tracking-wider">Icon Name</label>
+                        <Input placeholder="Icon Name (e.g. archive, book, video)" value={formData.icon} onChange={e => setFormData({ ...formData, icon: e.target.value })} />
                       </div>
                       <div className="flex flex-col gap-2">
                         <label className="text-xs font-bold text-text-muted uppercase tracking-wider">Color Class</label>

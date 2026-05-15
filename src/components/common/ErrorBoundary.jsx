@@ -1,4 +1,5 @@
 import React from 'react';
+import { AlertTriangle, RefreshCw } from 'lucide-react';
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -20,18 +21,18 @@ class ErrorBoundary extends React.Component {
     if (this.state.hasError) {
       // You can render any custom fallback UI
       return (
-        <div className="container text-center py-5">
-          <div className="card shadow-sm p-5 border-danger">
-            <i className="bi bi-exclamation-triangle text-danger mb-3" style={{ fontSize: '3rem' }}></i>
-            <h2 className="mb-4">Something went wrong</h2>
-            <p className="text-muted mb-4">
+        <div className="max-w-md mx-auto text-center py-20 px-4">
+          <div className="bg-bg-secondary rounded-2xl shadow-lg p-8 border border-danger/30">
+            <AlertTriangle className="w-16 h-16 text-danger mb-6 mx-auto" />
+            <h2 className="text-2xl font-bold text-text-primary mb-4">Something went wrong</h2>
+            <p className="text-text-muted mb-8 text-sm leading-relaxed">
               We encountered an unexpected error. Please try refreshing the page or contact support if the problem persists.
             </p>
             <button 
-              className="btn btn-primary"
+              className="inline-flex items-center justify-center px-6 py-3 rounded-lg font-bold text-white bg-primary hover:bg-primary-dark transition-all shadow-sm w-full sm:w-auto"
               onClick={() => window.location.reload()}
             >
-              <i className="bi bi-arrow-clockwise me-2"></i>
+              <RefreshCw className="w-4 h-4 mr-2" />
               Refresh Page
             </button>
           </div>

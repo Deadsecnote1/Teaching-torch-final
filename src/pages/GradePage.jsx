@@ -16,10 +16,10 @@ const GradePage = () => {
   const { selectedLanguage } = useLanguage();
 
   const dynamicResourceTypes = [
-    { id: 'textbooks', name: 'Textbooks', icon: 'bi-book' },
-    { id: 'papers', name: 'Past Papers', icon: 'bi-file-earmark-text' },
-    { id: 'notes', name: 'Short Notes', icon: 'bi-sticky' },
-    { id: 'videos', name: 'Videos', icon: 'bi-play-circle' }
+    { id: 'textbooks', name: 'Textbooks', icon: 'book' },
+    { id: 'papers', name: 'Past Papers', icon: 'archive' },
+    { id: 'notes', name: 'Short Notes', icon: 'sticky-note' },
+    { id: 'videos', name: 'Videos', icon: 'play-circle' }
   ];
 
   const targetGradeId = streamId || gradeId;

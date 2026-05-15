@@ -11,6 +11,7 @@ import MetadataEditorModal from '../components/admin/MetadataEditorModal';
 import { subjectTranslations } from '../utils/subjectTranslations';
 import { getResourceTypeName } from '../utils/resourceTranslations';
 import AdSenseComponent from '../components/common/AdSenseComponent';
+import { getLucideIcon } from '../utils/iconUtils';
 import toast from 'react-hot-toast';
 import { ChevronRight, ArrowLeft, Cloud, Edit, Trash2, Download, MinusCircle, Plus, FileText, ArrowUp } from 'lucide-react';
 import { Container, Section, Grid } from '../components/ui/Layout';
@@ -176,17 +177,17 @@ const TextbooksPage = () => {
             
             {parentGrade && (
               <>
-                <Link to={`/grade/${gradeId}`} className="hover:text-primary transition-colors">{parentGrade.display}</Link>
+                <Link to={`/grade/${gradeId}`} className="hover:text-primary transition-colors flex items-center">{parentGrade.display}</Link>
                 <ChevronRight className="w-4 h-4 mx-2 flex-shrink-0 opacity-40" />
               </>
             )}
             
-            <Link to={streamId ? `/grade/${gradeId}/${streamId}` : `/grade/${gradeId}`} className="hover:text-primary transition-colors">{grade.display}</Link>
+            <Link to={streamId ? `/grade/${gradeId}/${streamId}` : `/grade/${gradeId}`} className="hover:text-primary transition-colors flex items-center">{grade.display}</Link>
             <ChevronRight className="w-4 h-4 mx-2 flex-shrink-0 opacity-40" />
             
             {subject && (
               <>
-                <Link to={`/grade/${gradeId}/${streamId}/${selectedSubjectId}`} className="hover:text-primary transition-colors">{subject.display}</Link>
+                <Link to={`/grade/${gradeId}/${streamId}/${selectedSubjectId}`} className="hover:text-primary transition-colors flex items-center">{subject.display}</Link>
                 <ChevronRight className="w-4 h-4 mx-2 flex-shrink-0 opacity-40" />
               </>
             )}
@@ -229,7 +230,7 @@ const TextbooksPage = () => {
                   <CardHeader className="flex flex-row items-center justify-between border-b border-border bg-bg-secondary/40 pb-4">
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 rounded-xl bg-bg-primary shadow-sm border border-border flex items-center justify-center group-hover:scale-105 transition-transform">
-                        <i className={cn(subject.icon, "text-2xl text-primary")}></i>
+                        {getLucideIcon(subject.icon, "text-2xl text-primary")}
                       </div>
                       <CardTitle className="text-xl">
                         {subjectTranslations.getTranslatedName(subjectId, subject, selectedLanguage)}
