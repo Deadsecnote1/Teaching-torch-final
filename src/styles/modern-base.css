@@ -47,8 +47,7 @@
 
   /* Responsive container */
   .container-modern {
-    @apply w-full max-w-full px-4 mx-auto
-      sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl;
+    @apply w-full px-4 sm:px-6 lg:px-8 mx-auto max-w-7xl;
   }
 
   /* Mobile-first spacing */
