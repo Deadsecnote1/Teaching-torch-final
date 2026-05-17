@@ -43,12 +43,18 @@ export default function ModernNavbar() {
 
   const sortedGrades = useMemo(() => {
     return Object.entries(grades)
+      .filter(([key]) => key !== 'al')
       .sort((a, b) => {
-        const orderA = a[1].order !== undefined ? a[1].order : 999;
-        const orderB = b[1].order !== undefined ? b[1].order : 999;
-        return orderA - orderB;
+        const orderA = a[1].order !== undefined && a[1].order !== '' ? parseInt(a[1].order, 10) : 999;
+        const orderB = b[1].order !== undefined && b[1].order !== '' ? parseInt(b[1].order, 10) : 999;
+        if (orderA !== orderB) return orderA - orderB;
+        const numA = parseInt(String(a[0]).replace('grade', ''), 10) || 999;
+        const numB = parseInt(String(b[0]).replace('grade', ''), 10) || 999;
+        return numA - numB;
       });
   }, [grades]);
+
+  const gradeLinkPath = (key) => (key === 'al' ? '/al' : `/grade/${key}`);
 
   // Framer motion variants
   const mobileMenuVariants = {
@@ -119,7 +125,7 @@ export default function ModernNavbar() {
                       animate="visible"
                       exit="hidden"
                       variants={dropdownVariants}
-                      className="absolute left-0 mt-2 w-56 rounded-xl bg-card border border-border shadow-lg py-2 overflow-hidden z-50"
+                      className="absolute left-0 mt-2 w-56 max-h-[min(24rem,70vh)] overflow-y-auto overscroll-contain rounded-xl bg-card border border-border shadow-lg py-2 z-50"
                     >
                       {gradesLoading ? (
                         <div className="px-4 py-2 text-sm text-text-muted">Loading grades...</div>
@@ -127,7 +133,7 @@ export default function ModernNavbar() {
                         sortedGrades.map(([key, gradeData]) => (
                           <Link
                             key={key}
-                            to={`/grade/${key}`}
+                            to={gradeLinkPath(key)}
                             onClick={() => setShowGradesDropdown(false)}
                             className="flex items-center gap-2 px-4 py-2 text-sm text-text-primary hover:bg-primary/10 hover:text-primary transition-colors"
                           >
@@ -267,7 +273,7 @@ export default function ModernNavbar() {
                   sortedGrades.map(([key, gradeData]) => (
                     <Link
                       key={key}
-                      to={`/grade/${key}`}
+                      to={gradeLinkPath(key)}
                       onClick={() => setIsOpen(false)}
                       className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm text-text-primary hover:bg-bg-secondary transition-colors"
                     >

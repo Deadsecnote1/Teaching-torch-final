@@ -85,7 +85,7 @@ const Home = () => {
 
       {/* Grades Section */}
       <Section id="grades" title="Choose Your Grade" description="Select your grade level to browse available resources.">
-        <Grid cols={3} gap={6}>
+        <Grid cols={3} gap={6} centerIncomplete>
           {Object.entries(grades).sort((a, b) => {
             const orderA = a[1].order !== undefined && a[1].order !== '' ? parseInt(a[1].order, 10) : 999;
             const orderB = b[1].order !== undefined && b[1].order !== '' ? parseInt(b[1].order, 10) : 999;

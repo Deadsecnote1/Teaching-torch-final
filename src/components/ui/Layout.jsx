@@ -1,3 +1,4 @@
+import React from 'react';
 import { cn } from '../../utils/cn';
 
 export const Container = ({ children, className = '', ...props }) => (
@@ -28,15 +29,7 @@ export const Section = ({ children, className = '', title, description, ...props
   </section>
 );
 
-export const Grid = ({ children, cols = 3, gap = 6, className = '', ...props }) => {
-  // Map props to safe Tailwind classes (dynamic string interpolation breaks Tailwind's compiler)
-  const gridCols = {
-    1: 'grid-cols-1',
-    2: 'grid-cols-1 sm:grid-cols-2',
-    3: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
-    4: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4',
-  }[cols] || 'grid-cols-1';
-
+export const Grid = ({ children, cols = 3, gap = 6, className = '', centerIncomplete = false, ...props }) => {
   const gapClass = {
     4: 'gap-4',
     6: 'gap-6',
@@ -45,8 +38,34 @@ export const Grid = ({ children, cols = 3, gap = 6, className = '', ...props }) 
     12: 'gap-12',
   }[gap] || 'gap-6';
 
+  if (centerIncomplete) {
+    const itemClass = {
+      3: 'w-full max-w-sm sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]',
+      4: 'w-full max-w-xs sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] xl:w-[calc(25%-1.125rem)]',
+    }[cols] || 'w-full max-w-sm';
+
+    return (
+      <div className={cn('flex flex-wrap justify-center', gapClass, className)} {...props}>
+        {React.Children.map(children, (child) =>
+          child != null ? (
+            <div key={child.key} className={cn(itemClass, 'flex justify-center')}>
+              {child}
+            </div>
+          ) : null
+        )}
+      </div>
+    );
+  }
+
+  const gridCols = {
+    1: 'grid-cols-1',
+    2: 'grid-cols-1 sm:grid-cols-2',
+    3: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
+    4: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4',
+  }[cols] || 'grid-cols-1';
+
   return (
-    <div className={cn("grid", gridCols, gapClass, className)} {...props}>
+    <div className={cn('grid', gridCols, gapClass, className)} {...props}>
       {children}
     </div>
   );
