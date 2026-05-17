@@ -4,6 +4,9 @@ node_modules/
 # Production build
 build/
 
+# Firebase CLI local cache (hosting deploy)
+.firebase/
+
 # Environment variables
 .env
 .env.local

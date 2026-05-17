@@ -9,6 +9,9 @@ import { getLucideIcon } from '../../../utils/iconUtils';
 import { Container, Section } from '../../../components/ui/Layout';
 import { Card, CardContent } from '../../../components/ui/Card';
 
+const isLargeScreen = () =>
+  typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches;
+
 const ALStreamsPage = () => {
   useDocumentTitle('Advanced Level Streams');
   const { alStreams, alSubjects, loading, initializeALData, updateDocument, deleteDocument } = useALData();
@@ -111,10 +114,12 @@ const ALStreamsPage = () => {
             return (
               <div key={stream.id} className="flex justify-center w-full min-w-0">
                 <Card 
-                  className={`w-full max-w-md transition-all duration-300 border-border overflow-hidden cursor-pointer ${isActive ? 'ring-2 ring-primary shadow-lg -translate-y-1' : 'hover:shadow-md hover:border-primary/50'}`}
-                  onMouseEnter={() => setActiveStreamId(stream.id)}
-                  onMouseLeave={() => setActiveStreamId(null)}
-                  onClick={() => setActiveStreamId(isActive ? null : stream.id)}
+                  className={`w-full max-w-md transition-all duration-300 border-border overflow-hidden lg:cursor-pointer ${isActive ? 'lg:ring-2 lg:ring-primary lg:shadow-lg lg:-translate-y-1' : 'lg:hover:shadow-md lg:hover:border-primary/50'}`}
+                  onMouseEnter={() => isLargeScreen() && setActiveStreamId(stream.id)}
+                  onMouseLeave={() => isLargeScreen() && setActiveStreamId(null)}
+                  onClick={() => {
+                    if (isLargeScreen()) setActiveStreamId(isActive ? null : stream.id);
+                  }}
                 >
                   <CardContent className="p-6 sm:p-8 flex flex-col items-center text-center relative z-10 h-full min-w-0 w-full">
                     <div className="w-20 h-20 shrink-0 rounded-2xl flex items-center justify-center mb-6 bg-bg-secondary border border-border shadow-sm transition-transform duration-300" style={{ color: stream.color || 'var(--primary)' }}>
@@ -139,7 +144,11 @@ const ALStreamsPage = () => {
                     )}
 
                     {/* Subjects Dropdown / Menu */}
-                    <div className={`w-full mt-6 transition-all duration-300 ${isActive ? 'opacity-100 max-h-[500px]' : 'opacity-0 max-h-0 overflow-hidden'}`}>
+                    <div
+                      className={`w-full mt-6 transition-all duration-300 max-lg:opacity-100 max-lg:max-h-[32rem] max-lg:overflow-visible ${
+                        isActive ? 'lg:opacity-100 lg:max-h-[500px]' : 'lg:opacity-0 lg:max-h-0 lg:overflow-hidden'
+                      }`}
+                    >
                       <div className="h-px bg-border w-full mb-4"></div>
                       <h6 className="text-xs font-bold text-text-muted uppercase tracking-wider mb-4">Select Subject</h6>
                       <div className="flex flex-col gap-2 overflow-y-auto max-h-[350px] pr-1 custom-scrollbar">

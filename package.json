@@ -42,10 +42,8 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hot-toast": "^2.6.0",
-    "react-query": "^3.39.3",
     "react-router-dom": "^6.8.1",
-    "tailwind-merge": "^3.6.0",
-    "zustand": "^5.0.13"
+    "tailwind-merge": "^3.6.0"
   },
   "eslintConfig": {
     "extends": [

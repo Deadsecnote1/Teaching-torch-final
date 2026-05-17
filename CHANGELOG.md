@@ -95,7 +95,7 @@ This file records intentional changes made during the reliability and UX hardeni
 
 - Moved O/L contexts to `src/features/ol/context/`; A/L to `src/features/al/context/`.
 - `useGradePage` → `src/features/ol/hooks/`.
-- Legacy `src/context/*` and `src/hooks/useGradePage.js` remain as re-export shims.
+- Legacy shims removed in Phase C (see below).
 - `App.jsx` imports providers from `features/ol` and `features/al`.
 
 ### Phase A2 + B — pages and split admin routes
@@ -103,7 +103,7 @@ This file records intentional changes made during the reliability and UX hardeni
 **Pages**
 - O/L pages → `src/features/ol/pages/`; A/L pages → `src/features/al/pages/`.
 - `App.jsx` lazy imports from feature page paths.
-- `src/pages/*` and `src/pages/al/*` are one-line re-export shims.
+- Page modules live only under `features/*/pages/`.
 
 **Admin**
 - `/admin` — Grades 6–11 tabs only (A/L tab removed).
@@ -119,9 +119,19 @@ This file records intentional changes made during the reliability and UX hardeni
 
 ---
 
+### Pending cleanup (2026-05-17)
+
+- A/L streams: subject list always visible below `lg` (mobile tap fix).
+- Removed unused `RecentResources.jsx`, `react-query`, and `zustand`.
+- `.firebase/` added to `.gitignore`.
+
+---
+
 ## Known follow-ups
 
-- [ ] Suspense fallback for lazy routes (reduce empty shell flash).
+- [x] Suspense fallback for lazy routes (`min-h-[50vh]` spinner).
 - [x] Firestore rules + admin allowlist (P0; deploy rules per environment).
 - [x] Phase C: remove context/page shims.
-- [ ] Wire or remove unused `RecentResources.jsx`.
+- [x] Remove unused `RecentResources.jsx`.
+- [ ] Reconcile `main` vs `developer` when ready (production deploy — user-controlled).
+- [ ] Admin bulk delete (still disabled in file manager).
