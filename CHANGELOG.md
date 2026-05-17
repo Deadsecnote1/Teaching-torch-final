@@ -67,6 +67,12 @@ This file records intentional changes made during the reliability and UX hardeni
 
 ---
 
+### Mobile nav — theme toggle inside hamburger menu
+
+- `ModernNavbar.jsx` — Theme control hidden on bar below `lg`; added “Light mode” / “Dark mode” item at bottom of mobile menu (closes menu on toggle). Desktop header unchanged.
+
+---
+
 ## Known follow-ups
 
 - [ ] Suspense fallback for lazy routes (reduce empty shell flash).

@@ -154,12 +154,12 @@ export default function ModernNavbar() {
             {/* Right Side Controls */}
             <div className="flex items-center gap-2">
               
-              {/* Theme Toggle */}
+              {/* Theme Toggle (desktop only — mobile uses menu item below) */}
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={toggleTheme}
-                className="rounded-full"
+                className="hidden lg:inline-flex rounded-full"
                 aria-label="Toggle theme"
               >
                 {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
@@ -282,6 +282,29 @@ export default function ModernNavbar() {
                 >
                   <GraduationCap className="w-4 h-4 text-success" /> Advanced Level
                 </Link>
+
+                <div className="h-px bg-border my-2" />
+                <button
+                  type="button"
+                  onClick={() => {
+                    toggleTheme();
+                    setIsOpen(false);
+                  }}
+                  className="flex w-full items-center gap-3 px-4 py-3 rounded-lg text-base font-medium text-text-primary hover:bg-bg-secondary transition-colors tap-target"
+                  aria-label="Toggle theme"
+                >
+                  {theme === 'dark' ? (
+                    <>
+                      <Sun className="w-5 h-5 text-primary" />
+                      Light mode
+                    </>
+                  ) : (
+                    <>
+                      <Moon className="w-5 h-5 text-primary" />
+                      Dark mode
+                    </>
+                  )}
+                </button>
               </div>
             </motion.div>
           )}
