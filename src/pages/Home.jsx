@@ -49,21 +49,19 @@ const Home = () => {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Modern Hero Section */}
-      <section className="relative overflow-hidden pt-16 pb-24 sm:pt-24 sm:pb-32 border-b border-border">
-        {/* Background image with overlay */}
-        <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-gradient-to-b from-primary/95 to-primary-dark/95 mix-blend-multiply z-10" />
-          <img 
-            src="/bg1-medium.webp" 
-            alt="Background" 
-            className="w-full h-full object-cover opacity-30"
-          />
-        </div>
-
-        {/* Background decorative elements */}
-        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-[10%] -right-[10%] w-[50%] h-[50%] rounded-full bg-primary/10 blur-[100px]" />
-          <div className="absolute -bottom-[10%] -left-[10%] w-[50%] h-[50%] rounded-full bg-success/10 blur-[100px]" />
+      <section className="relative overflow-hidden pt-16 pb-24 sm:pt-24 sm:pb-32 border-b border-border min-h-[420px] sm:min-h-[480px] flex items-center">
+        {/* Background photo — same in light and dark (no theme tint overlays) */}
+        <div className="absolute inset-0 z-0" aria-hidden="true">
+          <picture className="block w-full h-full">
+            <source media="(min-width: 1200px)" srcSet="/bg1.webp" />
+            <source media="(min-width: 768px)" srcSet="/bg1-medium.webp" />
+            <img
+              src="/bg1-small.webp"
+              alt=""
+              className="w-full h-full object-cover object-center"
+              decoding="async"
+            />
+          </picture>
         </div>
 
         <Container className="relative z-10 text-center">
@@ -72,10 +70,10 @@ const Home = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight mb-6">
-              Welcome to <span className="text-white bg-clip-text">Teaching Torch</span>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight mb-6 [text-shadow:0_2px_16px_rgba(0,0,0,0.85)]">
+              Welcome to <span className="text-white">Teaching Torch</span>
             </h1>
-            <p className="max-w-2xl mx-auto text-lg sm:text-xl text-white/80 mb-10">
+            <p className="max-w-2xl mx-auto text-lg sm:text-xl text-white/95 mb-10 [text-shadow:0_1px_10px_rgba(0,0,0,0.8)]">
               Your ultimate hub for free educational resources for Sri Lankan students. 
               Find textbooks, past papers, notes, and video tutorials all in one place.
             </p>
