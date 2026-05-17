@@ -126,6 +126,26 @@ body {
   }
 }
 
+/* Home hero — full-opacity photo, no color overlay (text uses shadow) */
+.hero-photo-bg {
+  background-image: url('/bg1-small.webp');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+@media (min-width: 768px) {
+  .hero-photo-bg {
+    background-image: url('/bg1-medium.webp');
+  }
+}
+
+@media (min-width: 1200px) {
+  .hero-photo-bg {
+    background-image: url('/bg1.webp');
+  }
+}
+
 /* Language Indicators */
 .language-indicator {
   display: inline-block;

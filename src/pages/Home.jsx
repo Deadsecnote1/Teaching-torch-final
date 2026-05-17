@@ -51,18 +51,7 @@ const Home = () => {
       {/* Modern Hero Section */}
       <section className="relative overflow-hidden pt-16 pb-24 sm:pt-24 sm:pb-32 border-b border-border min-h-[420px] sm:min-h-[480px] flex items-center">
         {/* Background photo — same in light and dark (no theme tint overlays) */}
-        <div className="absolute inset-0 z-0" aria-hidden="true">
-          <picture className="block w-full h-full">
-            <source media="(min-width: 1200px)" srcSet="/bg1.webp" />
-            <source media="(min-width: 768px)" srcSet="/bg1-medium.webp" />
-            <img
-              src="/bg1-small.webp"
-              alt=""
-              className="w-full h-full object-cover object-center"
-              decoding="async"
-            />
-          </picture>
-        </div>
+        <div className="absolute inset-0 z-0 hero-photo-bg" aria-hidden="true" />
 
         <Container className="relative z-10 text-center">
           <motion.div
