@@ -123,7 +123,10 @@ const ALStreamsPage = () => {
                 >
                   <CardContent className="p-6 sm:p-8 flex flex-col items-center text-center relative z-10 h-full min-w-0 w-full">
                     <div className="w-20 h-20 shrink-0 rounded-2xl flex items-center justify-center mb-6 bg-bg-secondary border border-border shadow-sm transition-transform duration-300" style={{ color: stream.color || 'var(--primary)' }}>
-                      {getLucideIcon(stream.icon, "w-12 h-12")}
+                      {getLucideIcon(
+                        stream.id === 'science' || /^science\b/i.test(stream.name || '') ? 'lightbulb' : stream.icon,
+                        'w-12 h-12'
+                      )}
                     </div>
                     <h3 className="text-xl sm:text-2xl font-bold text-text-primary text-center leading-snug break-normal text-pretty w-full min-w-0">{stream.name}</h3>
                     <p className="text-text-muted mt-2 text-sm">{stream.description || 'Access specialized resources'}</p>
