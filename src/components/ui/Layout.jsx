@@ -33,12 +33,12 @@ export const Section = ({ children, className = '', title, description, ...props
 const incompleteRowColStart = {
   3: {
     1: 'lg:col-start-2',
-    2: 'lg:col-start-1',
+    2: 'lg:col-start-2',
   },
   4: {
     1: 'xl:col-start-2',
     2: 'xl:col-start-2',
-    3: 'xl:col-start-1',
+    3: 'xl:col-start-2',
   },
 };
 
@@ -63,17 +63,19 @@ export const Grid = ({ children, cols = 3, gap = 6, className = '', centerIncomp
   const colStartForRemainder = incompleteRowColStart[cols]?.[remainder] || '';
 
   return (
-    <div className={cn('grid', gridCols, gapClass, className)} {...props}>
+    <div className={cn('grid items-stretch', gridCols, gapClass, className)} {...props}>
       {childArray.map((child, index) => {
         const isFirstOfIncompleteRow =
           centerIncomplete && remainder > 0 && index === childArray.length - remainder;
 
+        const itemClassName = cn('w-full min-w-0', child.props.className);
+
         if (!isFirstOfIncompleteRow || !colStartForRemainder) {
-          return child;
+          return React.cloneElement(child, { className: itemClassName });
         }
 
         return React.cloneElement(child, {
-          className: cn(child.props.className, colStartForRemainder),
+          className: cn(itemClassName, colStartForRemainder),
         });
       })}
     </div>

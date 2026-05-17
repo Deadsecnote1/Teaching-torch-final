@@ -111,7 +111,7 @@ const Home = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ duration: 0.3, delay: index * 0.05 }}
-                className="relative h-full"
+                className="relative h-full w-full min-w-0"
               >
                 {isManageMode && (
                   <div className="absolute top-3 right-3 z-20 flex gap-1">
@@ -174,7 +174,7 @@ const Home = () => {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
-              className="relative h-full"
+              className="relative h-full w-full min-w-0"
             >
               <Link to="/al" className="block h-full group">
                 <Card className="h-full flex flex-col items-center justify-center p-8 text-center border-border hover:border-primary transition-all duration-300 group-hover:shadow-xl relative overflow-hidden group-hover:-translate-y-1">
