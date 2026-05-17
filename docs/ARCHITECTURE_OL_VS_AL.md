@@ -64,9 +64,10 @@ Keep **separate admin entry points** long term (e.g. `/admin` O/L + `/admin/al` 
 ## Implementation phases
 
 1. **P0 (done)** — Admin allowlist, rules, `isAdmin`, staging vs production admins.
-2. **Phase A** — Move files into `features/ol` and `features/al` without behavior changes (barrel exports preserve imports).
-3. **Phase B** — Split `AdminDashboard` into `OlAdmin` + `AlAdmin` routes.
-4. **Phase C** — Remove `DataContext` re-exports of A/L; ensure no `useData` on A/L pages.
+2. **Phase A (in progress)** — Contexts + `useGradePage` live under `src/features/ol` and `src/features/al`. Legacy paths (`src/context/*`, `src/hooks/useGradePage.js`) are thin re-export shims. `App.jsx` imports from feature barrels.
+3. **Phase A2 (next)** — Move O/L and A/L **pages** into feature folders; update imports.
+4. **Phase B** — Split `AdminDashboard` into `OlAdmin` + `AlAdmin` routes.
+5. **Phase C** — Remove shim re-exports; all new code imports from `features/ol` or `features/al` only.
 
 ## O/L-only notes
 

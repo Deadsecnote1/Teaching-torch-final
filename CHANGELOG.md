@@ -91,6 +91,15 @@ This file records intentional changes made during the reliability and UX hardeni
 
 ---
 
+### Phase A (partial) — Feature folders for contexts
+
+- Moved O/L contexts to `src/features/ol/context/`; A/L to `src/features/al/context/`.
+- `useGradePage` → `src/features/ol/hooks/`.
+- Legacy `src/context/*` and `src/hooks/useGradePage.js` remain as re-export shims.
+- `App.jsx` imports providers from `features/ol` and `features/al`.
+
+---
+
 ## Known follow-ups
 
 - [ ] Suspense fallback for lazy routes (reduce empty shell flash).

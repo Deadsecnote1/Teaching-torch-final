@@ -1,11 +1,9 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { DataProvider } from './context/DataContext';
-import { GradeProvider } from './context/GradeContext';
-import { ResourceProvider } from './context/ResourceContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { LanguageProvider } from './context/LanguageContext';
-import { ALProvider } from './context/ALContext';
+import { GradeProvider, ResourceProvider, DataProvider } from './features/ol';
+import { ALProvider } from './features/al';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { Toaster } from 'react-hot-toast';
 
