@@ -29,6 +29,14 @@ export const GradeProvider = ({ children }) => {
       try {
         const fetchCollection = async (colName, setter, isSingle = false) => {
           let data = isManageMode ? null : getCached(colName);
+          if (colName === 'grades' && data) {
+            const olKeys = ['grade6', 'grade7', 'grade8', 'grade9', 'grade10', 'grade11'];
+            const missingOl = olKeys.some((k) => !data[k]);
+            if (missingOl) {
+              invalidateCache(colName);
+              data = null;
+            }
+          }
           if (!data) {
             if (isSingle) {
               const snap = await getDoc(firestoreDoc(db, colName, 'general'));

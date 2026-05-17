@@ -85,7 +85,7 @@ const Home = () => {
 
       {/* Grades Section */}
       <Section id="grades" title="Choose Your Grade" description="Select your grade level to browse available resources.">
-        <Grid cols={3} gap={6}>
+        <Grid cols={3} gap={6} centerIncomplete>
           {Object.entries(grades).sort((a, b) => {
             const orderA = a[1].order !== undefined && a[1].order !== '' ? parseInt(a[1].order, 10) : 999;
             const orderB = b[1].order !== undefined && b[1].order !== '' ? parseInt(b[1].order, 10) : 999;
@@ -151,8 +151,8 @@ const Home = () => {
                     <div className="absolute inset-0 bg-gradient-to-b from-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     
                     <div 
-                      className="w-20 h-20 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 transition-transform duration-300"
-                      style={gradeData.color ? { backgroundColor: `var(--${gradeData.color})`, color: '#fff' } : {}}
+                      className="w-20 h-20 rounded-2xl flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 transition-transform duration-300 text-white"
+                      style={{ backgroundColor: '#4cd77f' }}
                     >
                       <span className="text-3xl font-extrabold">{iconText}</span>
                     </div>
@@ -179,7 +179,10 @@ const Home = () => {
               <Link to="/al" className="block h-full group">
                 <Card className="h-full flex flex-col items-center justify-center p-8 text-center border-border hover:border-primary transition-all duration-300 group-hover:shadow-xl relative overflow-hidden group-hover:-translate-y-1">
                   <div className="absolute inset-0 bg-gradient-to-b from-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  <div className="w-20 h-20 rounded-2xl bg-primary text-white flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 transition-transform duration-300">
+                  <div
+                    className="w-20 h-20 rounded-2xl flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 transition-transform duration-300 text-white"
+                    style={{ backgroundColor: '#4cd77f' }}
+                  >
                     <span className="text-3xl font-extrabold">A/L</span>
                   </div>
                   <h3 className="text-xl font-bold text-text-primary mb-3 relative z-10">Advanced Level</h3>

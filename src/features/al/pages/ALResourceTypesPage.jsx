@@ -112,7 +112,7 @@ const ALResourceTypesPage = () => {
 
       {/* Content */}
       <Section className="flex-1 py-12">
-        <Grid cols={4} gap={6}>
+        <Grid cols={4} gap={6} centerIncomplete>
           {filteredResourceTypes.map((rt) => (
             <div key={rt.id} className="col-span-1 sm:col-span-2 lg:col-span-1 flex justify-center w-full">
               <Link 
@@ -165,7 +165,7 @@ const ALResourceTypesPage = () => {
           ))}
 
           {filteredResourceTypes.length === 0 && (
-            <div className="col-span-1 sm:col-span-2 lg:col-span-4 text-center text-text-muted py-16 bg-card rounded-2xl border border-border w-full">
+            <div className="col-span-1 sm:col-span-2 lg:col-span-3 xl:col-span-4 w-full text-center text-text-muted py-16 bg-card rounded-2xl border border-border">
               <FolderX className="w-16 h-16 mx-auto mb-4 opacity-20" />
               <h4 className="text-xl font-bold text-text-primary mb-2">No Resource Types Available</h4>
               <p>There are no resource types configured for this subject yet.</p>

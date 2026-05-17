@@ -19,7 +19,10 @@ export default function ModernNavbar() {
   const location = useLocation();
 
   const gradesDropdownRef = useRef(null);
+  const gradesMenuScrollRef = useRef(null);
   const adminDropdownRef = useRef(null);
+
+  const OL_GRADE_KEYS = ['grade6', 'grade7', 'grade8', 'grade9', 'grade10', 'grade11'];
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -42,13 +45,27 @@ export default function ModernNavbar() {
   }, [location.pathname]);
 
   const sortedGrades = useMemo(() => {
-    return Object.entries(grades)
-      .sort((a, b) => {
-        const orderA = a[1].order !== undefined ? a[1].order : 999;
-        const orderB = b[1].order !== undefined ? b[1].order : 999;
-        return orderA - orderB;
-      });
+    const fromDb = OL_GRADE_KEYS.filter((key) => grades[key]).map((key) => [key, grades[key]]);
+    const extras = Object.entries(grades).filter(
+      ([key]) => key !== 'al' && !OL_GRADE_KEYS.includes(key)
+    );
+    return [...fromDb, ...extras].sort((a, b) => {
+      const orderA = a[1].order !== undefined && a[1].order !== '' ? parseInt(a[1].order, 10) : 999;
+      const orderB = b[1].order !== undefined && b[1].order !== '' ? parseInt(b[1].order, 10) : 999;
+      if (orderA !== orderB) return orderA - orderB;
+      const numA = parseInt(String(a[0]).replace('grade', ''), 10) || 999;
+      const numB = parseInt(String(b[0]).replace('grade', ''), 10) || 999;
+      return numA - numB;
+    });
   }, [grades]);
+
+  useEffect(() => {
+    if (showGradesDropdown && gradesMenuScrollRef.current) {
+      gradesMenuScrollRef.current.scrollTop = 0;
+    }
+  }, [showGradesDropdown]);
+
+  const gradeLinkPath = (key) => (key === 'al' ? '/al' : `/grade/${key}`);
 
   // Framer motion variants
   const mobileMenuVariants = {
@@ -57,8 +74,8 @@ export default function ModernNavbar() {
   };
 
   const dropdownVariants = {
-    hidden: { opacity: 0, y: 10, scale: 0.95, pointerEvents: "none" },
-    visible: { opacity: 1, y: 0, scale: 1, pointerEvents: "auto", transition: { type: "spring", stiffness: 300, damping: 24 } }
+    hidden: { opacity: 0, y: 6, pointerEvents: 'none' },
+    visible: { opacity: 1, y: 0, pointerEvents: 'auto', transition: { duration: 0.15 } },
   };
 
   const navLinks = [
@@ -119,19 +136,23 @@ export default function ModernNavbar() {
                       animate="visible"
                       exit="hidden"
                       variants={dropdownVariants}
-                      className="absolute left-0 mt-2 w-56 rounded-xl bg-card border border-border shadow-lg py-2 overflow-hidden z-50"
+                      className="absolute top-full left-0 z-50 pt-2"
                     >
+                      <div
+                        ref={gradesMenuScrollRef}
+                        className="w-56 max-h-[min(20rem,70vh)] overflow-y-auto overscroll-contain rounded-xl bg-card border border-border shadow-lg py-2"
+                      >
                       {gradesLoading ? (
                         <div className="px-4 py-2 text-sm text-text-muted">Loading grades...</div>
                       ) : (
                         sortedGrades.map(([key, gradeData]) => (
                           <Link
                             key={key}
-                            to={`/grade/${key}`}
+                            to={gradeLinkPath(key)}
                             onClick={() => setShowGradesDropdown(false)}
                             className="flex items-center gap-2 px-4 py-2 text-sm text-text-primary hover:bg-primary/10 hover:text-primary transition-colors"
                           >
-                            <BookOpen className="w-4 h-4 text-primary" />
+                            <BookOpen className="w-4 h-4 text-primary shrink-0" />
                             {gradeData.display}
                           </Link>
                         ))
@@ -142,9 +163,10 @@ export default function ModernNavbar() {
                         onClick={() => setShowGradesDropdown(false)}
                         className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-success hover:bg-success/10 transition-colors"
                       >
-                        <GraduationCap className="w-4 h-4" />
+                        <GraduationCap className="w-4 h-4 shrink-0" />
                         Advanced Level (A/L)
                       </Link>
+                      </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -267,7 +289,7 @@ export default function ModernNavbar() {
                   sortedGrades.map(([key, gradeData]) => (
                     <Link
                       key={key}
-                      to={`/grade/${key}`}
+                      to={gradeLinkPath(key)}
                       onClick={() => setIsOpen(false)}
                       className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm text-text-primary hover:bg-bg-secondary transition-colors"
                     >
