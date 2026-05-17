@@ -180,7 +180,7 @@ const PapersPage = () => {
       </header>
 
       {/* Language Switcher */}
-      <div className="bg-bg-primary border-b border-border sticky top-[64px] sm:top-[64px] z-40 shadow-sm backdrop-blur-md bg-opacity-90">
+      <div className="bg-bg-primary border-b border-border">
         <Container className="py-4">
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <span className="text-xs font-bold text-text-muted uppercase tracking-wider">Select Content Medium:</span>

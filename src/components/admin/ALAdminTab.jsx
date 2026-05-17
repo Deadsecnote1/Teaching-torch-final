@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useALData } from '../../features/al';
 import toast from 'react-hot-toast';
 import { isValidHttpsUrl } from '../../utils/validation';
@@ -8,8 +8,13 @@ import { getLucideIcon } from '../../utils/iconUtils';
 const ALAdminTab = () => {
   const { 
     alStreams, alSubjects, alResourceTypes, alSubCategories, alResources,
-    addDocument, updateDocument, deleteDocument 
+    addDocument, updateDocument, deleteDocument,
+    initializeALData,
   } = useALData();
+
+  useEffect(() => {
+    initializeALData();
+  }, [initializeALData]);
 
   const [activeTab, setActiveTab] = useState('streams');
   const [formData, setFormData] = useState({});

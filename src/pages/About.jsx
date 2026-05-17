@@ -16,12 +16,12 @@ const About = () => {
       </header>
 
       {/* Breadcrumb */}
-      <div className="bg-bg-secondary border-b border-border py-3">
-        <Container>
-          <nav className="flex items-center text-sm font-medium text-text-muted">
-            <Link to="/" className="hover:text-primary transition-colors">Home</Link>
-            <ChevronRight className="w-4 h-4 mx-2 flex-shrink-0 opacity-50" />
-            <span className="text-primary">About Us</span>
+      <div className="bg-bg-secondary/50 border-b border-border">
+        <Container className="py-3">
+          <nav className="flex items-center text-sm font-medium text-text-muted whitespace-nowrap overflow-x-auto no-scrollbar">
+            <Link to="/" className="hover:text-primary transition-colors flex items-center">Home</Link>
+            <ChevronRight className="w-4 h-4 mx-2 flex-shrink-0 opacity-40" />
+            <span className="text-text-primary font-semibold">About Us</span>
           </nav>
         </Container>
       </div>

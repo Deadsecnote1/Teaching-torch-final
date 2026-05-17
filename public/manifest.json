@@ -1,6 +1,6 @@
 {
   "short_name": "Teaching Torch",
-  "name": "Teaching Torch - Free Educational Resources",
+  "name": "Teaching Torch",
   "icons": [
     {
       "src": "favicon.ico",
@@ -20,6 +20,6 @@
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#2563eb",
-  "background_color": "#2563eb"
+  "theme_color": "#FFB133",
+  "background_color": "#FFB133"
 }
