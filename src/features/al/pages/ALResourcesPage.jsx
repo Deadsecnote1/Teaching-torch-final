@@ -12,9 +12,13 @@ import { Container, Section, Grid } from '../../../components/ui/Layout';
 
 const ALResourcesPage = () => {
   const { streamId, subjectId, resourceTypeId } = useParams();
-  const { alStreams, alSubjects, alResourceTypes, alSubCategories, alResources, loading, fetchALResources, deleteDocument, updateDocument, addDocument } = useALData();
+  const { alStreams, alSubjects, alResourceTypes, alSubCategories, alResources, status, initializeALData, fetchALResources, deleteDocument, updateDocument, addDocument } = useALData();
   const { selectedLanguage, setLanguage, languages } = useLanguage();
   const { isManageMode } = useAuth();
+
+  React.useEffect(() => {
+    initializeALData();
+  }, [initializeALData]);
 
   React.useEffect(() => {
     if (subjectId) {
@@ -96,7 +100,7 @@ const ALResourcesPage = () => {
 
   useDocumentTitle(resourceType && subject ? `${resourceType.name} - ${subject.name}` : 'Resources');
 
-  if (loading) {
+  if (status === 'loading' || status === 'idle') {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
