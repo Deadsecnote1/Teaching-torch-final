@@ -40,9 +40,10 @@ This file records intentional changes made during the reliability and UX hardeni
 
 ---
 
-### fix(home): show original hero background in light and dark
+### `09a7179` — fix(home): show original hero background in light and dark
 
 - `Home.jsx` — Removed teal `mix-blend-multiply` overlay, 30% image opacity, and blur orbs. Hero uses responsive `<picture>` (`bg1-small` / `bg1-medium` / `bg1`) at full opacity in both themes. Text legibility via `text-shadow` only.
+- `CHANGELOG.md` — Added this change tracker (maintain going forward).
 
 ---
 
