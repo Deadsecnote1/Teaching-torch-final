@@ -120,7 +120,7 @@ const ALStreamsPage = () => {
                     <div className="w-20 h-20 rounded-2xl flex items-center justify-center mb-6 bg-bg-secondary border border-border shadow-sm transition-transform duration-300" style={{ color: stream.color || 'var(--primary)' }}>
                       {getLucideIcon(stream.icon, "w-12 h-12")}
                     </div>
-                    <h3 className="text-2xl font-bold text-text-primary">{stream.name}</h3>
+                    <h3 className="text-2xl font-bold text-text-primary text-center break-words text-balance leading-snug px-2 w-full">{stream.name}</h3>
                     <p className="text-text-muted mt-2 text-sm">{stream.description || 'Access specialized resources'}</p>
 
                     {isManageMode && (
@@ -139,10 +139,10 @@ const ALStreamsPage = () => {
                     )}
 
                     {/* Subjects Dropdown / Menu */}
-                    <div className={`w-full mt-6 transition-all duration-300 ${isActive ? 'opacity-100 max-h-96' : 'opacity-0 max-h-0 overflow-hidden'}`}>
+                    <div className={`w-full mt-6 transition-all duration-300 ${isActive ? 'opacity-100 max-h-[500px]' : 'opacity-0 max-h-0 overflow-hidden'}`}>
                       <div className="h-px bg-border w-full mb-4"></div>
                       <h6 className="text-xs font-bold text-text-muted uppercase tracking-wider mb-4">Select Subject</h6>
-                      <div className="flex flex-col gap-2">
+                      <div className="flex flex-col gap-2 overflow-y-auto max-h-[350px] pr-1 custom-scrollbar">
                         {streamSubjects.map(subject => (
                           <div key={subject.id} className="flex gap-2 w-full items-center">
                             <Link

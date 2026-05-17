@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* Mobile-first responsive design */
 @layer base {
   html {
@@ -15,9 +19,32 @@
 
   /* Safe area for mobile notches removed to fix white border on desktop */
 
-  /* Touch-friendly tap targets (44px minimum) */
-  button, a, input[type="checkbox"], input[type="radio"] {
+  /* Touch-friendly tap targets — scoped to primary controls (not every inline link) */
+  button,
+  [role="button"],
+  .btn-base,
+  .tap-target,
+  nav a,
+  footer a,
+  input[type="checkbox"],
+  input[type="radio"],
+  select,
+  textarea,
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="url"],
+  input[type="search"],
+  input[type="number"] {
     min-height: 44px;
+  }
+
+  button,
+  [role="button"],
+  .btn-base,
+  .tap-target,
+  nav a,
+  footer a {
     min-width: 44px;
   }
 

@@ -25,7 +25,7 @@ const ResourcesPage = () => {
   const [searchParams] = useSearchParams();
   const selectedSubjectId = paramSubjectId || searchParams.get('subject');
   const { grade: rawGrade, subjects, isLoading, isGradeMissing } = useGradePage(streamId || gradeId);
-  const { updateSubject, updateResourceType, resourceTypes, grades } = useData();
+  const { updateSubject, resourceTypes = [], grades } = useData();
 
   const grade = rawGrade;
   const parentGrade = streamId ? grades[gradeId] : null;
@@ -51,9 +51,12 @@ const ResourcesPage = () => {
         displayDescription: typeof found.description === 'object' ? (found.description[selectedLanguage] || found.description.english || '') : (found.description || '')
       };
     }
+    const fallbackLabel = resourceType
+      ? resourceType.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+      : 'Resources';
     return {
       id: resourceType,
-      displayName: getResourceTypeName(resourceType, selectedLanguage),
+      displayName: getResourceTypeName(resourceType, selectedLanguage) || fallbackLabel,
       icon: 'archive',
       color: 'text-primary',
       displayDescription: 'Educational resources'
@@ -205,11 +208,6 @@ const ResourcesPage = () => {
               <h1 className="text-4xl md:text-5xl font-extrabold text-text-primary tracking-tight">
                 {grade.display} {typeMetadata.displayName}
               </h1>
-              {isManageMode && (
-                <Button size="icon" variant="outline" className="rounded-full h-9 w-9 bg-card hover:bg-bg-tertiary" onClick={() => setMetadataModal({ isOpen: true, initialData: typeMetadata, type: 'resourceType', key: resourceType })}>
-                  <Edit className="w-4 h-4 text-text-secondary" />
-                </Button>
-              )}
             </div>
             <p className="text-lg text-text-muted max-w-2xl mx-auto">{typeMetadata.displayDescription}</p>
           </motion.div>
@@ -392,15 +390,15 @@ const ResourcesPage = () => {
         isOpen={metadataModal.isOpen}
         onClose={() => setMetadataModal({ ...metadataModal, isOpen: false })}
         onSave={async (updatedData) => {
-          if (metadataModal.type === 'resourceType') {
-            await updateResourceType(metadataModal.key, updatedData);
-            toast.success('Module Updated');
-          } else {
+          try {
             await updateSubject(metadataModal.key, updatedData);
             toast.success('Subject Updated');
+          } catch (err) {
+            console.error(err);
+            toast.error(err.message || 'Subject update failed');
           }
         }}
-        title={metadataModal.type === 'resourceType' ? "Edit Module" : "Edit Subject"}
+        title="Edit Subject"
         initialData={metadataModal.initialData}
         type={metadataModal.type}
       />

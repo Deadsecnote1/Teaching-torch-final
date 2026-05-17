@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { useData } from '../../context/DataContext';
 import { Globe, MessageCircle, Mail } from 'lucide-react';
 
@@ -33,9 +34,9 @@ const Footer = () => {
           {/* Quick Links */}
           <div className="w-full md:w-1/3 text-center">
             <div className="flex justify-center flex-wrap gap-4">
-              <a href="/about" className="text-white text-sm hover:text-white/80 transition-colors">About Us</a>
-              <a href="/contact" className="text-white text-sm hover:text-white/80 transition-colors">Contact Us</a>
-              <a href="/privacy-policy" className="text-white text-sm hover:text-white/80 transition-colors">Privacy Policy</a>
+              <Link to="/about" className="text-white text-sm hover:text-white/80 transition-colors tap-target inline-flex items-center px-2">About Us</Link>
+              <Link to="/contact" className="text-white text-sm hover:text-white/80 transition-colors tap-target inline-flex items-center px-2">Contact Us</Link>
+              <Link to="/privacy-policy" className="text-white text-sm hover:text-white/80 transition-colors tap-target inline-flex items-center px-2">Privacy Policy</Link>
             </div>
           </div>
 

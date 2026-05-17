@@ -9,10 +9,11 @@ import useDocumentTitle from '../hooks/useDocumentTitle';
 import { ChevronRight, ArrowRight, BookOpen, FileText, FileSignature, MonitorPlay, Mails, Archive } from 'lucide-react';
 import { Container, Section, Grid } from '../components/ui/Layout';
 import { Card, CardContent } from '../components/ui/Card';
+import SplashScreen from '../components/common/SplashScreen';
 
 const GradePage = () => {
   const { gradeId, streamId } = useParams();
-  const { grades } = useData();
+  const { grades, gradesLoading } = useData();
   const { selectedLanguage } = useLanguage();
 
   const dynamicResourceTypes = [
@@ -28,6 +29,10 @@ const GradePage = () => {
 
   const gradeName = grade?.display || 'Grade';
   useDocumentTitle(gradeName);
+
+  if (gradesLoading) {
+    return <SplashScreen />;
+  }
 
   if (!grade) {
     return (

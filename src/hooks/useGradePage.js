@@ -11,7 +11,8 @@ export const useGradePage = (gradeId) => {
     fetchResourcesForGrade, 
     loading: dataLoading,
     gradesLoading,
-    subjectsLoading
+    subjectsLoading,
+    gradeLoading
   } = useData();
 
   // 1. Trigger resource fetch for this grade
@@ -26,7 +27,8 @@ export const useGradePage = (gradeId) => {
     return generateGradePageData(gradeId);
   }, [gradeId, generateGradePageData]);
 
-  const isLoading = dataLoading || gradesLoading || subjectsLoading;
+  const isGradeResourcesLoading = Boolean(gradeLoading?.[gradeId]);
+  const isLoading = dataLoading || gradesLoading || subjectsLoading || isGradeResourcesLoading;
   const isGradeMissing = !isLoading && !pageData.grade;
 
   return {

@@ -34,16 +34,19 @@ export const LanguageProvider = ({ children }) => {
     }
   };
 
+  const ALLOWED_LANGUAGES = ['all', 'english', 'sinhala', 'tamil'];
+
   // Initialize language on mount
   useEffect(() => {
     const savedLanguage = localStorage.getItem('selectedLanguage') || 'english';
-    setSelectedLanguage(savedLanguage);
+    setSelectedLanguage(ALLOWED_LANGUAGES.includes(savedLanguage) ? savedLanguage : 'english');
   }, []);
 
   // Set language
   const setLanguage = (language) => {
-    setSelectedLanguage(language);
-    localStorage.setItem('selectedLanguage', language);
+    const safe = ALLOWED_LANGUAGES.includes(language) ? language : 'english';
+    setSelectedLanguage(safe);
+    localStorage.setItem('selectedLanguage', safe);
     
     try {
       if (analytics) {

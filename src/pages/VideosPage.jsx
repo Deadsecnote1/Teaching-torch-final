@@ -395,9 +395,13 @@ const VideosPage = () => {
       <MetadataEditorModal
         isOpen={metadataModal.isOpen}
         onClose={() => setMetadataModal({ ...metadataModal, isOpen: false })}
-        onSave={(updatedData) => {
-          updateSubject(metadataModal.key, updatedData);
-          toast.success('Subject Updated');
+        onSave={async (updatedData) => {
+          try {
+            await updateSubject(metadataModal.key, updatedData);
+            toast.success('Subject Updated');
+          } catch {
+            toast.error('Failed to update subject');
+          }
         }}
         title="Edit Subject"
         initialData={metadataModal.initialData}

@@ -49,7 +49,17 @@ const Home = () => {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Modern Hero Section */}
-      <section className="relative overflow-hidden bg-bg-primary pt-16 pb-24 sm:pt-24 sm:pb-32 border-b border-border">
+      <section className="relative overflow-hidden pt-16 pb-24 sm:pt-24 sm:pb-32 border-b border-border">
+        {/* Background image with overlay */}
+        <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 bg-gradient-to-b from-primary/95 to-primary-dark/95 mix-blend-multiply z-10" />
+          <img 
+            src="/bg1-medium.webp" 
+            alt="Background" 
+            className="w-full h-full object-cover opacity-30"
+          />
+        </div>
+
         {/* Background decorative elements */}
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           <div className="absolute -top-[10%] -right-[10%] w-[50%] h-[50%] rounded-full bg-primary/10 blur-[100px]" />
@@ -62,10 +72,10 @@ const Home = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-text-primary tracking-tight mb-6">
-              Welcome to <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary-dark">Teaching Torch</span>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight mb-6">
+              Welcome to <span className="text-white bg-clip-text">Teaching Torch</span>
             </h1>
-            <p className="max-w-2xl mx-auto text-lg sm:text-xl text-text-muted mb-10">
+            <p className="max-w-2xl mx-auto text-lg sm:text-xl text-white/80 mb-10">
               Your ultimate hub for free educational resources for Sri Lankan students. 
               Find textbooks, past papers, notes, and video tutorials all in one place.
             </p>
@@ -137,10 +147,11 @@ const Home = () => {
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        if (window.confirm(`Are you sure you want to delete "${gradeData.display}" and ALL its resources? This cannot be undone.`)) {
-                          deleteGrade(key);
-                          toast.success('Deleted Grade');
-                        }
+                          if (window.confirm(`Are you sure you want to delete "${gradeData.display}" and ALL its resources? This cannot be undone.`)) {
+                            deleteGrade(key)
+                              .then(() => toast.success('Deleted Grade'))
+                              .catch(() => toast.error('Failed to delete grade'));
+                          }
                       }}
                     >
                       <Trash2 className="w-4 h-4" />
@@ -153,7 +164,7 @@ const Home = () => {
                     <div className="absolute inset-0 bg-gradient-to-b from-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     
                     <div 
-                      className="w-20 h-20 rounded-2xl bg-bg-secondary flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 transition-transform duration-300"
+                      className="w-20 h-20 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 transition-transform duration-300"
                       style={gradeData.color ? { backgroundColor: `var(--${gradeData.color})`, color: '#fff' } : {}}
                     >
                       <span className="text-3xl font-extrabold">{iconText}</span>
@@ -233,9 +244,13 @@ const Home = () => {
       <MetadataEditorModal
         isOpen={metadataModal.isOpen}
         onClose={() => setMetadataModal({ ...metadataModal, isOpen: false })}
-        onSave={(updatedData) => {
-          updateGrade(metadataModal.key, updatedData);
-          toast.success('Grade Updated');
+        onSave={async (updatedData) => {
+          try {
+            await updateGrade(metadataModal.key, updatedData);
+            toast.success('Grade Updated');
+          } catch {
+            toast.error('Failed to update grade');
+          }
         }}
         title="Edit Grade"
         initialData={metadataModal.initialData}

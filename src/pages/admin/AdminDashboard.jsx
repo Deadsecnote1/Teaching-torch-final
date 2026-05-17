@@ -301,8 +301,22 @@ const AdminDashboard = () => {
 
   const handleLoadMore = async () => {
     setIsLoadingMore(true);
-    await fetchResourcesPaginated(false);
-    setIsLoadingMore(false);
+    try {
+      await fetchResourcesPaginated(false);
+    } catch {
+      toast.error('Failed to load more files');
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
+
+  const handleRefreshFiles = async () => {
+    try {
+      await fetchResourcesPaginated(true);
+      toast.success('Files refreshed');
+    } catch {
+      toast.error('Failed to refresh files');
+    }
   };
 
   return (
@@ -363,7 +377,7 @@ const AdminDashboard = () => {
 
           {activeTab === 'files' && (
             <AdminFileManager 
-              {...{ searchQuery, setSearchQuery, filteredFiles, editingResource, editResourceData, setEditResourceData, handleSaveEditResource, handleCancelEditResource: () => setEditingResource(null), setEditingResource: (f) => { setEditingResource(f.id); setEditResourceData({ ...f, url: f.url || f.driveLink || f.youtubeUrl || '' }); }, handleDeleteResource, handleDeleteSelected: () => toast.error('Bulk delete disabled'), handleRefresh: () => fetchResourcesPaginated(true), isSubmitting, grades, getSubjectsForGrade, fetchResourcesPaginated: handleLoadMore, hasMore, isLoadingMore }}
+              {...{ searchQuery, setSearchQuery, filteredFiles, editingResource, editResourceData, setEditResourceData, handleSaveEditResource, handleCancelEditResource: () => setEditingResource(null), setEditingResource: (f) => { setEditingResource(f.id); setEditResourceData({ ...f, url: f.url || f.driveLink || f.youtubeUrl || '' }); }, handleDeleteResource, handleDeleteSelected: () => toast.error('Bulk delete disabled'), handleRefresh: handleRefreshFiles, isSubmitting, grades, getSubjectsForGrade, fetchResourcesPaginated: handleLoadMore, hasMore, isLoadingMore }}
             />
           )}
 

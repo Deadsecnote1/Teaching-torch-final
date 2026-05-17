@@ -114,6 +114,15 @@ export const GradeProvider = ({ children }) => {
   const deleteSubject = useCallback(async (subjectId) => {
     if (!db) return false;
     await deleteDoc(firestoreDoc(db, "subjects", subjectId));
+    invalidateCache('subjects');
+    return true;
+  }, [db]);
+
+  const updateSettings = useCallback(async (newSettings) => {
+    if (!db) return false;
+    await updateDoc(firestoreDoc(db, 'settings', 'general'), newSettings);
+    setSettings((prev) => ({ ...prev, ...newSettings }));
+    invalidateCache('settings');
     return true;
   }, [db]);
 
@@ -149,12 +158,14 @@ export const GradeProvider = ({ children }) => {
     addSubject,
     updateSubject,
     deleteSubject,
+    updateSettings,
     getSubjectsForGrade,
     generateGradePageData
   }), [
     grades, subjects, settings, loading, error, 
     addGrade, updateGrade, deleteGrade, 
     addSubject, updateSubject, deleteSubject,
+    updateSettings,
     getSubjectsForGrade, generateGradePageData
   ]);
 

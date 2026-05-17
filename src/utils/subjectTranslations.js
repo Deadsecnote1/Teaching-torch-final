@@ -90,13 +90,17 @@ export const subjectTranslations = {
 
     // Fallback function for prioritizing database names or unknown subjects
     getTranslatedName: (subjectId, subjectObj, language) => {
+        if (!subjectObj) {
+            const formatted = (subjectId || '').split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+            return formatted || 'Subject';
+        }
         // 1. Check if the database has a custom translation provided by the Admin
         if (language === 'sinhala' && subjectObj.nameSinhala) return subjectObj.nameSinhala;
         if (language === 'tamil' && subjectObj.nameTamil) return subjectObj.nameTamil;
 
         // 2. Fall back to the hardcoded dictionary
         if (subjectTranslations[subjectId]) {
-            return subjectTranslations[subjectId][language] || subjectObj.name;
+            return subjectTranslations[subjectId][language] || subjectObj.name || subjectObj.display;
         }
 
         // 3. Fall back to default database name or formatted ID

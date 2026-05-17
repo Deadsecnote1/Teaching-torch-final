@@ -74,12 +74,14 @@ export default function ModernNavbar() {
           <div className="flex items-center justify-between h-16">
             
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-2 flex-shrink-0">
-              <img
-                src="/logo192.png"
-                alt="Teaching Torch Logo"
-                className="w-10 h-10 object-contain"
-              />
+            <Link to="/" className="flex items-center gap-2 flex-shrink-0 group">
+              <div className="w-10 h-10 rounded-full overflow-hidden border border-primary/20 bg-primary/5 flex items-center justify-center p-0.5 transition-transform group-hover:scale-105">
+                <img
+                  src="/logo192.png"
+                  alt="Teaching Torch Logo"
+                  className="w-full h-full object-cover rounded-full"
+                />
+              </div>
               <span className="font-bold text-xl text-primary hidden sm:block">Teaching Torch</span>
             </Link>
 
@@ -90,7 +92,7 @@ export default function ModernNavbar() {
                   key={link.name}
                   to={link.path}
                   className={cn(
-                    "px-4 py-2 rounded-md text-sm font-medium transition-colors hover:bg-bg-secondary",
+                    "h-10 px-4 rounded-md text-sm font-medium flex items-center transition-colors hover:bg-bg-secondary",
                     isActive(link.path) ? "text-primary bg-primary/10" : "text-text-primary"
                   )}
                 >
@@ -99,11 +101,11 @@ export default function ModernNavbar() {
               ))}
 
               {/* Grades Dropdown */}
-              <div className="relative" ref={gradesDropdownRef}>
+              <div className="relative h-10 flex items-center" ref={gradesDropdownRef}>
                 <button
                   onClick={() => setShowGradesDropdown(!showGradesDropdown)}
                   className={cn(
-                    "flex items-center gap-1 px-4 py-2 rounded-md text-sm font-medium transition-colors hover:bg-bg-secondary",
+                    "h-10 flex items-center gap-1 px-4 rounded-md text-sm font-medium transition-colors hover:bg-bg-secondary",
                     location.pathname.includes('/grade') || location.pathname.includes('/al') ? "text-primary bg-primary/10" : "text-text-primary"
                   )}
                 >
@@ -222,7 +224,7 @@ export default function ModernNavbar() {
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsOpen(!isOpen)}
-                className="lg:hidden"
+                className="lg:hidden rounded-full"
               >
                 {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </Button>
