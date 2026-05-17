@@ -11,7 +11,11 @@ import { Card, CardContent } from '../../../components/ui/Card';
 
 const ALResourceTypesPage = () => {
   const { streamId, subjectId } = useParams();
-  const { alStreams, alSubjects, alResourceTypes, loading, updateDocument, deleteDocument } = useALData();
+  const { alStreams, alSubjects, alResourceTypes, status, initializeALData, updateDocument, deleteDocument } = useALData();
+
+  React.useEffect(() => {
+    initializeALData();
+  }, [initializeALData]);
   const { isManageMode } = useAuth();
   
   const [editingType, setEditingType] = React.useState(null);
@@ -65,7 +69,7 @@ const ALResourceTypesPage = () => {
 
 
 
-  if (loading) {
+  if (status === 'loading' || status === 'idle') {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
