@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useData } from '../../context/DataContext';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import toast from 'react-hot-toast';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
-import ALAdminTab from '../../components/admin/ALAdminTab';
 import { LayoutDashboard, LogOut, ToggleRight, ToggleLeft } from 'lucide-react';
 
 // Refactored Components
@@ -22,6 +21,7 @@ import { isValidHttpsUrl } from '../../utils/validation';
 const AdminDashboard = () => {
   useDocumentTitle('Admin Dashboard');
   const navigate = useNavigate();
+  const location = useLocation();
   const { currentUser, logout, isManageMode, toggleManageMode, firebaseProjectId } = useAuth();
   const isStagingEnv =
     import.meta.env.MODE === 'staging' ||
@@ -359,15 +359,29 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* Custom Tabs */}
+        <div className="flex flex-wrap gap-2 mb-4">
+          <Link
+            to="/admin"
+            className={`px-4 py-2 rounded-lg text-sm font-medium border ${location.pathname === '/admin' ? 'bg-primary text-white border-primary' : 'border-border hover:bg-bg-tertiary'}`}
+          >
+            Grades 6–11
+          </Link>
+          <Link
+            to="/admin/al"
+            className={`px-4 py-2 rounded-lg text-sm font-medium border ${location.pathname.startsWith('/admin/al') ? 'bg-primary text-white border-primary' : 'border-border hover:bg-bg-tertiary'}`}
+          >
+            Advanced Level
+          </Link>
+        </div>
+
         <div className="flex overflow-x-auto border-b border-border mb-8 scrollbar-hide">
-          {['overview', 'upload', 'files', 'grades', 'al', 'settings'].map(tab => (
+          {['overview', 'upload', 'files', 'grades', 'settings'].map(tab => (
             <button 
               key={tab}
               className={`whitespace-nowrap py-4 px-6 font-medium text-sm border-b-2 transition-colors ${activeTab === tab ? 'border-primary text-primary' : 'border-transparent text-text-muted hover:text-text-primary hover:border-border'}`} 
               onClick={() => setActiveTab(tab)}
             >
-              {tab === 'al' ? 'A/L Admin' : tab === 'files' ? 'File Manager' : tab.charAt(0).toUpperCase() + tab.slice(1)}
+              {tab === 'files' ? 'File Manager' : tab.charAt(0).toUpperCase() + tab.slice(1)}
             </button>
           ))}
         </div>
@@ -400,8 +414,6 @@ const AdminDashboard = () => {
               {...{ grades, subjects, newGradeName, setNewGradeName, newGradeCode, setNewGradeCode, newGradeOrder, setNewGradeOrder, handleAddGrade, isSubmitting, editingGradeId, setEditingGradeId, editGradeData, setEditGradeData, handleSaveEditGrade: async () => { try { await updateGrade(editingGradeId, { display: editGradeData.name, order: parseInt(editGradeData.order) || 999 }); toast.success('Updated!'); setEditingGradeId(null); } catch(e){ toast.error('Update failed'); } }, handleDeleteGrade: async (id) => { if(window.confirm('Delete grade?')){ try { await deleteGrade(id); toast.success('Deleted!'); } catch(e){ toast.error('Delete failed'); } } }, newSubjectName, setNewSubjectName, newSubjectSinhala, setNewSubjectSinhala, newSubjectTamil, setNewSubjectTamil, newSubjectCode, setNewSubjectCode, newSubjectIcon, setNewSubjectIcon, newSubjectOrder, setNewSubjectOrder, selectedGradesForSubject, setSelectedGradesForSubject, handleAddSubject, editingSubjectPrefix, editSubjectData, setEditSubjectData, handleEditSubjectClick: (k, s) => { setEditingSubjectPrefix(k); setEditSubjectData({ ...s, nameSinhala: s.nameSinhala || '', nameTamil: s.nameTamil || '' }); }, handleCancelEditSubject: () => setEditingSubjectPrefix(null), handleSaveEditSubject: async () => { try { await updateSubject(editingSubjectPrefix, { ...editSubjectData, order: parseInt(editSubjectData.order) || 999 }); toast.success('Updated!'); setEditingSubjectPrefix(null); } catch(e){ toast.error('Update failed'); } }, handleDeleteSubject: async (id) => { if(window.confirm('Delete subject?')){ try { await deleteSubject(id); toast.success('Deleted!'); } catch(e){ toast.error('Delete failed'); } } } }}
             />
           )}
-
-          {activeTab === 'al' && <ALAdminTab />}
 
           {activeTab === 'settings' && (
             <AdminSettingsManager {...{ settingsData, setSettingsData, handleSaveSettings, isSavingSettings }} />

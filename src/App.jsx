@@ -20,23 +20,23 @@ import SplashScreen from './components/common/SplashScreen';
 const Home = React.lazy(() => import('./pages/Home'));
 const About = React.lazy(() => import('./pages/About'));
 const Contact = React.lazy(() => import('./pages/Contact'));
-const GradePage = React.lazy(() => import('./pages/GradePage'));
-const ResourcesPage = React.lazy(() => import('./pages/ResourcesPage'));
-const TextbooksPage = React.lazy(() => import('./pages/TextbooksPage'));
-const PapersPage = React.lazy(() => import('./pages/PapersPage'));
-const NotesPage = React.lazy(() => import('./pages/NotesPage'));
-const VideosPage = React.lazy(() => import('./pages/VideosPage'));
+const GradePage = React.lazy(() => import('./features/ol/pages/GradePage'));
+const ResourcesPage = React.lazy(() => import('./features/ol/pages/ResourcesPage'));
+const TextbooksPage = React.lazy(() => import('./features/ol/pages/TextbooksPage'));
+const PapersPage = React.lazy(() => import('./features/ol/pages/PapersPage'));
+const NotesPage = React.lazy(() => import('./features/ol/pages/NotesPage'));
+const VideosPage = React.lazy(() => import('./features/ol/pages/VideosPage'));
 const PrivacyPolicy = React.lazy(() => import('./pages/PrivacyPolicy'));
 const AdminLogin = React.lazy(() => import('./pages/admin/Login'));
 import { Home as HomeIcon } from 'lucide-react';
 
 const AdminDashboard = React.lazy(() => import('./pages/admin/AdminDashboard'));
-const SubjectHubPage = React.lazy(() => import('./pages/SubjectHubPage'));
+const SubjectHubPage = React.lazy(() => import('./features/ol/pages/SubjectHubPage'));
 
-// Lazy load AL Pages
-const ALStreamsPage = React.lazy(() => import('./pages/al/ALStreamsPage'));
-const ALResourceTypesPage = React.lazy(() => import('./pages/al/ALResourceTypesPage'));
-const ALResourcesPage = React.lazy(() => import('./pages/al/ALResourcesPage'));
+const ALStreamsPage = React.lazy(() => import('./features/al/pages/ALStreamsPage'));
+const ALResourceTypesPage = React.lazy(() => import('./features/al/pages/ALResourceTypesPage'));
+const ALResourcesPage = React.lazy(() => import('./features/al/pages/ALResourcesPage'));
+const AlAdminDashboard = React.lazy(() => import('./features/al/admin/AlAdminDashboard'));
 
 // Styles
 // Bootstrap icons removed
@@ -99,6 +99,7 @@ const AppContent = () => {
                 <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                 <Route path="/admin/login" element={<AdminLogin />} />
                 <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+                <Route path="/admin/al" element={<ProtectedRoute><AlAdminDashboard /></ProtectedRoute>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </React.Suspense>

@@ -54,20 +54,20 @@ src/
 
 ## Admin
 
-| Tab / area | Domain |
-|------------|--------|
-| Overview, Upload, Files, Grades, Settings | O/L (`useData`) |
-| A/L Admin | A/L (`useALData`) |
+| Route | Domain |
+|-------|--------|
+| `/admin` — Overview, Upload, Files, Grades, Settings | O/L (`useData`) |
+| `/admin/al` — streams, subjects, types, files | A/L (`useALData`) |
 
-Keep **separate admin entry points** long term (e.g. `/admin` O/L + `/admin/al` or tabs with no shared mutation helpers).
+Nav links switch between O/L and A/L admin; no A/L tab on the O/L dashboard.
 
 ## Implementation phases
 
 1. **P0 (done)** — Admin allowlist, rules, `isAdmin`, staging vs production admins.
-2. **Phase A (in progress)** — Contexts + `useGradePage` live under `src/features/ol` and `src/features/al`. Legacy paths (`src/context/*`, `src/hooks/useGradePage.js`) are thin re-export shims. `App.jsx` imports from feature barrels.
-3. **Phase A2 (next)** — Move O/L and A/L **pages** into feature folders; update imports.
-4. **Phase B** — Split `AdminDashboard` into `OlAdmin` + `AlAdmin` routes.
-5. **Phase C** — Remove shim re-exports; all new code imports from `features/ol` or `features/al` only.
+2. **Phase A (done)** — Contexts + `useGradePage` under `src/features/ol` and `src/features/al`. Legacy paths are thin re-export shims.
+3. **Phase A2 (done)** — O/L and A/L pages under `features/*/pages/`; `App.jsx` lazy-loads from feature paths; `src/pages/*` and `src/pages/al/*` are re-export shims.
+4. **Phase B (done)** — `/admin` = Grades 6–11 only; `/admin/al` = A/L admin (`AlAdminDashboard` + shared `AdminLayout`).
+5. **Phase C (next)** — Remove shim re-exports; all new code imports from `features/ol` or `features/al` only.
 
 ## O/L-only notes
 

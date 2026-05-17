@@ -98,10 +98,23 @@ This file records intentional changes made during the reliability and UX hardeni
 - Legacy `src/context/*` and `src/hooks/useGradePage.js` remain as re-export shims.
 - `App.jsx` imports providers from `features/ol` and `features/al`.
 
+### Phase A2 + B — pages and split admin routes
+
+**Pages**
+- O/L pages → `src/features/ol/pages/`; A/L pages → `src/features/al/pages/`.
+- `App.jsx` lazy imports from feature page paths.
+- `src/pages/*` and `src/pages/al/*` are one-line re-export shims.
+
+**Admin**
+- `/admin` — Grades 6–11 tabs only (A/L tab removed).
+- `/admin/al` — `AlAdminDashboard` with `ALAdminTab` and shared `AdminLayout`.
+- Domain switcher links between `/admin` and `/admin/al`.
+
 ---
 
 ## Known follow-ups
 
 - [ ] Suspense fallback for lazy routes (reduce empty shell flash).
-- [ ] Firestore rules + admin allowlist before production deploy.
+- [x] Firestore rules + admin allowlist (P0; deploy rules per environment).
+- [ ] Phase C: remove context/page shims.
 - [ ] Wire or remove unused `RecentResources.jsx`.
