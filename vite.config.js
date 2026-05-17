@@ -21,7 +21,7 @@ export default defineConfig({
             if (id.includes('firebase')) {
               return 'vendor-firebase';
             }
-            if (id.includes('bootstrap') || id.includes('react-hot-toast')) {
+            if (id.includes('react-hot-toast')) {
               return 'vendor-utils';
             }
             return 'vendor';

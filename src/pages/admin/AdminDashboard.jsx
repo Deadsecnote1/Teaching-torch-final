@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useData } from '../../context/DataContext';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useData } from '../../features/ol';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import toast from 'react-hot-toast';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
-import ALAdminTab from '../../components/admin/ALAdminTab';
+import { LayoutDashboard, LogOut, ToggleRight, ToggleLeft } from 'lucide-react';
 
 // Refactored Components
 import AdminOverview from '../../components/admin/AdminOverview';
@@ -21,7 +21,11 @@ import { isValidHttpsUrl } from '../../utils/validation';
 const AdminDashboard = () => {
   useDocumentTitle('Admin Dashboard');
   const navigate = useNavigate();
-  const { currentUser, logout, isManageMode, toggleManageMode } = useAuth();
+  const location = useLocation();
+  const { currentUser, logout, isManageMode, toggleManageMode, firebaseProjectId } = useAuth();
+  const isStagingEnv =
+    import.meta.env.MODE === 'staging' ||
+    (firebaseProjectId && firebaseProjectId.toLowerCase().includes('staging'));
   const { selectedLanguage } = useLanguage();
   const {
     getStats,
@@ -70,7 +74,7 @@ const AdminDashboard = () => {
   const [newSubjectSinhala, setNewSubjectSinhala] = useState('');
   const [newSubjectTamil, setNewSubjectTamil] = useState('');
   const [newSubjectCode, setNewSubjectCode] = useState('');
-  const [newSubjectIcon, setNewSubjectIcon] = useState('bi-book');
+  const [newSubjectIcon, setNewSubjectIcon] = useState('book');
   const [newSubjectOrder, setNewSubjectOrder] = useState('');
   const [selectedGradesForSubject, setSelectedGradesForSubject] = useState([]);
 
@@ -113,10 +117,11 @@ const AdminDashboard = () => {
   }, [settings]);
 
   useEffect(() => {
-    if (activeTab === 'files' && uploadedFiles.length === 0) {
+    // Only fetch if we are on the files tab AND we haven't loaded any resources yet
+    if (activeTab === 'files' && allResources.length === 0) {
       fetchResourcesPaginated(true);
     }
-  }, [activeTab, fetchResourcesPaginated, uploadedFiles.length]);
+  }, [activeTab, fetchResourcesPaginated, allResources.length]);
 
   useEffect(() => {
     if (allResources) {
@@ -167,23 +172,27 @@ const AdminDashboard = () => {
         fileData.fileId = extractFileId(driveLink);
       }
 
+      let result;
       if (selectedResourceType === 'textbook') {
-        await addTextbook(selectedGrade, selectedSubject, selectedLanguages, fileData);
+        result = await addTextbook(selectedGrade, selectedSubject, selectedLanguages, fileData);
       } else if (selectedResourceType === 'papers') {
-        await addPaper(selectedGrade, selectedSubject, selectedPaperType, selectedPaperCategory, fileData, schoolName, selectedLanguages);
+        result = await addPaper(selectedGrade, selectedSubject, selectedPaperType, selectedPaperCategory, fileData, schoolName, selectedLanguages);
       } else if (selectedResourceType === 'videos') {
-        await addVideo(selectedGrade, selectedSubject, { ...fileData, languages: selectedLanguages });
+        result = await addVideo(selectedGrade, selectedSubject, { ...fileData, languages: selectedLanguages });
       } else if (selectedResourceType === 'notes') {
-        await addNote(selectedGrade, selectedSubject, fileData, selectedLanguages);
+        result = await addNote(selectedGrade, selectedSubject, fileData, selectedLanguages);
       }
 
-      toast.success('Resource added successfully!');
+      // OPTIMISTIC UPDATE: Add to local state immediately
+      if (result && result.id) {
+        setUploadedFiles(prev => [{ id: result.id, ...fileData, languages: selectedLanguages, grade: selectedGrade, subject: selectedSubject, resourceType: selectedResourceType, paperType: selectedPaperType, paperCategory: selectedPaperCategory, schoolName }, ...prev]);
+      }
+      
       setDriveLink('');
       setResourceTitle('');
       setResourceDescription('');
       setResourceOrder('');
-      // Refresh first page
-      await fetchResourcesPaginated(true);
+      toast.success('Resource added successfully!');
     } catch (error) {
       toast.error('Failed to add resource: ' + error.message);
     } finally {
@@ -220,9 +229,12 @@ const AdminDashboard = () => {
       }
 
       await updateResource(editingResource, updateData);
+      
+      // OPTIMISTIC UPDATE: Update local state
+      setUploadedFiles(prev => prev.map(f => f.id === editingResource ? { ...f, ...updateData } : f));
+      
       toast.success('Resource updated!');
       setEditingResource(null);
-      await fetchResourcesPaginated(true);
     } catch (error) {
       toast.error('Failed to update: ' + error.message);
     } finally {
@@ -234,8 +246,11 @@ const AdminDashboard = () => {
     if (window.confirm('Delete this resource?')) {
       try {
         await deleteResource(id);
+        
+        // OPTIMISTIC UPDATE: Remove from local state
+        setUploadedFiles(prev => prev.filter(f => f.id !== id));
+        
         toast.success('Deleted!');
-        await fetchResourcesPaginated(true);
       } catch (error) {
         toast.error('Delete failed');
       }
@@ -289,35 +304,89 @@ const AdminDashboard = () => {
 
   const handleLoadMore = async () => {
     setIsLoadingMore(true);
-    await fetchResourcesPaginated(false);
-    setIsLoadingMore(false);
+    try {
+      await fetchResourcesPaginated(false);
+    } catch {
+      toast.error('Failed to load more files');
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
+
+  const handleRefreshFiles = async () => {
+    try {
+      await fetchResourcesPaginated(true);
+      toast.success('Files refreshed');
+    } catch {
+      toast.error('Failed to refresh files');
+    }
   };
 
   return (
-    <div className="admin-dashboard py-5" style={{ backgroundColor: 'var(--bg-secondary)', minHeight: '100vh' }}>
-      <section className="container">
-        <div className="d-flex justify-content-between align-items-center mb-4">
-          <h2 className="mb-0 fw-bold"><i className="bi bi-speedometer2 me-2"></i>Admin Dashboard</h2>
-          <div className="d-flex gap-2">
-            <button className={`btn btn-sm ${isManageMode ? 'btn-success' : 'btn-outline-success'}`} onClick={toggleManageMode}>
-              <i className={`bi ${isManageMode ? 'bi-toggle-on' : 'bi-toggle-off'} me-2`}></i>
+    <div className="min-h-screen py-10 bg-bg-secondary text-text-primary">
+      <div
+        className={
+          isStagingEnv
+            ? 'text-center text-sm font-semibold py-2 px-4 bg-amber-500/15 text-amber-800 dark:text-amber-200 border-b border-amber-500/30'
+            : 'text-center text-sm font-semibold py-2 px-4 bg-danger/10 text-danger border-b border-danger/30'
+        }
+        role="status"
+      >
+        {isStagingEnv ? 'STAGING' : 'PRODUCTION'} — Firebase project: {firebaseProjectId || 'unknown'}
+        {isStagingEnv ? ' (safe for admin testing)' : ' — changes affect live users'}
+      </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+        <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+          <h2 className="text-3xl font-extrabold flex items-center text-text-primary">
+            <LayoutDashboard className="w-8 h-8 mr-3 text-primary" />
+            Admin Dashboard
+          </h2>
+          <div className="flex flex-wrap gap-3">
+            <button 
+              className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-colors shadow-sm border ${isManageMode ? 'bg-success text-white border-success hover:bg-success/90' : 'bg-transparent text-success border-success hover:bg-success/10'}`} 
+              onClick={toggleManageMode}
+            >
+              {isManageMode ? <ToggleRight className="w-5 h-5 mr-2" /> : <ToggleLeft className="w-5 h-5 mr-2" />}
               Manage Mode: {isManageMode ? 'ON' : 'OFF'}
             </button>
-            <button className="btn btn-outline-danger btn-sm" onClick={handleLogout}><i className="bi bi-box-arrow-right me-2"></i>Logout</button>
+            <button 
+              className="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-colors border border-danger text-danger hover:bg-danger/10" 
+              onClick={handleLogout}
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Logout
+            </button>
           </div>
         </div>
 
-        <ul className="nav nav-tabs mb-4 border-bottom-0">
-          {['overview', 'upload', 'files', 'grades', 'al', 'settings'].map(tab => (
-            <li className="nav-item" key={tab}>
-              <button className={`nav-link text-capitalize ${activeTab === tab ? 'active' : ''}`} onClick={() => setActiveTab(tab)}>
-                {tab === 'al' ? 'A/L Admin' : tab === 'files' ? 'File Manager' : tab}
-              </button>
-            </li>
-          ))}
-        </ul>
+        <div className="flex flex-wrap gap-2 mb-4">
+          <Link
+            to="/admin"
+            className={`px-4 py-2 rounded-lg text-sm font-medium border ${location.pathname === '/admin' ? 'bg-primary text-white border-primary' : 'border-border hover:bg-bg-tertiary'}`}
+          >
+            Grades 6–11
+          </Link>
+          <Link
+            to="/admin/al"
+            className={`px-4 py-2 rounded-lg text-sm font-medium border ${location.pathname.startsWith('/admin/al') ? 'bg-primary text-white border-primary' : 'border-border hover:bg-bg-tertiary'}`}
+          >
+            Advanced Level
+          </Link>
+        </div>
 
-        <div className="tab-content">
+        <div className="flex overflow-x-auto border-b border-border mb-8 scrollbar-hide">
+          {['overview', 'upload', 'files', 'grades', 'settings'].map(tab => (
+            <button 
+              key={tab}
+              className={`whitespace-nowrap py-4 px-6 font-medium text-sm border-b-2 transition-colors ${activeTab === tab ? 'border-primary text-primary' : 'border-transparent text-text-muted hover:text-text-primary hover:border-border'}`} 
+              onClick={() => setActiveTab(tab)}
+            >
+              {tab === 'files' ? 'File Manager' : tab.charAt(0).toUpperCase() + tab.slice(1)}
+            </button>
+          ))}
+        </div>
+
+        <div className="bg-card rounded-2xl shadow-sm border border-border overflow-hidden">
           {activeTab === 'overview' && (
             <AdminOverview 
               stats={getStats()} 
@@ -336,7 +405,7 @@ const AdminDashboard = () => {
 
           {activeTab === 'files' && (
             <AdminFileManager 
-              {...{ searchQuery, setSearchQuery, filteredFiles, editingResource, editResourceData, setEditResourceData, handleSaveEditResource, handleCancelEditResource: () => setEditingResource(null), setEditingResource: (f) => { setEditingResource(f.id); setEditResourceData({ ...f, url: f.url || f.driveLink || f.youtubeUrl || '' }); }, handleDeleteResource, handleDeleteSelected: () => toast.error('Bulk delete disabled'), handleRefresh: () => fetchResourcesPaginated(true), isSubmitting, grades, getSubjectsForGrade, fetchResourcesPaginated: handleLoadMore, hasMore, isLoadingMore }}
+              {...{ searchQuery, setSearchQuery, filteredFiles, editingResource, editResourceData, setEditResourceData, handleSaveEditResource, handleCancelEditResource: () => setEditingResource(null), setEditingResource: (f) => { setEditingResource(f.id); setEditResourceData({ ...f, url: f.url || f.driveLink || f.youtubeUrl || '' }); }, handleDeleteResource, handleDeleteSelected: () => toast.error('Bulk delete disabled'), handleRefresh: handleRefreshFiles, isSubmitting, grades, getSubjectsForGrade, fetchResourcesPaginated: handleLoadMore, hasMore, isLoadingMore }}
             />
           )}
 
@@ -346,19 +415,11 @@ const AdminDashboard = () => {
             />
           )}
 
-          {activeTab === 'al' && <ALAdminTab />}
-
           {activeTab === 'settings' && (
             <AdminSettingsManager {...{ settingsData, setSettingsData, handleSaveSettings, isSavingSettings }} />
           )}
         </div>
-      </section>
-
-      <style>{`
-        .nav-tabs .nav-link { color: var(--text-primary); border: none; padding: 1rem 1.5rem; transition: all 0.2s; }
-        .nav-tabs .nav-link.active { border-bottom: 3px solid var(--primary); font-weight: bold; color: var(--primary); }
-        .nav-tabs .nav-link:hover:not(.active) { background-color: rgba(0,0,0,0.05); }
-      `}</style>
+      </div>
     </div>
   );
 };

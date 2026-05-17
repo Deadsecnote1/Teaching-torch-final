@@ -1,109 +1,101 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import useDocumentTitle from '../hooks/useDocumentTitle';
+import { Shield, ChevronRight } from 'lucide-react';
+import { Container, Section } from '../components/ui/Layout';
+import { Card, CardContent } from '../components/ui/Card';
 
 const PrivacyPolicy = () => {
+  useDocumentTitle('Privacy Policy');
+
   return (
-    <div className="privacy-policy-page">
+    <div className="min-h-screen bg-bg-primary flex flex-col">
       {/* Page Header */}
-      <header className="page-header">
-        <div className="container text-center">
-          <h1 className="display-4 fw-bold">Privacy Policy</h1>
-          <p className="lead">How we handle and protect your information</p>
-        </div>
+      <header className="bg-slate-900 text-center py-16 text-white border-b border-slate-800">
+        <Container>
+          <div className="w-20 h-20 bg-primary/20 text-primary rounded-full flex items-center justify-center mx-auto mb-6">
+            <Shield className="w-10 h-10" />
+          </div>
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">Privacy Policy</h1>
+          <p className="text-lg mt-3 text-slate-300 max-w-2xl mx-auto">How we protect and handle your information</p>
+        </Container>
       </header>
 
       {/* Breadcrumb */}
-      <section className="py-3 bg-light">
-        <div className="container">
-          <nav aria-label="breadcrumb">
-            <ol className="breadcrumb mb-0">
-              <li className="breadcrumb-item">
-                <Link to="/">Home</Link>
-              </li>
-              <li className="breadcrumb-item active" aria-current="page">
-                Privacy Policy
-              </li>
-            </ol>
+      <div className="bg-bg-secondary border-b border-border py-3">
+        <Container>
+          <nav className="flex items-center text-sm font-medium text-text-muted">
+            <Link to="/" className="hover:text-primary transition-colors">Home</Link>
+            <ChevronRight className="w-4 h-4 mx-2 flex-shrink-0 opacity-50" />
+            <span className="text-primary">Privacy Policy</span>
           </nav>
-        </div>
-      </section>
+        </Container>
+      </div>
 
-      {/* Policy Content */}
-      <section className="py-5">
-        <div className="container">
-          <div className="row justify-content-center">
-            <div className="col-lg-10">
-              <div className="card shadow-sm border-0">
-                <div className="card-body p-4 p-md-5">
-                  <p className="text-muted mb-4">Last Updated: March 12, 2026</p>
+      <Section className="py-16">
+        <Container className="max-w-4xl mx-auto">
+          <Card className="border-border shadow-sm">
+            <CardContent className="p-8 md:p-12 prose prose-invert max-w-none prose-p:text-text-muted prose-headings:text-text-primary">
+              <h2 className="text-2xl font-bold mb-6">1. Introduction</h2>
+              <p className="mb-6">
+                Welcome to Teaching Torch. We respect your privacy and are committed to protecting your personal data. 
+                This privacy policy will inform you as to how we look after your personal data when you visit our website 
+                and tell you about your privacy rights.
+              </p>
 
-                  <h2 className="h4 mb-3">1. Introduction</h2>
-                  <p className="mb-4">
-                    Welcome to Teaching Torch. We value your privacy and are committed to protecting your personal data. 
-                    This Privacy Policy explains how we collect, use, and safeguard your information when you visit our website.
-                  </p>
+              <h2 className="text-2xl font-bold mb-6 mt-10">2. The Data We Collect</h2>
+              <p className="mb-4">We may collect, use, store and transfer different kinds of personal data about you which we have grouped together as follows:</p>
+              <ul className="list-disc pl-6 mb-6 space-y-2 text-text-muted">
+                <li><strong>Identity Data:</strong> includes first name, last name, username or similar identifier.</li>
+                <li><strong>Contact Data:</strong> includes email address and telephone numbers.</li>
+                <li><strong>Technical Data:</strong> includes internet protocol (IP) address, your login data, browser type and version, time zone setting and location.</li>
+                <li><strong>Usage Data:</strong> includes information about how you use our website, products and services.</li>
+              </ul>
 
-                  <h2 className="h4 mb-3">2. Information Collection</h2>
-                  <p className="mb-4">
-                    We may collect information that your browser sends whenever you visit our website. 
-                    This data may include information such as your computer's Internet Protocol ("IP") address, 
-                    browser type, browser version, the pages of our website that you visit, the time and date of your visit, 
-                    and other statistics.
-                  </p>
+              <h2 className="text-2xl font-bold mb-6 mt-10">3. How We Use Your Data</h2>
+              <p className="mb-4">We will only use your personal data when the law allows us to. Most commonly, we will use your personal data in the following circumstances:</p>
+              <ul className="list-disc pl-6 mb-6 space-y-2 text-text-muted">
+                <li>Where we need to perform the contract we are about to enter into or have entered into with you.</li>
+                <li>Where it is necessary for our legitimate interests (or those of a third party) and your interests and fundamental rights do not override those interests.</li>
+                <li>Where we need to comply with a legal or regulatory obligation.</li>
+              </ul>
 
-                  <h2 className="h4 mb-3">3. Google AdSense & Cookies</h2>
-                  <div className="alert alert-info mb-4">
-                    <strong>Important Disclosure for Advertising:</strong>
-                    <p className="mt-2 mb-0">
-                      We use Google AdSense to serve ads on our website. As a third-party vendor, Google uses cookies 
-                      to serve ads on your site based on your prior visits to our website or other websites. 
-                      Google's use of advertising cookies enables it and its partners to serve ads to our users 
-                      based on their visit to our sites and/or other sites on the Internet.
-                    </p>
-                  </div>
-                  <p className="mb-4">
-                    Users may opt out of personalized advertising by visiting 
-                    <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener noreferrer" className="ms-1">Google Ad Settings</a>. 
-                    Alternatively, you can opt out of a third-party vendor's use of cookies for personalized advertising by visiting 
-                    <a href="http://www.aboutads.info/choices/" target="_blank" rel="noopener noreferrer" className="ms-1">www.aboutads.info</a>.
-                  </p>
+              <h2 className="text-2xl font-bold mb-6 mt-10">4. Data Security</h2>
+              <p className="mb-6">
+                We have put in place appropriate security measures to prevent your personal data from being accidentally lost, 
+                used or accessed in an unauthorised way, altered or disclosed. In addition, we limit access to your personal data 
+                to those employees, agents, contractors and other third parties who have a business need to know.
+              </p>
 
-                  <h2 className="h4 mb-3">4. How We Use Information</h2>
-                  <p className="mb-4">
-                    The information we collect is used to:
-                  </p>
-                  <ul className="mb-4">
-                    <li>Provide, maintain, and improve our website services.</li>
-                    <li>Analyze how our website is used to enhance user experience.</li>
-                    <li>Communicate with you if you contact us through our form.</li>
-                    <li>Show relevant advertisements through our partners.</li>
-                  </ul>
+              <h2 className="text-2xl font-bold mb-6 mt-10">5. Data Retention</h2>
+              <p className="mb-6">
+                We will only retain your personal data for as long as necessary to fulfil the purposes we collected it for, 
+                including for the purposes of satisfying any legal, accounting, or reporting requirements.
+              </p>
 
-                  <h2 className="h4 mb-3">5. Data Security</h2>
-                  <p className="mb-4">
-                    The security of your data is important to us, but remember that no method of transmission over 
-                    the Internet or method of electronic storage is 100% secure. While we strive to use 
-                    commercially acceptable means to protect your information, we cannot guarantee its absolute security.
-                  </p>
+              <h2 className="text-2xl font-bold mb-6 mt-10">6. Your Legal Rights</h2>
+              <p className="mb-4">Under certain circumstances, you have rights under data protection laws in relation to your personal data, including the right to:</p>
+              <ul className="list-disc pl-6 mb-8 space-y-2 text-text-muted">
+                <li>Request access to your personal data.</li>
+                <li>Request correction of your personal data.</li>
+                <li>Request erasure of your personal data.</li>
+                <li>Object to processing of your personal data.</li>
+                <li>Request restriction of processing your personal data.</li>
+                <li>Request transfer of your personal data.</li>
+                <li>Right to withdraw consent.</li>
+              </ul>
 
-                  <h2 className="h4 mb-3">6. Links to Other Sites</h2>
-                  <p className="mb-4">
-                    Our website contains links to other sites (like Google Drive for resource downloads). 
-                    If you click on a third-party link, you will be directed to that site. We strongly advise 
-                    you to review the Privacy Policy of every site you visit.
-                  </p>
-
-                  <h2 className="h4 mb-3">7. Contact Us</h2>
-                  <p className="mb-0">
-                    If you have any questions about this Privacy Policy, please contact us through our 
-                    <Link to="/contact" className="ms-1">Contact Page</Link>.
-                  </p>
-                </div>
+              <div className="bg-bg-secondary p-6 rounded-xl border border-border mt-10">
+                <h3 className="text-xl font-bold mb-3">Contact Us</h3>
+                <p className="mb-0 text-text-muted">
+                  If you have any questions about this privacy policy or our privacy practices, please contact us at: <br/>
+                  <strong>Email:</strong> privacy@teachingtorch.lk
+                </p>
               </div>
-            </div>
-          </div>
-        </div>
-      </section>
+            </CardContent>
+          </Card>
+        </Container>
+      </Section>
     </div>
   );
 };

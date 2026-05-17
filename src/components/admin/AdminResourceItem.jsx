@@ -1,4 +1,5 @@
 import React, { memo } from 'react';
+import { Book, FileText, StickyNote, PlayCircle, Globe, Hash, Pencil, Trash2, Check, X } from 'lucide-react';
 
 const AdminResourceItem = ({ 
   file, 
@@ -17,187 +18,180 @@ const AdminResourceItem = ({
 
   if (isEditing) {
     return (
-      <div className="p-3 border rounded bg-light mb-2 animate-fade-in shadow-sm">
-        <div className="edit-resource-form">
-          <div className="mb-2">
-            <label className="form-label small mb-0 fw-bold">Title</label>
+      <div className="p-4 border border-primary/30 rounded-xl bg-bg-secondary/50 mb-3 animate-fade-in shadow-sm">
+        <div className="space-y-4">
+          <div>
+            <label className="block text-xs font-bold text-text-primary mb-1">Title</label>
             <input 
               type="text" 
-              className="form-control form-control-sm mb-2" 
+              className="w-full px-3 py-2 bg-bg-primary border border-border rounded-md text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/50" 
               value={editResourceData.title} 
               onChange={e => setEditResourceData({ ...editResourceData, title: e.target.value })} 
             />
-            
-            <label className="form-label small mb-0 fw-bold">URL (Drive / YouTube)</label>
+          </div>
+          
+          <div>
+            <label className="block text-xs font-bold text-text-primary mb-1">URL (Drive / YouTube)</label>
             <input 
               type="text" 
-              className="form-control form-control-sm mb-2" 
+              className="w-full px-3 py-2 bg-bg-primary border border-border rounded-md text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/50" 
               value={editResourceData.url} 
               onChange={e => setEditResourceData({ ...editResourceData, url: e.target.value })} 
             />
-            
-            <label className="form-label small mb-0 fw-bold">Description</label>
+          </div>
+          
+          <div>
+            <label className="block text-xs font-bold text-text-primary mb-1">Description</label>
             <textarea 
-              className="form-control form-control-sm mb-2" 
+              className="w-full px-3 py-2 bg-bg-primary border border-border rounded-md text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none" 
               rows="2" 
               value={editResourceData.description} 
               onChange={e => setEditResourceData({ ...editResourceData, description: e.target.value })} 
             />
-            
-            <div className="row g-2 mb-2">
-              <div className="col-6">
-                <label className="form-label small mb-0 fw-bold">Grade</label>
-                <select 
-                  className="form-select form-select-sm" 
-                  value={editResourceData.grade} 
-                  onChange={e => {
-                    const newGrade = e.target.value;
-                    const availableSubjects = getSubjectsForGrade(newGrade);
-                    const subjectKeys = Object.keys(availableSubjects);
-                    setEditResourceData(prev => ({ 
-                      ...prev, 
-                      grade: newGrade, 
-                      subject: subjectKeys.includes(prev.subject) ? prev.subject : (subjectKeys[0] || '') 
-                    }));
-                  }}
-                >
-                  {Object.entries(grades).map(([key, g]) => (
-                    <option key={key} value={key}>{g.display}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="col-6">
-                <label className="form-label small mb-0 fw-bold">Subject</label>
-                <select 
-                  className="form-select form-select-sm" 
-                  value={editResourceData.subject} 
-                  onChange={e => setEditResourceData({ ...editResourceData, subject: e.target.value })}
-                >
-                  {Object.entries(getSubjectsForGrade(editResourceData.grade)).map(([key, s]) => (
-                    <option key={key} value={key}>{s.name}</option>
-                  ))}
-                </select>
-              </div>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-text-primary mb-1">Grade</label>
+              <select 
+                className="w-full px-3 py-2 bg-bg-primary border border-border rounded-md text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 appearance-none" 
+                value={editResourceData.grade} 
+                onChange={e => {
+                  const newGrade = e.target.value;
+                  const availableSubjects = getSubjectsForGrade(newGrade);
+                  const subjectKeys = Object.keys(availableSubjects);
+                  setEditResourceData(prev => ({ 
+                    ...prev, 
+                    grade: newGrade, 
+                    subject: subjectKeys.includes(prev.subject) ? prev.subject : (subjectKeys[0] || '') 
+                  }));
+                }}
+              >
+                {Object.entries(grades).map(([key, g]) => (
+                  <option key={key} value={key}>{g.display}</option>
+                ))}
+              </select>
             </div>
-            
-            <div className="row g-2">
-              <div className="col-6">
-                <label className="form-label small mb-0 fw-bold">Languages</label>
-                <div className="border rounded px-2 py-1 bg-white" style={{ maxHeight: '80px', overflowY: 'auto' }}>
-                  {['english', 'sinhala', 'tamil'].map(lang => (
-                    <div className="form-check mb-0" style={{ fontSize: '0.8rem' }} key={`edit-rlang-${lang}`}>
-                      <input
-                        className="form-check-input"
-                        type="checkbox"
-                        id={`edit-rlang-${lang}`}
-                        checked={editResourceData.languages.includes(lang)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setEditResourceData(prev => ({ ...prev, languages: [...prev.languages, lang] }));
-                          } else {
-                            setEditResourceData(prev => ({ ...prev, languages: prev.languages.filter(l => l !== lang) }));
-                          }
-                        }}
-                      />
-                      <label className="form-check-label text-capitalize" htmlFor={`edit-rlang-${lang}`}>
-                        {lang}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div className="col-6">
-                <label className="form-label small mb-0 fw-bold">Order</label>
-                <input 
-                  type="number" 
-                  className="form-control form-control-sm" 
-                  placeholder="e.g 1" 
-                  value={editResourceData.order} 
-                  onChange={e => setEditResourceData({ ...editResourceData, order: e.target.value })} 
-                />
-              </div>
+            <div>
+              <label className="block text-xs font-bold text-text-primary mb-1">Subject</label>
+              <select 
+                className="w-full px-3 py-2 bg-bg-primary border border-border rounded-md text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 appearance-none" 
+                value={editResourceData.subject} 
+                onChange={e => setEditResourceData({ ...editResourceData, subject: e.target.value })}
+              >
+                {Object.entries(getSubjectsForGrade(editResourceData.grade)).map(([key, s]) => (
+                  <option key={key} value={key}>{s.name}</option>
+                ))}
+              </select>
             </div>
           </div>
-          <div className="d-flex justify-content-end gap-2 mt-3 pt-2 border-top">
-            <button 
-              className="btn btn-sm btn-success px-3" 
-              onClick={handleSaveEditResource} 
-              disabled={isSubmitting}
-            >
-              <i className="bi bi-check2 me-1"></i> Save Changes
-            </button>
-            <button 
-              className="btn btn-sm btn-outline-secondary" 
-              onClick={handleCancelEditResource} 
-              disabled={isSubmitting}
-            >
-              <i className="bi bi-x"></i> Cancel
-            </button>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-text-primary mb-1">Languages</label>
+              <div className="border border-border rounded-md px-3 py-2 bg-bg-primary max-h-24 overflow-y-auto space-y-1.5">
+                {['english', 'sinhala', 'tamil'].map(lang => (
+                  <label key={`edit-rlang-${lang}`} className="flex items-center gap-2 cursor-pointer group">
+                    <input
+                      className="w-3.5 h-3.5 rounded border-border text-primary focus:ring-primary"
+                      type="checkbox"
+                      checked={editResourceData.languages.includes(lang)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setEditResourceData(prev => ({ ...prev, languages: [...prev.languages, lang] }));
+                        } else {
+                          setEditResourceData(prev => ({ ...prev, languages: prev.languages.filter(l => l !== lang) }));
+                        }
+                      }}
+                    />
+                    <span className="text-xs font-medium text-text-primary capitalize group-hover:text-primary transition-colors">
+                      {lang}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-text-primary mb-1">Order</label>
+              <input 
+                type="number" 
+                className="w-full px-3 py-2 bg-bg-primary border border-border rounded-md text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/50" 
+                placeholder="e.g 1" 
+                value={editResourceData.order} 
+                onChange={e => setEditResourceData({ ...editResourceData, order: e.target.value })} 
+              />
+            </div>
           </div>
+        </div>
+        <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-border">
+          <button 
+            className="px-4 py-1.5 bg-bg-primary text-text-primary border border-border rounded-md text-sm font-medium hover:bg-bg-secondary transition-colors" 
+            onClick={handleCancelEditResource} 
+            disabled={isSubmitting}
+          >
+            Cancel
+          </button>
+          <button 
+            className="px-4 py-1.5 bg-success text-white rounded-md text-sm font-medium hover:bg-success/90 transition-colors flex items-center shadow-sm disabled:opacity-50" 
+            onClick={handleSaveEditResource} 
+            disabled={isSubmitting}
+          >
+            <Check className="w-4 h-4 mr-1.5" /> Save Changes
+          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="admin-resource-item p-2 border-bottom hover-bg">
-      <div className="d-flex justify-content-between align-items-center">
-        <div className="flex-grow-1" style={{ minWidth: 0 }}>
-          <div className="d-flex align-items-center">
-            <i className={`bi ${
-              file.resourceType === 'textbook' ? 'bi-book' :
-              file.resourceType === 'papers' ? 'bi-file-text' :
-              file.resourceType === 'notes' ? 'bi-sticky' :
-              'bi-play-circle'
-            } me-2 text-primary`} style={{ fontSize: '1.1rem' }}></i>
-            <h6 className="mb-0 text-truncate" style={{ fontSize: '0.9rem' }} title={file.title || file.name}>
+    <div className="p-3 border-b border-border hover:bg-bg-secondary/30 transition-colors rounded-lg">
+      <div className="flex justify-between items-center">
+        <div className="flex-grow min-w-0 pr-4">
+          <div className="flex items-center mb-1">
+            {file.resourceType === 'textbook' ? <Book className="w-4 h-4 mr-2 text-primary flex-shrink-0" /> :
+             file.resourceType === 'papers' ? <FileText className="w-4 h-4 mr-2 text-primary flex-shrink-0" /> :
+             file.resourceType === 'notes' ? <StickyNote className="w-4 h-4 mr-2 text-primary flex-shrink-0" /> :
+             <PlayCircle className="w-4 h-4 mr-2 text-primary flex-shrink-0" />}
+            <h6 className="mb-0 text-sm font-semibold text-text-primary truncate" title={file.title || file.name}>
               {file.title || file.name}
             </h6>
           </div>
-          <div className="mt-1">
-            <span className="badge bg-light text-dark border me-1" style={{ fontSize: '0.7rem' }}>
+          <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
+            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-bg-tertiary text-text-primary border border-border">
               {grades[file.grade]?.display || file.grade}
             </span>
-            <span className="badge bg-light text-primary border me-1" style={{ fontSize: '0.7rem' }}>
+            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-primary/10 text-primary border border-primary/20">
               {file.subject}
             </span>
-            <span className="text-muted" style={{ fontSize: '0.75rem' }}>
-              <i className="bi bi-globe2 me-1"></i>
+            <span className="inline-flex items-center text-xs text-text-muted ml-1">
+              <Globe className="w-3 h-3 mr-1" />
               {file.languages?.join(', ') || 'en'}
-              {file.order !== undefined && file.order !== 999 && (
-                <span className="ms-2 border-start ps-2">
-                  <i className="bi bi-sort-numeric-down me-1"></i>
-                  {file.order}
-                </span>
-              )}
             </span>
+            {file.order !== undefined && file.order !== 999 && (
+              <span className="inline-flex items-center text-xs text-text-muted ml-1 pl-2 border-l border-border">
+                <Hash className="w-3 h-3 mr-1" />
+                {file.order}
+              </span>
+            )}
           </div>
         </div>
-        <div className="d-flex gap-1 ms-2">
+        <div className="flex gap-1.5 flex-shrink-0">
           <button
-            className="btn btn-sm btn-outline-primary"
+            className="p-1.5 text-info hover:bg-info/10 rounded-md border border-info/30 transition-colors"
             onClick={() => setEditingResource(file)}
             title="Edit resource"
-            style={{ padding: '0.25rem 0.5rem' }}
           >
-            <i className="bi bi-pencil" style={{ fontSize: '0.8rem' }}></i>
+            <Pencil className="w-3.5 h-3.5" />
           </button>
           <button
-            className="btn btn-sm btn-outline-danger"
+            className="p-1.5 text-danger hover:bg-danger/10 rounded-md border border-danger/30 transition-colors"
             onClick={() => handleDeleteResource(file.id)}
             title="Delete resource"
-            style={{ padding: '0.25rem 0.5rem' }}
           >
-            <i className="bi bi-trash" style={{ fontSize: '0.8rem' }}></i>
+            <Trash2 className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
-      <style>{`
-        .admin-resource-item { transition: background-color 0.2s; }
-        .admin-resource-item:hover { background-color: rgba(0,0,0,0.02); }
-        .animate-fade-in { animation: fadeIn 0.3s ease-in; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-      `}</style>
     </div>
   );
 };

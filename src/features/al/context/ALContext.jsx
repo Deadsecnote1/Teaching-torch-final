@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useAuth } from './AuthContext';
+import { useAuth } from '../../../context/AuthContext';
 import {
   collection,
   onSnapshot,
@@ -28,61 +28,61 @@ export const ALProvider = ({ children }) => {
   const [alSubCategories, setAlSubCategories] = useState([]);
   const [alResources, setAlResources] = useState([]);
 
-  const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState('idle'); // idle | loading | ready | error
+  const [error, setError] = useState(null);
   const { db, isInitialized } = useAuth();
 
-  const processDoc = (doc) => {
+  const processDoc = React.useCallback((doc) => {
     const d = doc.data();
-    const obj = {
-      id: doc.id,
-      ...d
-    };
+    const obj = { id: doc.id, ...d };
     if (d.name) obj.name = normalizeString(d.name);
     if (d.description) obj.description = normalizeString(d.description);
     if (d.title) obj.title = normalizeString(d.title);
     if (d.icon) obj.icon = normalizeString(d.icon);
     if (d.color) obj.color = normalizeString(d.color);
     return obj;
-  };
+  }, []);
 
-  useEffect(() => {
-    if (!isInitialized || !db) return;
+  const initializeALData = React.useCallback(async () => {
+    if (!isInitialized || !db || status === 'loading' || alStreams.length > 0) return;
+    
+    setStatus('loading');
+    console.log("%c[AL] Initializing Lazy Metadata", "color: #8b5cf6; font-weight: bold;");
+    
+    try {
+      const { getDocs, query, collection } = await import('firebase/firestore');
+      
+      const collections = ['al_streams', 'al_subjects', 'al_resource_types', 'al_sub_categories'];
+      const setters = {
+        al_streams: setAlStreams,
+        al_subjects: setAlSubjects,
+        al_resource_types: setAlResourceTypes,
+        al_sub_categories: setAlSubCategories
+      };
 
-    const collections = ['al_streams', 'al_subjects', 'al_resource_types', 'al_sub_categories'];
-    const setters = {
-      al_streams: setAlStreams,
-      al_subjects: setAlSubjects,
-      al_resource_types: setAlResourceTypes,
-      al_sub_categories: setAlSubCategories
-    };
-    const loadedCollections = new Set();
+      const results = await Promise.all(
+        collections.map(colName => getDocs(query(collection(db, colName))))
+      );
 
-    const setupListener = (colName) => {
-      return onSnapshot(query(collection(db, colName)), (snapshot) => {
+      results.forEach((snapshot, index) => {
+        const colName = collections[index];
         const data = snapshot.docs.map(processDoc);
         data.sort((a, b) => (a.order || 0) - (b.order || 0));
         setters[colName](data);
-        loadedCollections.add(colName);
-        if (loadedCollections.size === collections.length) {
-          setLoading(false);
-        }
-      }, (err) => {
-        console.error(`Error loading ${colName}:`, err);
-        loadedCollections.add(colName); 
-        if (loadedCollections.size === collections.length) setLoading(false);
       });
-    };
 
-    const unsubs = collections.map(setupListener);
-
-    return () => unsubs.forEach(unsub => unsub());
-  }, [isInitialized, db]);
+      setStatus('ready');
+    } catch (err) {
+      console.error("Error loading AL data:", err);
+      setError(err.message);
+      setStatus('error');
+    }
+  }, [isInitialized, db, status, alStreams.length, processDoc]);
 
   const listenersRef = React.useRef({});
   const [fetchedSubjects, setFetchedSubjects] = useState({});
 
-  // On-demand fetch for resources to save reads
-  const fetchALResources = (subjectId = null) => {
+  const fetchALResources = React.useCallback((subjectId = null) => {
     if (!db || !subjectId || fetchedSubjects[subjectId]) return;
     
     try {
@@ -102,7 +102,7 @@ export const ALProvider = ({ children }) => {
     } catch (err) {
       console.error("Error setting up AL subject listener:", err);
     }
-  };
+  }, [db, fetchedSubjects, processDoc]);
 
   useEffect(() => {
     return () => {
@@ -112,8 +112,7 @@ export const ALProvider = ({ children }) => {
     };
   }, []);
 
-  // Generic generic functions
-  const addDocument = async (collectionName, data, customId = null) => {
+  const addDocument = React.useCallback(async (collectionName, data, customId = null) => {
     if (!db) return false;
     try {
       if (customId) {
@@ -124,11 +123,11 @@ export const ALProvider = ({ children }) => {
       return true;
     } catch (e) {
       console.error(`Error adding to ${collectionName}:`, e);
-      throw e;
+      return false;
     }
-  };
+  }, [db]);
 
-  const updateDocument = async (collectionName, id, data) => {
+  const updateDocument = React.useCallback(async (collectionName, id, data) => {
     if (!db) return false;
     try {
       const { id: _, ...rest } = data;
@@ -139,20 +138,20 @@ export const ALProvider = ({ children }) => {
       return true;
     } catch (e) {
       console.error(`Error updating ${collectionName}:`, e);
-      throw e;
+      return false;
     }
-  };
+  }, [db]);
 
-  const deleteDocument = async (collectionName, id) => {
+  const deleteDocument = React.useCallback(async (collectionName, id) => {
     if (!db) return false;
     try {
       await deleteDoc(doc(db, collectionName, id));
       return true;
     } catch (e) {
       console.error(`Error deleting from ${collectionName}:`, e);
-      throw e;
+      return false;
     }
-  };
+  }, [db]);
 
   const value = React.useMemo(() => ({
     alStreams,
@@ -160,15 +159,19 @@ export const ALProvider = ({ children }) => {
     alResourceTypes,
     alSubCategories,
     alResources,
-    loading,
+    loading: status === 'loading',
+    status,
+    error,
+    initializeALData,
     fetchALResources,
     addDocument,
     updateDocument,
     deleteDocument,
-    db // Expose db if needed
+    db
   }), [
     alStreams, alSubjects, alResourceTypes, alSubCategories, 
-    alResources, loading, fetchALResources, addDocument, updateDocument, deleteDocument, db
+    alResources, status, error, initializeALData, fetchALResources, 
+    addDocument, updateDocument, deleteDocument, db
   ]);
 
   return (

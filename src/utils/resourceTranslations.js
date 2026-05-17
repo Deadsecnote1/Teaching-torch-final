@@ -31,9 +31,10 @@ export const resourceTranslations = {
  * Fallbacks to english if mapping is missing, or null if completely unknown.
  */
 export const getResourceTypeName = (type, currentLanguage) => {
-    if (!resourceTranslations[type]) {
-        // Return null instead of a formatted ID, so components can fall back to db names
+    if (!type) return null;
+    const normalized = type === 'textbook' ? 'textbooks' : type;
+    if (!resourceTranslations[normalized]) {
         return null;
     }
-    return resourceTranslations[type][currentLanguage] || resourceTranslations[type].english;
+    return resourceTranslations[normalized][currentLanguage] || resourceTranslations[normalized].english;
 };

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useData } from '../../context/DataContext';
+import { useData } from '../../features/ol';
 
 /**
  * A reusable component for Google AdSense ads.

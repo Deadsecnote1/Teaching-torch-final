@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useData } from '../../context/DataContext';
+import { useData } from '../../features/ol';
 import toast from 'react-hot-toast';
 import { isValidHttpsUrl } from '../../utils/validation';
+import { Pencil, Plus, Info, Link as LinkIcon, Tags, Sliders, Check, X, ArrowRight } from 'lucide-react';
 
 const ResourceEditorModal = ({ resource, isOpen, onClose }) => {
   const { 
@@ -85,39 +86,48 @@ const ResourceEditorModal = ({ resource, isOpen, onClose }) => {
   const subjects = getSubjectsForGrade(formData.grade) || {};
 
   return (
-    <div className="modal d-block" style={{ backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 1060, backdropFilter: 'blur(4px)' }}>
-      <div className="modal-dialog modal-lg modal-dialog-centered">
-        <div className="modal-content border-0 shadow-2xl rounded-4 overflow-hidden" style={{ backgroundColor: '#1e293b' }}>
-          {/* Enhanced Header - Deep Slate Gradient */}
-          <div className="modal-header py-3 px-4 border-0" style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)' }}>
-            <h5 className="modal-title d-flex align-items-center gap-3">
-              <div className="p-2 rounded-circle d-flex align-items-center justify-content-center" style={{ width: '42px', height: '42px', background: 'rgba(56, 189, 248, 0.1)', color: '#38bdf8', boxShadow: 'inset 0 0 10px rgba(56, 189, 248, 0.2)' }}>
-                <i className={`bi ${formData.id ? 'bi-pencil-fill' : 'bi-plus-lg'} fs-5`}></i>
-              </div>
-              <div>
-                <span className="d-block h5 mb-0 fw-bold text-white tracking-wide">{formData.id ? 'Edit' : 'Add New'} Resource</span>
-                <small style={{ fontSize: '0.75rem', color: '#94a3b8', letterSpacing: '0.05em' }}>Management Mode Active</small>
-              </div>
-            </h5>
-            <button type="button" className="btn-close btn-close-white shadow-none opacity-75 custom-close" onClick={onClose} disabled={isSubmitting}></button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+      <div className="w-full max-w-4xl bg-[#1e293b] rounded-2xl shadow-2xl overflow-hidden border border-white/10 flex flex-col max-h-[90vh]">
+        {/* Header */}
+        <div className="px-6 py-4 bg-gradient-to-br from-[#0f172a] to-[#1e293b] flex justify-between items-center border-b border-white/5">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-full bg-[#38bdf8]/10 text-[#38bdf8] flex items-center justify-center shadow-[inset_0_0_10px_rgba(56,189,248,0.2)]">
+              {formData.id ? <Pencil className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-white tracking-wide m-0 leading-tight">
+                {formData.id ? 'Edit' : 'Add New'} Resource
+              </h2>
+              <span className="text-xs text-[#94a3b8] tracking-widest uppercase">Management Mode Active</span>
+            </div>
           </div>
+          <button 
+            onClick={onClose}
+            disabled={isSubmitting}
+            className="text-[#94a3b8] hover:text-white transition-colors disabled:opacity-50"
+          >
+            <X className="w-6 h-6" />
+          </button>
+        </div>
 
-          <form onSubmit={handleSubmit} style={{ backgroundColor: '#0f172a' }}>
-            <div className="modal-body p-4" style={{ maxHeight: '78vh', overflowY: 'auto' }}>
+        <form onSubmit={handleSubmit} className="flex-1 overflow-hidden flex flex-col bg-[#0f172a]">
+          <div className="flex-1 overflow-y-auto p-6 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent hover:scrollbar-thumb-white/30">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               
-              {/* Grid Layout */}
-              <div className="row g-4">
-                
-                {/* Main Content Area */}
-                <div className="col-lg-7">
-                  <div className="section-container p-4 rounded-4 h-100 dark-panel border-glow">
-                    <h6 className="section-title text-uppercase mb-4"><i className="bi bi-info-circle me-2 text-info"></i>Resource Details</h6>
-                    
-                    <div className="mb-4 custom-form-group">
-                      <label className="form-label ms-1">Resource Title</label>
+              {/* Main Content Area */}
+              <div className="lg:col-span-7">
+                <div className="p-5 rounded-2xl bg-[#1e293b]/50 border border-white/5 backdrop-blur-md h-full">
+                  <h6 className="flex items-center text-xs font-bold text-[#94a3b8] uppercase tracking-widest mb-5">
+                    <Info className="w-4 h-4 mr-2 text-info" />
+                    Resource Details
+                  </h6>
+                  
+                  <div className="space-y-5">
+                    <div>
+                      <label className="block text-sm font-semibold text-[#cbd5e1] mb-2 pl-1">Resource Title</label>
                       <input 
                         type="text" 
-                        className="form-control form-control-lg dark-input" 
+                        className="w-full px-4 py-3 bg-[#0f172a]/60 border border-white/10 rounded-xl text-white focus:outline-none focus:border-[#38bdf8] focus:ring-2 focus:ring-[#38bdf8]/20 transition-all placeholder:text-[#64748b]" 
                         placeholder="e.g. Combined Maths - Integration"
                         value={formData.title} 
                         onChange={e => setFormData({ ...formData, title: e.target.value })}
@@ -125,13 +135,15 @@ const ResourceEditorModal = ({ resource, isOpen, onClose }) => {
                       />
                     </div>
                     
-                    <div className="mb-4 custom-form-group">
-                      <label className="form-label ms-1">Resource Link</label>
-                      <div className="input-group input-group-lg">
-                        <span className="input-group-text dark-input-group-text"><i className="bi bi-link-45deg fs-5"></i></span>
+                    <div>
+                      <label className="block text-sm font-semibold text-[#cbd5e1] mb-2 pl-1">Resource Link</label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none border-r border-white/10 pr-3 bg-[#1e293b]/80 rounded-l-xl">
+                          <LinkIcon className="w-5 h-5 text-[#94a3b8]" />
+                        </div>
                         <input 
                           type="text" 
-                          className="form-control dark-input" 
+                          className="w-full pl-[3.5rem] pr-4 py-3 bg-[#0f172a]/60 border border-white/10 rounded-xl text-white focus:outline-none focus:border-[#38bdf8] focus:ring-2 focus:ring-[#38bdf8]/20 transition-all placeholder:text-[#64748b]" 
                           placeholder="Google Drive or YouTube URL"
                           value={formData.url} 
                           onChange={e => setFormData({ ...formData, url: e.target.value })}
@@ -140,11 +152,13 @@ const ResourceEditorModal = ({ resource, isOpen, onClose }) => {
                       </div>
                     </div>
                     
-                    <div className="mb-0 custom-form-group">
-                      <label className="form-label ms-1">Short Description <span className="text-secondary fw-normal">(Optional)</span></label>
+                    <div>
+                      <label className="block text-sm font-semibold text-[#cbd5e1] mb-2 pl-1">
+                        Short Description <span className="text-[#64748b] font-normal ml-1">(Optional)</span>
+                      </label>
                       <textarea 
-                        className="form-control dark-input slim-scroll" 
-                        rows="3" 
+                        className="w-full px-4 py-3 bg-[#0f172a]/60 border border-white/10 rounded-xl text-white focus:outline-none focus:border-[#38bdf8] focus:ring-2 focus:ring-[#38bdf8]/20 transition-all placeholder:text-[#64748b] resize-none" 
+                        rows="4" 
                         placeholder="Tell students about this resource..."
                         value={formData.description} 
                         onChange={e => setFormData({ ...formData, description: e.target.value })}
@@ -152,264 +166,165 @@ const ResourceEditorModal = ({ resource, isOpen, onClose }) => {
                     </div>
                   </div>
                 </div>
+              </div>
 
-                {/* Sidebar Configuration Area */}
-                <div className="col-lg-5">
-                  <div className="d-flex flex-column gap-4 h-100">
-                    
-                    <div className="section-container p-4 rounded-4 dark-panel border-glow">
-                      <h6 className="section-title text-uppercase mb-4"><i className="bi bi-tags me-2" style={{ color: '#34d399' }}></i>Categorization</h6>
-                      
-                      <div className="mb-3 custom-form-group">
-                        <label className="form-label ms-1">Grade Level</label>
-                        <select 
-                          className="form-select dark-select" 
-                          value={formData.grade} 
-                          onChange={e => {
-                            const newGrade = e.target.value;
-                            const availableSubjects = getSubjectsForGrade(newGrade);
-                            const subjectKeys = Object.keys(availableSubjects);
-                            setFormData({ 
-                              ...formData, 
-                              grade: newGrade,
-                              subject: subjectKeys.length > 0 ? subjectKeys[0] : ''
-                            });
-                          }}
-                        >
-                          <option value="">Select Grade</option>
-                          {Object.entries(grades).map(([key, g]) => (
-                            <option key={key} value={key}>{g.display}</option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div className="mb-3 custom-form-group">
-                        <label className="form-label ms-1">Subject</label>
-                        <select 
-                          className="form-select dark-select" 
-                          value={formData.subject} 
-                          onChange={e => setFormData({ ...formData, subject: e.target.value })}
-                        >
-                          <option value="">Select Subject</option>
-                          {Object.entries(subjects).map(([key, s]) => (
-                            <option key={key} value={key}>{s.name}</option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div className="mb-0 custom-form-group">
-                        <label className="form-label ms-1">Type</label>
-                        <select 
-                          className="form-select dark-select" 
-                          value={formData.resourceType} 
-                          onChange={e => setFormData({ ...formData, resourceType: e.target.value })}
-                        >
-                          <option value="textbook">Textbook</option>
-                          <option value="papers">Past Paper / Model Paper</option>
-                          <option value="notes">Short Note</option>
-                          <option value="videos">Video Lesson</option>
-                        </select>
-                      </div>
+              {/* Sidebar Configuration Area */}
+              <div className="lg:col-span-5 flex flex-col gap-6">
+                
+                <div className="p-5 rounded-2xl bg-[#1e293b]/50 border border-white/5 backdrop-blur-md">
+                  <h6 className="flex items-center text-xs font-bold text-[#94a3b8] uppercase tracking-widest mb-5">
+                    <Tags className="w-4 h-4 mr-2 text-[#34d399]" />
+                    Categorization
+                  </h6>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-[#cbd5e1] mb-2 pl-1">Grade Level</label>
+                      <select 
+                        className="w-full px-4 py-2.5 bg-[#0f172a]/60 border border-white/10 rounded-xl text-white focus:outline-none focus:border-[#38bdf8] focus:ring-2 focus:ring-[#38bdf8]/20 transition-all appearance-none cursor-pointer" 
+                        value={formData.grade} 
+                        onChange={e => {
+                          const newGrade = e.target.value;
+                          const availableSubjects = getSubjectsForGrade(newGrade);
+                          const subjectKeys = Object.keys(availableSubjects);
+                          setFormData({ 
+                            ...formData, 
+                            grade: newGrade,
+                            subject: subjectKeys.length > 0 ? subjectKeys[0] : ''
+                          });
+                        }}
+                      >
+                        <option value="">Select Grade</option>
+                        {Object.entries(grades).map(([key, g]) => (
+                          <option key={key} value={key}>{g.display}</option>
+                        ))}
+                      </select>
                     </div>
 
-                    <div className="section-container p-4 rounded-4 dark-panel border-glow flex-grow-1">
-                      <h6 className="section-title text-uppercase mb-4"><i className="bi bi-sliders me-2 text-warning"></i>Parameters</h6>
-                      
-                      <div className="mb-4">
-                        <label className="form-label ms-1 d-block">Language Availability</label>
-                        <div className="d-flex flex-wrap gap-2">
-                          {['sinhala', 'tamil', 'english'].map(lang => {
-                            const isChecked = formData.languages.includes(lang);
-                            return (
-                              <div 
-                                key={lang}
-                                className={`lang-pill ${isChecked ? 'active' : ''}`}
-                                onClick={() => {
-                                  if (!isChecked) {
-                                    setFormData(prev => ({ ...prev, languages: [...prev.languages, lang] }));
-                                  } else {
-                                    // Don't let them uncheck the last language
-                                    if (formData.languages.length > 1) {
-                                      setFormData(prev => ({ ...prev, languages: prev.languages.filter(l => l !== lang) }));
-                                    }
-                                  }
-                                }}
-                              >
-                                {isChecked && <i className="bi bi-check2 me-1"></i>}
-                                {lang.charAt(0).toUpperCase() + lang.slice(1)}
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-
-                      <div className="mb-0 custom-form-group">
-                        <label className="form-label ms-1">Priority Sort Order <i className="bi bi-question-circle small ms-1 text-secondary" title="Lower numbers appear first"></i></label>
-                        <input 
-                          type="number" 
-                          className="form-control dark-input text-center font-monospace fs-5" 
-                          value={formData.order} 
-                          onChange={e => setFormData({ ...formData, order: e.target.value })} 
-                          placeholder="0"
-                          style={{ maxWidth: '100px' }}
-                        />
-                      </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-[#cbd5e1] mb-2 pl-1">Subject</label>
+                      <select 
+                        className="w-full px-4 py-2.5 bg-[#0f172a]/60 border border-white/10 rounded-xl text-white focus:outline-none focus:border-[#38bdf8] focus:ring-2 focus:ring-[#38bdf8]/20 transition-all appearance-none cursor-pointer" 
+                        value={formData.subject} 
+                        onChange={e => setFormData({ ...formData, subject: e.target.value })}
+                      >
+                        <option value="">Select Subject</option>
+                        {Object.entries(subjects).map(([key, s]) => (
+                          <option key={key} value={key}>{s.name}</option>
+                        ))}
+                      </select>
                     </div>
 
+                    <div>
+                      <label className="block text-sm font-semibold text-[#cbd5e1] mb-2 pl-1">Type</label>
+                      <select 
+                        className="w-full px-4 py-2.5 bg-[#0f172a]/60 border border-white/10 rounded-xl text-white focus:outline-none focus:border-[#38bdf8] focus:ring-2 focus:ring-[#38bdf8]/20 transition-all appearance-none cursor-pointer" 
+                        value={formData.resourceType} 
+                        onChange={e => setFormData({ ...formData, resourceType: e.target.value })}
+                      >
+                        <option value="textbook">Textbook</option>
+                        <option value="papers">Past Paper / Model Paper</option>
+                        <option value="notes">Short Note</option>
+                        <option value="videos">Video Lesson</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
+
+                <div className="p-5 rounded-2xl bg-[#1e293b]/50 border border-white/5 backdrop-blur-md flex-1">
+                  <h6 className="flex items-center text-xs font-bold text-[#94a3b8] uppercase tracking-widest mb-5">
+                    <Sliders className="w-4 h-4 mr-2 text-warning" />
+                    Parameters
+                  </h6>
+                  
+                  <div className="space-y-5">
+                    <div>
+                      <label className="block text-sm font-semibold text-[#cbd5e1] mb-2 pl-1">Language Availability</label>
+                      <div className="flex flex-wrap gap-2">
+                        {['sinhala', 'tamil', 'english'].map(lang => {
+                          const isChecked = formData.languages.includes(lang);
+                          return (
+                            <button
+                              type="button"
+                              key={lang}
+                              className={`px-4 py-2 rounded-full text-sm font-semibold transition-all select-none border flex items-center ${
+                                isChecked 
+                                  ? 'bg-[#38bdf8]/10 border-[#38bdf8] text-[#38bdf8] shadow-[inset_0_0_10px_rgba(56,189,248,0.1)]' 
+                                  : 'bg-[#0f172a]/60 border-white/10 text-[#94a3b8] hover:bg-[#1e293b]/80 hover:text-white'
+                              }`}
+                              onClick={() => {
+                                if (!isChecked) {
+                                  setFormData(prev => ({ ...prev, languages: [...prev.languages, lang] }));
+                                } else {
+                                  if (formData.languages.length > 1) {
+                                    setFormData(prev => ({ ...prev, languages: prev.languages.filter(l => l !== lang) }));
+                                  }
+                                }
+                              }}
+                            >
+                              {isChecked && <Check className="w-3.5 h-3.5 mr-1.5" />}
+                              {lang.charAt(0).toUpperCase() + lang.slice(1)}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="flex items-center text-sm font-semibold text-[#cbd5e1] mb-2 pl-1">
+                        Priority Sort Order
+                        <div className="relative group ml-1.5">
+                          <Info className="w-3.5 h-3.5 text-[#64748b] cursor-help" />
+                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 w-max px-2 py-1 bg-black/80 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                            Lower numbers appear first
+                          </div>
+                        </div>
+                      </label>
+                      <input 
+                        type="number" 
+                        className="w-24 px-3 py-2.5 text-center bg-[#0f172a]/60 border border-white/10 rounded-xl text-white font-mono text-lg focus:outline-none focus:border-[#38bdf8] focus:ring-2 focus:ring-[#38bdf8]/20 transition-all" 
+                        value={formData.order} 
+                        onChange={e => setFormData({ ...formData, order: e.target.value })} 
+                        placeholder="0"
+                      />
+                    </div>
+                  </div>
+                </div>
+
               </div>
             </div>
+          </div>
 
-            {/* Premium Footer */}
-            <div className="modal-footer border-0 p-4 pt-3 flex-nowrap" style={{ backgroundColor: '#0f172a', borderTop: '1px solid rgba(255,255,255,0.05) !important' }}>
-              <button type="button" className="btn btn-outline-secondary btn-lg px-4 fw-bold rounded-3 me-auto border-2 btn-cancel" onClick={onClose} disabled={isSubmitting}>
-                Cancel
-              </button>
-              <button type="submit" className="btn btn-primary btn-lg px-5 fw-bold rounded-3 btn-glow position-relative overflow-hidden" disabled={isSubmitting || globalSubmitting}>
-                {isSubmitting ? (
-                  <><span className="spinner-border spinner-border-sm me-2 text-white"></span>Updating...</>
-                ) : (
-                  <span className="d-flex align-items-center gap-2">
-                    {formData.id ? 'Save Changes' : 'Initialize Resource'} 
-                    <i className="bi bi-arrow-right-short fs-4"></i>
-                  </span>
-                )}
-              </button>
-            </div>
-          </form>
-        </div>
+          {/* Footer */}
+          <div className="px-6 py-4 bg-[#0f172a] border-t border-white/5 flex justify-between items-center">
+            <button 
+              type="button" 
+              className="px-6 py-2.5 rounded-xl border border-white/10 text-[#94a3b8] font-bold hover:bg-white/5 hover:text-white hover:border-white/20 transition-colors" 
+              onClick={onClose} 
+              disabled={isSubmitting}
+            >
+              Cancel
+            </button>
+            <button 
+              type="submit" 
+              className="px-8 py-2.5 rounded-xl bg-primary text-white font-bold shadow-[0_4px_15px_rgba(13,110,253,0.3)] hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(13,110,253,0.4)] transition-all flex items-center disabled:opacity-70 disabled:hover:translate-y-0 disabled:hover:shadow-[0_4px_15px_rgba(13,110,253,0.3)]" 
+              disabled={isSubmitting || globalSubmitting}
+            >
+              {isSubmitting ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin mr-2"></div>
+                  Updating...
+                </>
+              ) : (
+                <>
+                  {formData.id ? 'Save Changes' : 'Initialize Resource'} 
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </>
+              )}
+            </button>
+          </div>
+        </form>
       </div>
-
-      <style>{`
-        .modal-lg {
-          max-width: 900px;
-          width: 95%;
-        }
-        
-        .shadow-2xl {
-          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 40px rgba(56, 189, 248, 0.1);
-          border: 1px solid rgba(255, 255, 255, 0.1) !important;
-        }
-
-        .dark-panel {
-          background-color: rgba(30, 41, 59, 0.5);
-          border: 1px solid rgba(255, 255, 255, 0.05);
-          backdrop-filter: blur(10px);
-        }
-
-        .section-title {
-          font-size: 0.8rem;
-          letter-spacing: 0.1em;
-          color: #94a3b8;
-          font-weight: 700;
-        }
-
-        .dark-input, .dark-select {
-          background-color: rgba(15, 23, 42, 0.6) !important;
-          border: 1px solid rgba(255, 255, 255, 0.1) !important;
-          color: #f8fafc !important;
-          transition: all 0.2s ease;
-        }
-        
-        .dark-select {
-          cursor: pointer;
-        }
-
-        .dark-input:focus, .dark-select:focus {
-          border-color: #38bdf8 !important;
-          box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15) !important;
-          background-color: rgba(15, 23, 42, 0.9) !important;
-        }
-        
-        .dark-input::placeholder {
-          color: #64748b;
-        }
-
-        .dark-input-group-text {
-          background-color: rgba(30, 41, 59, 0.8);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-right: none;
-          color: #94a3b8;
-        }
-
-        .custom-form-group .form-label {
-          font-size: 0.85rem;
-          font-weight: 600;
-          color: #cbd5e1;
-          margin-bottom: 0.5rem;
-        }
-
-        /* Language Pills */
-        .lang-pill {
-          padding: 8px 16px;
-          border-radius: 20px;
-          background-color: rgba(15, 23, 42, 0.6);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          color: #94a3b8;
-          font-size: 0.85rem;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          user-select: none;
-        }
-
-        .lang-pill:hover {
-          background-color: rgba(30, 41, 59, 0.8);
-          color: #f8fafc;
-        }
-
-        .lang-pill.active {
-          background-color: rgba(56, 189, 248, 0.1);
-          border-color: #38bdf8;
-          color: #38bdf8;
-          box-shadow: inset 0 0 10px rgba(56, 189, 248, 0.1);
-        }
-
-        /* Buttons */
-        .btn-cancel {
-          color: #94a3b8;
-          border-color: rgba(255,255,255,0.1);
-        }
-        
-        .btn-cancel:hover {
-          background-color: rgba(255,255,255,0.05);
-          color: #f8fafc;
-          border-color: rgba(255,255,255,0.2);
-        }
-
-        .btn-glow {
-          box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);
-          transition: all 0.3s ease;
-        }
-
-        .btn-glow:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(13, 110, 253, 0.4);
-        }
-
-        .tracking-wide { letter-spacing: 0.025em; }
-
-        /* Scrollbar */
-        .modal-body::-webkit-scrollbar {
-          width: 6px;
-        }
-        .modal-body::-webkit-scrollbar-track {
-          background: rgba(15, 23, 42, 0.5);
-          border-radius: 4px;
-        }
-        .modal-body::-webkit-scrollbar-thumb {
-          background: rgba(148, 163, 184, 0.2);
-          border-radius: 4px;
-        }
-        .modal-body::-webkit-scrollbar-thumb:hover {
-          background: rgba(148, 163, 184, 0.4);
-        }
-        
-        .slim-scroll::-webkit-scrollbar { width: 4px; }
-        .slim-scroll::-webkit-scrollbar-track { background: transparent; }
-        .slim-scroll::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.3); border-radius: 4px; }
-      `}</style>
     </div>
   );
 };

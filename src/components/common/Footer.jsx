@@ -1,68 +1,56 @@
 import React from 'react';
-import { useData } from '../../context/DataContext';
+import { Link } from 'react-router-dom';
+import { useData } from '../../features/ol';
+import { Globe, MessageCircle, Mail } from 'lucide-react';
 
 const Footer = () => {
   const { settings } = useData();
   return (
-    <footer className="footer-section py-4 mt-auto">
-      <div className="container">
-        <div className="row align-items-center">
+    <footer className="bg-gradient-to-r from-primary to-primary-dark py-6 mt-auto text-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           {/* Brand & Socials */}
-          <div className="col-md-4 text-center text-md-start mb-3 mb-md-0">
-            <h5 className="footer-title text-white fw-bold mb-2">Teaching Torch</h5>
-            <div className="social-links">
-              {settings?.facebook && (
-                <a href={settings.facebook} className="footer-link text-white me-3" aria-label="Facebook" target="_blank" rel="noopener noreferrer">
-                  <i className="bi bi-facebook fs-5"></i>
+          <div className="w-full md:w-1/3 text-center md:text-left">
+            <h5 className="text-lg font-bold mb-3 text-white">Teaching Torch</h5>
+            <div className="flex items-center justify-center md:justify-start gap-4">
+              {settings?.website && (
+                <a href={settings.website} target="_blank" rel="noopener noreferrer" className="w-10 h-10 flex items-center justify-center rounded-full bg-bg-secondary hover:bg-[#1877F2]/10 hover:text-[#1877F2] text-text-muted transition-colors" title="Website">
+                  <Globe className="w-5 h-5" />
                 </a>
               )}
               {settings?.whatsapp && (
-                <a href={`https://wa.me/${settings.whatsapp}`} className="footer-link text-white me-3" aria-label="WhatsApp" target="_blank" rel="noopener noreferrer">
-                  <i className="bi bi-whatsapp fs-5"></i>
+                <a href={`https://wa.me/${settings.whatsapp}`} className="text-white hover:text-white/70 hover:-translate-y-0.5 transition-all" aria-label="WhatsApp" target="_blank" rel="noopener noreferrer">
+                  <MessageCircle className="w-5 h-5" />
                 </a>
               )}
               {settings?.email && (
-                <a href={`mailto:${settings.email}`} className="footer-link text-white" aria-label="Email">
-                  <i className="bi bi-envelope fs-5"></i>
+                <a href={`mailto:${settings.email}`} className="text-white hover:text-white/70 hover:-translate-y-0.5 transition-all" aria-label="Email">
+                  <Mail className="w-5 h-5" />
                 </a>
               )}
             </div>
           </div>
 
           {/* Quick Links */}
-          <div className="col-md-4 text-center mb-3 mb-md-0">
-            <div className="d-flex justify-content-center flex-wrap gap-3">
-              <a href="/about" className="footer-nav-link text-white small">About Us</a>
-              <a href="/contact" className="footer-nav-link text-white small">Contact Us</a>
-              <a href="/privacy-policy" className="footer-nav-link text-white small">Privacy Policy</a>
+          <div className="w-full md:w-1/3 text-center">
+            <div className="flex justify-center flex-wrap gap-4">
+              <Link to="/about" className="text-white text-sm hover:text-white/80 transition-colors tap-target inline-flex items-center px-2">About Us</Link>
+              <Link to="/contact" className="text-white text-sm hover:text-white/80 transition-colors tap-target inline-flex items-center px-2">Contact Us</Link>
+              <Link to="/privacy-policy" className="text-white text-sm hover:text-white/80 transition-colors tap-target inline-flex items-center px-2">Privacy Policy</Link>
             </div>
           </div>
 
           {/* Copyright */}
-          <div className="col-md-4 text-center text-md-end">
-            <p className="footer-copyright text-white mb-0 small opacity-75">
+          <div className="w-full md:w-1/3 text-center md:text-right">
+            <p className="text-white text-sm opacity-80 mb-1">
               &copy; {new Date().getFullYear()} Teaching Torch.
             </p>
-            <p className="footer-made-with text-white mb-0 x-small opacity-50">
+            <p className="text-white text-xs opacity-60">
               Made with ❤️ for Sri Lankan Education
             </p>
           </div>
         </div>
       </div>
-
-      <style>{`
-        .footer-section {
-          background: var(--primary-gradient) !important;
-          color: white !important;
-          margin-top: auto;
-        }
-
-        .footer-link:hover {
-          color: rgba(255,255,255,0.7) !important;
-          transform: translateY(-2px);
-        }
-
-      `}</style>
     </footer>
   );
 };

@@ -15,39 +15,38 @@ export const LanguageProvider = ({ children }) => {
     'all': { 
       name: 'All Languages', 
       display: 'All Languages',
-      icon: 'bi-globe',
       color: '#6c757d'
     },
     'sinhala': { 
       name: 'Sinhala', 
       display: 'සිංහල',
-      icon: 'bi-circle-fill',
       color: '#FF5722'
     },
     'tamil': { 
       name: 'Tamil', 
       display: 'தமிழ்',
-      icon: 'bi-circle-fill',
       color: '#9C27B0'
     },
     'english': { 
       name: 'English', 
       display: 'English',
-      icon: 'bi-circle-fill',
       color: '#2196F3'
     }
   };
 
+  const ALLOWED_LANGUAGES = ['all', 'english', 'sinhala', 'tamil'];
+
   // Initialize language on mount
   useEffect(() => {
     const savedLanguage = localStorage.getItem('selectedLanguage') || 'english';
-    setSelectedLanguage(savedLanguage);
+    setSelectedLanguage(ALLOWED_LANGUAGES.includes(savedLanguage) ? savedLanguage : 'english');
   }, []);
 
   // Set language
   const setLanguage = (language) => {
-    setSelectedLanguage(language);
-    localStorage.setItem('selectedLanguage', language);
+    const safe = ALLOWED_LANGUAGES.includes(language) ? language : 'english';
+    setSelectedLanguage(safe);
+    localStorage.setItem('selectedLanguage', safe);
     
     try {
       if (analytics) {

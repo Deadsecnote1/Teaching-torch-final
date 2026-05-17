@@ -1,0 +1,93 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Mobile-first responsive design */
+@layer base {
+  html {
+    @apply text-base antialiased;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+      sans-serif;
+  }
+
+  body {
+    @apply bg-bg-primary text-text-primary;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Safe area for mobile notches removed to fix white border on desktop */
+
+  /* Touch-friendly tap targets — scoped to primary controls (not every inline link) */
+  button,
+  [role="button"],
+  .btn-base,
+  .tap-target,
+  nav a,
+  footer a,
+  input[type="checkbox"],
+  input[type="radio"],
+  select,
+  textarea,
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="url"],
+  input[type="search"],
+  input[type="number"] {
+    min-height: 44px;
+  }
+
+  button,
+  [role="button"],
+  .btn-base,
+  .tap-target,
+  nav a,
+  footer a {
+    min-width: 44px;
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Reduce motion for accessibility */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* Focus states for accessibility */
+@layer components {
+  .focus-ring {
+    @apply outline-none ring-2 ring-primary;
+  }
+
+  /* Responsive container */
+  .container-modern {
+    @apply w-full px-4 sm:px-6 lg:px-8 mx-auto max-w-7xl;
+  }
+
+  /* Mobile-first spacing */
+  .section-pad {
+    @apply px-4 py-6 sm:px-6 md:px-8 md:py-8;
+  }
+
+  /* Card component base */
+  .card-modern {
+    @apply bg-card rounded-lg shadow-sm 
+      hover:shadow-md transition-shadow duration-200 border border-border;
+  }
+
+  /* Button base */
+  .btn-base {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 
+      rounded-lg font-medium transition-all duration-200 focus-ring;
+  }
+}

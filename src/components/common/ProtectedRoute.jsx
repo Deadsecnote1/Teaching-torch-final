@@ -4,20 +4,29 @@ import { useAuth } from '../../context/AuthContext';
 import LoadingSpinner from './LoadingSpinner';
 
 const ProtectedRoute = ({ children }) => {
-  const { currentUser, loading } = useAuth();
+  const { currentUser, loading, isAdmin, adminCheckLoading } = useAuth();
   const location = useLocation();
 
-  if (loading) {
+  if (loading || adminCheckLoading) {
     return (
-      <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '80vh' }}>
+      <div className="flex min-h-[80vh] items-center justify-center">
         <LoadingSpinner text="Verifying session..." />
       </div>
     );
   }
 
   if (!currentUser) {
-    // Redirect them to the /admin/login page, but save the current location they were trying to go to
     return <Navigate to="/admin/login" state={{ from: location }} replace />;
+  }
+
+  if (!isAdmin) {
+    return (
+      <Navigate
+        to="/admin/login"
+        state={{ from: location, reason: 'not_authorized' }}
+        replace
+      />
+    );
   }
 
   return children;

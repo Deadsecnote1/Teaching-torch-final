@@ -1,4 +1,11 @@
 import React from 'react';
+import { Card, CardHeader, CardTitle, CardContent } from '../ui/Card';
+import { Button } from '../ui/Button';
+import { Input } from '../ui/Input';
+import { Grid } from '../ui/Layout';
+import { GraduationCap, BookOpen, Plus, Check, X, Edit2, Trash2 } from 'lucide-react';
+import { cn } from '../../utils/cn';
+import { getLucideIcon } from '../../utils/iconUtils';
 
 const AdminGradeManager = ({
   grades,
@@ -41,195 +48,195 @@ const AdminGradeManager = ({
   handleDeleteSubject
 }) => {
   return (
-    <div className="row g-4">
+    <Grid cols={2} gap={6}>
       {/* Grades Management */}
-      <div className="col-lg-6">
-        <div className="card shadow-sm h-100">
-          <div className="card-header bg-primary text-white">
-            <h5 className="mb-0"><i className="bi bi-mortarboard me-2"></i>Manage Grades</h5>
-          </div>
-          <div className="card-body">
+      <div className="col-span-1">
+        <Card className="h-full flex flex-col shadow-sm border-border overflow-hidden">
+          <CardHeader className="bg-primary/10 border-b border-primary/10 py-4">
+            <CardTitle className="text-primary flex items-center gap-2 text-lg">
+              <GraduationCap className="w-5 h-5" /> Manage Grades
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-5 flex-1 flex flex-col bg-bg-primary">
             {/* Add New Grade Form */}
-            <div className="mb-4 pb-4 border-bottom">
-              <h6 className="mb-3">Add New Grade Level</h6>
-              <div className="row g-2">
-                <div className="col-md-4">
-                  <input type="text" className="form-control form-control-sm" placeholder="Code (e.g. grade6)" value={newGradeCode} onChange={e => setNewGradeCode(e.target.value)} />
+            <div className="mb-6 pb-6 border-b border-border">
+              <h6 className="text-sm font-bold text-text-primary mb-3">Add New Grade Level</h6>
+              <div className="grid grid-cols-12 gap-3">
+                <div className="col-span-4">
+                  <Input placeholder="Code (e.g. grade6)" value={newGradeCode} onChange={e => setNewGradeCode(e.target.value)} />
                 </div>
-                <div className="col-md-5">
-                  <input type="text" className="form-control form-control-sm" placeholder="Display Name (e.g Grade 6)" value={newGradeName} onChange={e => setNewGradeName(e.target.value)} />
+                <div className="col-span-5">
+                  <Input placeholder="Display Name (e.g. Grade 6)" value={newGradeName} onChange={e => setNewGradeName(e.target.value)} />
                 </div>
-                <div className="col-md-3">
-                   <input type="number" className="form-control form-control-sm" placeholder="Order" value={newGradeOrder} onChange={e => setNewGradeOrder(e.target.value)} />
+                <div className="col-span-3">
+                   <Input type="number" placeholder="Order" value={newGradeOrder} onChange={e => setNewGradeOrder(e.target.value)} />
                 </div>
-                <div className="col-12 mt-2">
-                  <button className="btn btn-primary btn-sm w-100" onClick={handleAddGrade} disabled={isSubmitting}>
-                    <i className="bi bi-plus-circle me-1"></i> Add Grade
-                  </button>
+                <div className="col-span-12 mt-1">
+                  <Button className="w-full" onClick={handleAddGrade} disabled={isSubmitting}>
+                    <Plus className="w-4 h-4 mr-2" /> Add Grade
+                  </Button>
                 </div>
               </div>
             </div>
 
             {/* Grades List */}
-            <h6 className="mb-3">Existing Grades</h6>
-            <div className="list-group list-group-flush" style={{ maxHeight: '400px', overflowY: 'auto' }}>
+            <h6 className="text-sm font-bold text-text-primary mb-3">Existing Grades</h6>
+            <div className="flex flex-col gap-2 overflow-y-auto pr-2" style={{ maxHeight: '400px' }}>
               {Object.entries(grades).sort((a, b) => (a[1].order || 99) - (b[1].order || 99)).map(([key, grade]) => (
-                <div key={key} className="list-group-item px-0">
+                <div key={key} className="bg-bg-secondary border border-border rounded-lg p-3 hover:border-primary/30 transition-colors">
                   {editingGradeId === key ? (
-                    <div className="edit-grade-inline">
-                      <div className="row g-1 align-items-center">
-                        <div className="col-6">
-                          <input type="text" className="form-control form-control-sm" value={editGradeData.name} onChange={e => setEditGradeData({ ...editGradeData, name: e.target.value })} />
-                        </div>
-                        <div className="col-3">
-                          <input type="number" className="form-control form-control-sm" value={editGradeData.order} onChange={e => setEditGradeData({ ...editGradeData, order: e.target.value })} />
-                        </div>
-                        <div className="col-3 d-flex gap-1">
-                          <button className="btn btn-sm btn-success p-1" onClick={handleSaveEditGrade}><i className="bi bi-check2"></i></button>
-                          <button className="btn btn-sm btn-secondary p-1" onClick={() => setEditingGradeId(null)}><i className="bi bi-x"></i></button>
-                        </div>
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1">
+                        <Input value={editGradeData.name} onChange={e => setEditGradeData({ ...editGradeData, name: e.target.value })} />
+                      </div>
+                      <div className="w-24">
+                        <Input type="number" placeholder="Order" value={editGradeData.order} onChange={e => setEditGradeData({ ...editGradeData, order: e.target.value })} />
+                      </div>
+                      <div className="flex gap-1">
+                        <Button size="icon" variant="success" className="h-10 w-10 text-white" onClick={handleSaveEditGrade}><Check className="w-4 h-4" /></Button>
+                        <Button size="icon" variant="outline" className="h-10 w-10" onClick={() => setEditingGradeId(null)}><X className="w-4 h-4" /></Button>
                       </div>
                     </div>
                   ) : (
-                    <div className="d-flex justify-content-between align-items-center">
-                      <div>
-                        <strong>{grade.display}</strong>
-                        <span className="badge bg-light text-muted ms-2 small">ID: {key}</span>
-                        {grade.order !== undefined && <span className="badge bg-light text-primary ms-1 small">Order: {grade.order}</span>}
+                    <div className="flex justify-between items-center">
+                      <div className="flex-1">
+                        <strong className="text-text-primary">{grade.display}</strong>
+                        <span className="ml-2 text-[10px] uppercase font-bold bg-bg-tertiary text-text-muted px-2 py-0.5 rounded-full border border-border">ID: {key}</span>
+                        {grade.order !== undefined && <span className="ml-2 text-[10px] uppercase font-bold bg-primary/10 text-primary px-2 py-0.5 rounded-full">Order: {grade.order}</span>}
                       </div>
-                      <div className="btn-group">
-                        <button className="btn btn-sm btn-outline-primary py-0" onClick={() => {
+                      <div className="flex gap-1">
+                        <Button size="icon" variant="ghost" className="h-8 w-8 text-info hover:bg-info/10" onClick={() => {
                           setEditingGradeId(key);
                           setEditGradeData({ name: grade.display, order: grade.order || '' });
-                        }}><i className="bi bi-pencil small"></i></button>
-                        <button className="btn btn-sm btn-outline-danger py-0" onClick={() => handleDeleteGrade(key)}><i className="bi bi-trash small"></i></button>
+                        }}><Edit2 className="w-4 h-4" /></Button>
+                        <Button size="icon" variant="ghost" className="h-8 w-8 text-danger hover:bg-danger/10" onClick={() => handleDeleteGrade(key)}><Trash2 className="w-4 h-4" /></Button>
                       </div>
                     </div>
                   )}
                 </div>
               ))}
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Subjects Management */}
-      <div className="col-lg-6">
-        <div className="card shadow-sm h-100">
-          <div className="card-header bg-success text-white">
-            <h5 className="mb-0"><i className="bi bi-book me-2"></i>Manage Subjects</h5>
-          </div>
-          <div className="card-body">
+      <div className="col-span-1">
+        <Card className="h-full flex flex-col shadow-sm border-border overflow-hidden">
+          <CardHeader className="bg-success/10 border-b border-success/10 py-4">
+            <CardTitle className="text-success flex items-center gap-2 text-lg">
+              <BookOpen className="w-5 h-5" /> Manage Subjects
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-5 flex-1 flex flex-col bg-bg-primary">
             {/* Add New Subject Form */}
-            <div className="mb-4 pb-4 border-bottom">
-              <h6 className="mb-3">Add New Subject</h6>
-              <div className="row g-2">
-                <div className="col-md-5">
-                  <input type="text" className="form-control form-control-sm mb-2" placeholder="Subject Name (English)" value={newSubjectName} onChange={e => setNewSubjectName(e.target.value)} />
+            <div className="mb-6 pb-6 border-b border-border">
+              <h6 className="text-sm font-bold text-text-primary mb-3">Add New Subject</h6>
+              <div className="grid grid-cols-12 gap-3">
+                <div className="col-span-5">
+                  <Input placeholder="Subject Name (English)" value={newSubjectName} onChange={e => setNewSubjectName(e.target.value)} />
                 </div>
-                <div className="col-md-5">
-                   <input type="text" className="form-control form-control-sm mb-2" placeholder="Subject Code (e.g. maths)" value={newSubjectCode} onChange={e => setNewSubjectCode(e.target.value)} />
+                <div className="col-span-5">
+                   <Input placeholder="Subject Code (e.g. maths)" value={newSubjectCode} onChange={e => setNewSubjectCode(e.target.value)} />
                 </div>
-                <div className="col-md-2">
-                   <input type="number" className="form-control form-control-sm mb-2" placeholder="Order" value={newSubjectOrder} onChange={e => setNewSubjectOrder(e.target.value)} />
+                <div className="col-span-2">
+                   <Input type="number" placeholder="Order" value={newSubjectOrder} onChange={e => setNewSubjectOrder(e.target.value)} />
                 </div>
-                <div className="col-md-6">
-                  <input type="text" className="form-control form-control-sm mb-2" placeholder="Name Sinhala (Optional)" value={newSubjectSinhala} onChange={e => setNewSubjectSinhala(e.target.value)} />
+                <div className="col-span-6">
+                  <Input placeholder="Name Sinhala (Optional)" value={newSubjectSinhala} onChange={e => setNewSubjectSinhala(e.target.value)} />
                 </div>
-                <div className="col-md-6">
-                   <input type="text" className="form-control form-control-sm mb-2" placeholder="Name Tamil (Optional)" value={newSubjectTamil} onChange={e => setNewSubjectTamil(e.target.value)} />
+                <div className="col-span-6">
+                   <Input placeholder="Name Tamil (Optional)" value={newSubjectTamil} onChange={e => setNewSubjectTamil(e.target.value)} />
                 </div>
-                <div className="col-md-6">
-                   <input type="text" className="form-control form-control-sm mb-2" placeholder="Icon Class (bi-book)" value={newSubjectIcon} onChange={e => setNewSubjectIcon(e.target.value)} />
+                <div className="col-span-12">
+                   <Input placeholder="Icon Name (e.g. book, calculator, lab)" value={newSubjectIcon} onChange={e => setNewSubjectIcon(e.target.value)} />
                 </div>
-                <div className="col-md-6">
-                  <div className="border rounded px-2 py-1 bg-light" style={{ maxHeight: '100px', overflowY: 'auto' }}>
-                    <small className="d-block text-muted mb-1">Select Grades:</small>
-                    {Object.entries(grades).map(([key, g]) => (
-                      <div className="form-check" key={`new-sub-g-${key}`}>
-                        <input className="form-check-input" type="checkbox" id={`new-sub-g-${key}`} checked={selectedGradesForSubject.includes(key)} onChange={e => {
-                          if (e.target.checked) setSelectedGradesForSubject([...selectedGradesForSubject, key]);
-                          else setSelectedGradesForSubject(selectedGradesForSubject.filter(id => id !== key));
-                        }} />
-                        <label className="form-check-label small" htmlFor={`new-sub-g-${key}`}>{g.display}</label>
-                      </div>
-                    ))}
+                <div className="col-span-12">
+                  <div className="border border-border rounded-lg p-3 bg-bg-secondary h-[120px] overflow-y-auto">
+                    <span className="text-xs font-bold text-text-muted mb-2 block uppercase tracking-wider">Select Grades:</span>
+                    <div className="grid grid-cols-2 gap-2">
+                      {Object.entries(grades).map(([key, g]) => (
+                        <label key={`new-sub-g-${key}`} className="flex items-center gap-2 cursor-pointer text-sm text-text-primary hover:text-primary transition-colors">
+                          <input type="checkbox" className="rounded border-border text-primary focus:ring-primary h-4 w-4" checked={selectedGradesForSubject.includes(key)} onChange={e => {
+                            if (e.target.checked) setSelectedGradesForSubject([...selectedGradesForSubject, key]);
+                            else setSelectedGradesForSubject(selectedGradesForSubject.filter(id => id !== key));
+                          }} />
+                          {g.display}
+                        </label>
+                      ))}
+                    </div>
                   </div>
                 </div>
-                <div className="col-12 mt-2">
-                  <button className="btn btn-success btn-sm w-100" onClick={handleAddSubject} disabled={isSubmitting}>
-                    <i className="bi bi-plus-circle me-1"></i> Add Subject
-                  </button>
+                <div className="col-span-12 mt-1">
+                  <Button className="w-full bg-success hover:bg-success-dark text-white border-0" onClick={handleAddSubject} disabled={isSubmitting}>
+                    <Plus className="w-4 h-4 mr-2" /> Add Subject
+                  </Button>
                 </div>
               </div>
             </div>
 
             {/* Subjects List */}
-            <h6 className="mb-3">Existing Subjects</h6>
-            <div className="list-group list-group-flush" style={{ maxHeight: '400px', overflowY: 'auto' }}>
+            <h6 className="text-sm font-bold text-text-primary mb-3">Existing Subjects</h6>
+            <div className="flex flex-col gap-3 overflow-y-auto pr-2" style={{ maxHeight: '400px' }}>
               {Object.entries(subjects).sort((a, b) => (a[1].order || 999) - (b[1].order || 999)).map(([key, subject]) => (
-                <div key={key} className="list-group-item px-0">
+                <div key={key} className="bg-bg-secondary border border-border rounded-lg p-3 hover:border-success/30 transition-colors">
                   {editingSubjectPrefix === key ? (
-                    <div className="edit-subject-inline bg-light p-2 rounded">
-                      <input type="text" className="form-control form-control-sm mb-1" placeholder="English Name" value={editSubjectData.name} onChange={e => setEditSubjectData({ ...editSubjectData, name: e.target.value })} />
-                      <div className="row g-1 mb-1">
-                        <div className="col-6">
-                          <input type="text" className="form-control form-control-sm" placeholder="Sinhala Name" value={editSubjectData.nameSinhala} onChange={e => setEditSubjectData({ ...editSubjectData, nameSinhala: e.target.value })} />
-                        </div>
-                        <div className="col-6">
-                          <input type="text" className="form-control form-control-sm" placeholder="Tamil Name" value={editSubjectData.nameTamil} onChange={e => setEditSubjectData({ ...editSubjectData, nameTamil: e.target.value })} />
-                        </div>
+                    <div className="flex flex-col gap-3">
+                      <Input placeholder="English Name" value={editSubjectData.name} onChange={e => setEditSubjectData({ ...editSubjectData, name: e.target.value })} />
+                      <div className="grid grid-cols-2 gap-3">
+                        <Input placeholder="Sinhala Name" value={editSubjectData.nameSinhala} onChange={e => setEditSubjectData({ ...editSubjectData, nameSinhala: e.target.value })} />
+                        <Input placeholder="Tamil Name" value={editSubjectData.nameTamil} onChange={e => setEditSubjectData({ ...editSubjectData, nameTamil: e.target.value })} />
                       </div>
-                      <div className="row g-1 mb-1">
-                        <div className="col-6">
-                          <input type="text" className="form-control form-control-sm" placeholder="Icon" value={editSubjectData.icon} onChange={e => setEditSubjectData({ ...editSubjectData, icon: e.target.value })} />
-                        </div>
-                        <div className="col-6">
-                           <input type="number" className="form-control form-control-sm" placeholder="Order" value={editSubjectData.order} onChange={e => setEditSubjectData({ ...editSubjectData, order: e.target.value })} />
-                        </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <Input placeholder="Icon" value={editSubjectData.icon} onChange={e => setEditSubjectData({ ...editSubjectData, icon: e.target.value })} />
+                        <Input type="number" placeholder="Order" value={editSubjectData.order} onChange={e => setEditSubjectData({ ...editSubjectData, order: e.target.value })} />
                       </div>
-                      <div className="mb-2">
-                         <small className="text-muted">Grades:</small>
-                         <div className="d-flex flex-wrap gap-1 mt-1">
+                      <div className="border border-border rounded-lg p-3 bg-bg-tertiary">
+                         <span className="text-xs font-bold text-text-muted mb-2 block uppercase tracking-wider">Grades:</span>
+                         <div className="flex flex-wrap gap-3">
                            {Object.entries(grades).map(([gk, g]) => (
-                             <div className="form-check form-check-inline m-0" key={`edit-sub-g-${gk}`}>
-                               <input className="form-check-input" type="checkbox" id={`edit-sub-g-${gk}`} checked={editSubjectData.grades.includes(gk)} onChange={e => {
+                             <label key={`edit-sub-g-${gk}`} className="flex items-center gap-2 cursor-pointer text-xs text-text-primary">
+                               <input type="checkbox" className="rounded border-border text-success focus:ring-success h-3.5 w-3.5" checked={editSubjectData.grades.includes(gk)} onChange={e => {
                                  const newGrades = e.target.checked ? [...editSubjectData.grades, gk] : editSubjectData.grades.filter(id => id !== gk);
                                  setEditSubjectData({ ...editSubjectData, grades: newGrades });
                                }} />
-                               <label className="form-check-label small" htmlFor={`edit-sub-g-${gk}`}>{g.display}</label>
-                             </div>
+                               {g.display}
+                             </label>
                            ))}
                          </div>
                       </div>
-                      <div className="d-flex justify-content-end gap-1">
-                        <button className="btn btn-sm btn-success p-1 px-2" onClick={handleSaveEditSubject}>Save</button>
-                        <button className="btn btn-sm btn-secondary p-1 px-2" onClick={handleCancelEditSubject}>Cancel</button>
+                      <div className="flex justify-end gap-2 mt-2">
+                        <Button variant="outline" onClick={handleCancelEditSubject}>Cancel</Button>
+                        <Button className="bg-success hover:bg-success-dark text-white border-0" onClick={handleSaveEditSubject}>Save Changes</Button>
                       </div>
                     </div>
                   ) : (
-                    <div className="d-flex justify-content-between align-items-center">
-                      <div>
-                        <i className={`bi ${subject.icon || 'bi-book'} me-2 text-success`}></i>
-                        <strong>{subject.name}</strong>
-                        <span className="badge bg-light text-muted ms-2 small">ID: {key}</span>
-                        <div className="small text-muted mt-1">
-                           {subject.grades?.map(gk => grades[gk]?.display).join(', ')}
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          {getLucideIcon(subject.icon, "text-success w-5 h-5")}
+                          <strong className="text-text-primary">{subject.name}</strong>
+                          <span className="text-[10px] uppercase font-bold bg-bg-tertiary text-text-muted px-2 py-0.5 rounded-full border border-border">ID: {key}</span>
+                        </div>
+                        <div className="text-xs text-text-muted mt-2 flex flex-wrap gap-1">
+                           {subject.grades?.filter(gk => !!grades[gk]).map(gk => (
+                             <span key={gk} className="bg-card px-1.5 py-0.5 rounded border border-border shadow-sm">{grades[gk].display}</span>
+                           ))}
                         </div>
                       </div>
-                      <div className="btn-group">
-                        <button className="btn btn-sm btn-outline-primary py-0" onClick={() => handleEditSubjectClick(key, subject)}><i className="bi bi-pencil small"></i></button>
-                        <button className="btn btn-sm btn-outline-danger py-0" onClick={() => handleDeleteSubject(key)}><i className="bi bi-trash small"></i></button>
+                      <div className="flex gap-1 ml-4">
+                        <Button size="icon" variant="ghost" className="h-8 w-8 text-info hover:bg-info/10" onClick={() => handleEditSubjectClick(key, subject)}><Edit2 className="w-4 h-4" /></Button>
+                        <Button size="icon" variant="ghost" className="h-8 w-8 text-danger hover:bg-danger/10" onClick={() => handleDeleteSubject(key)}><Trash2 className="w-4 h-4" /></Button>
                       </div>
                     </div>
                   )}
                 </div>
               ))}
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
-    </div>
+    </Grid>
   );
 };
 

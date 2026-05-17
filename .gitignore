@@ -4,6 +4,9 @@ node_modules/
 # Production build
 build/
 
+# Firebase CLI local cache (hosting deploy)
+.firebase/
+
 # Environment variables
 .env
 .env.local
@@ -36,4 +39,5 @@ scripts/restore_db.cjs
 scripts/fix_science_icon.cjs
 scripts/get_raw_science.cjs
 scripts/inspect_streams.cjs
+scripts/serviceAccountKey.json
 CHEATSHEET.md

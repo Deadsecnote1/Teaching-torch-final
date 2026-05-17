@@ -1,16 +1,14 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { DataProvider } from './context/DataContext';
-import { GradeProvider } from './context/GradeContext';
-import { ResourceProvider } from './context/ResourceContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { LanguageProvider } from './context/LanguageContext';
-import { ALProvider } from './context/ALContext';
+import { GradeProvider, ResourceProvider, DataProvider } from './features/ol';
+import { ALProvider } from './features/al';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { Toaster } from 'react-hot-toast';
 
 // Components
-import Navbar from './components/common/Navbar';
+import ModernNavbar from './components/common/ModernNavbar';
 import Footer from './components/common/Footer';
 import ScrollToTop from './components/common/ScrollToTop';
 import ErrorBoundary from './components/common/ErrorBoundary';
@@ -22,42 +20,38 @@ import SplashScreen from './components/common/SplashScreen';
 const Home = React.lazy(() => import('./pages/Home'));
 const About = React.lazy(() => import('./pages/About'));
 const Contact = React.lazy(() => import('./pages/Contact'));
-const GradePage = React.lazy(() => import('./pages/GradePage'));
-const ResourcesPage = React.lazy(() => import('./pages/ResourcesPage'));
-const TextbooksPage = React.lazy(() => import('./pages/TextbooksPage'));
-const PapersPage = React.lazy(() => import('./pages/PapersPage'));
-const NotesPage = React.lazy(() => import('./pages/NotesPage'));
-const VideosPage = React.lazy(() => import('./pages/VideosPage'));
+const GradePage = React.lazy(() => import('./features/ol/pages/GradePage'));
+const ResourcesPage = React.lazy(() => import('./features/ol/pages/ResourcesPage'));
+const TextbooksPage = React.lazy(() => import('./features/ol/pages/TextbooksPage'));
+const PapersPage = React.lazy(() => import('./features/ol/pages/PapersPage'));
+const NotesPage = React.lazy(() => import('./features/ol/pages/NotesPage'));
+const VideosPage = React.lazy(() => import('./features/ol/pages/VideosPage'));
 const PrivacyPolicy = React.lazy(() => import('./pages/PrivacyPolicy'));
 const AdminLogin = React.lazy(() => import('./pages/admin/Login'));
-const AdminDashboard = React.lazy(() => import('./pages/admin/AdminDashboard'));
-const SubjectHubPage = React.lazy(() => import('./pages/SubjectHubPage'));
+import { Home as HomeIcon } from 'lucide-react';
 
-// Lazy load AL Pages
-const ALStreamsPage = React.lazy(() => import('./pages/al/ALStreamsPage'));
-const ALResourceTypesPage = React.lazy(() => import('./pages/al/ALResourceTypesPage'));
-const ALResourcesPage = React.lazy(() => import('./pages/al/ALResourcesPage'));
+const AdminDashboard = React.lazy(() => import('./pages/admin/AdminDashboard'));
+const SubjectHubPage = React.lazy(() => import('./features/ol/pages/SubjectHubPage'));
+
+const ALStreamsPage = React.lazy(() => import('./features/al/pages/ALStreamsPage'));
+const ALResourceTypesPage = React.lazy(() => import('./features/al/pages/ALResourceTypesPage'));
+const ALResourcesPage = React.lazy(() => import('./features/al/pages/ALResourcesPage'));
+const AlAdminDashboard = React.lazy(() => import('./features/al/admin/AlAdminDashboard'));
 
 // Styles
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap-icons/font/bootstrap-icons.css';
+// Bootstrap icons removed
 import './styles/globals.css';
 
-// 404 Not Found Component
 const NotFound = () => (
-  <div className="container text-center py-5">
-    <div className="row justify-content-center">
-      <div className="col-md-6">
-        <div className="error-page">
-          <h1 className="display-1 text-primary">404</h1>
-          <h2 className="mb-4">Page Not Found</h2>
-          <p className="mb-4">The page you're looking for doesn't exist.</p>
-          <a href="/" className="btn btn-primary">
-            <i className="bi bi-house me-2"></i>
-            Go Home
-          </a>
-        </div>
-      </div>
+  <div className="flex items-center justify-center min-h-[70vh] px-4 py-16 bg-bg-primary">
+    <div className="text-center max-w-md w-full bg-card rounded-2xl p-10 shadow-sm border border-border">
+      <h1 className="text-7xl font-extrabold text-primary mb-4">404</h1>
+      <h2 className="text-3xl font-bold text-text-primary mb-4">Page Not Found</h2>
+      <p className="text-text-muted mb-8 text-lg">The page you're looking for doesn't exist or has been moved.</p>
+      <a href="/" className="inline-flex items-center justify-center px-6 py-3 rounded-lg font-medium transition-all bg-primary text-white hover:bg-primary-dark shadow-sm">
+        <HomeIcon className="w-5 h-5 mr-2" />
+        Go Home
+      </a>
     </div>
   </div>
 );
@@ -75,10 +69,10 @@ const AppContent = () => {
       <ScrollToTop />
       <Toaster position="top-right" />
       <div className="App">
-        <Navbar />
+        <ModernNavbar />
         <main className="main-content">
           <ErrorBoundary>
-            <React.Suspense fallback={<div className="p-5 text-center"><div className="spinner-border text-primary"></div></div>}>
+            <React.Suspense fallback={<div className="flex min-h-[50vh] items-center justify-center p-12" aria-busy="true" aria-label="Loading page"><div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div></div>}>
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/about" element={<About />} />
@@ -105,6 +99,7 @@ const AppContent = () => {
                 <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                 <Route path="/admin/login" element={<AdminLogin />} />
                 <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+                <Route path="/admin/al" element={<ProtectedRoute><AlAdminDashboard /></ProtectedRoute>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </React.Suspense>
