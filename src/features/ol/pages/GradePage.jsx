@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useData } from '../../../context/DataContext';
+import { useData } from '../context/DataContext';
 import { useLanguage } from '../../../context/LanguageContext';
 import { getResourceTypeName } from '../../../utils/resourceTranslations';
 import AdSenseComponent from '../../../components/common/AdSenseComponent';

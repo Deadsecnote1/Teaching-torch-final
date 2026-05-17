@@ -67,7 +67,7 @@ Nav links switch between O/L and A/L admin; no A/L tab on the O/L dashboard.
 2. **Phase A (done)** — Contexts + `useGradePage` under `src/features/ol` and `src/features/al`. Legacy paths are thin re-export shims.
 3. **Phase A2 (done)** — O/L and A/L pages under `features/*/pages/`; `App.jsx` lazy-loads from feature paths; `src/pages/*` and `src/pages/al/*` are re-export shims.
 4. **Phase B (done)** — `/admin` = Grades 6–11 only; `/admin/al` = A/L admin (`AlAdminDashboard` + shared `AdminLayout`).
-5. **Phase C (next)** — Remove shim re-exports; all new code imports from `features/ol` or `features/al` only.
+5. **Phase C (done)** — Removed context/page shims; shared code imports `useData` / `useALData` from feature barrels.
 
 ## O/L-only notes
 

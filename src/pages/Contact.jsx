@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useData } from '../context/DataContext';
+import { useData } from '../features/ol';
 import { Mail, MessageCircle, MapPin, CheckCircle, AlertTriangle, HelpCircle, ChevronRight } from 'lucide-react';
 import { Container, Section, Grid } from '../components/ui/Layout';
 import { Card, CardContent } from '../components/ui/Card';

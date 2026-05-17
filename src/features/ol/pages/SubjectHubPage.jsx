@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { useData } from '../../../context/DataContext';
+import { useData } from '../context/DataContext';
 import { useLanguage } from '../../../context/LanguageContext';
 import useDocumentTitle from '../../../hooks/useDocumentTitle';
 import AdSenseComponent from '../../../components/common/AdSenseComponent';

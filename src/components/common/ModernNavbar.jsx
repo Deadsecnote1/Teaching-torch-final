@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Moon, Sun, ChevronDown, UserCircle, LogOut, Settings, BookOpen, GraduationCap } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
-import { useData } from '../../context/DataContext';
+import { useData } from '../../features/ol';
 import { useAuth } from '../../context/AuthContext';
 import { cn } from '../../utils/cn';
 import { Button } from '../ui/Button';

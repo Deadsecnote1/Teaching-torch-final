@@ -110,11 +110,18 @@ This file records intentional changes made during the reliability and UX hardeni
 - `/admin/al` — `AlAdminDashboard` with `ALAdminTab` and shared `AdminLayout`.
 - Domain switcher links between `/admin` and `/admin/al`.
 
+### Phase C — remove shims
+
+- Deleted `src/context/{Grade,Resource,Data,AL}Context.jsx` and page re-export shims.
+- Shared components import `useData` from `features/ol` and `useALData` from `features/al`.
+- Route lazy-loading now splits O/L and A/L pages into separate chunks.
+- Taller Suspense fallback (`min-h-[50vh]`) to reduce layout flash while routes load.
+
 ---
 
 ## Known follow-ups
 
 - [ ] Suspense fallback for lazy routes (reduce empty shell flash).
 - [x] Firestore rules + admin allowlist (P0; deploy rules per environment).
-- [ ] Phase C: remove context/page shims.
+- [x] Phase C: remove context/page shims.
 - [ ] Wire or remove unused `RecentResources.jsx`.

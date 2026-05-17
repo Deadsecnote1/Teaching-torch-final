@@ -72,7 +72,7 @@ const AppContent = () => {
         <ModernNavbar />
         <main className="main-content">
           <ErrorBoundary>
-            <React.Suspense fallback={<div className="flex items-center justify-center p-12"><div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div></div>}>
+            <React.Suspense fallback={<div className="flex min-h-[50vh] items-center justify-center p-12" aria-busy="true" aria-label="Loading page"><div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div></div>}>
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/about" element={<About />} />

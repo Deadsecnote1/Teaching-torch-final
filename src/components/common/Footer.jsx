@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useData } from '../../context/DataContext';
+import { useData } from '../../features/ol';
 import { Globe, MessageCircle, Mail } from 'lucide-react';
 
 const Footer = () => {
