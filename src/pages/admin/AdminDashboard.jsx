@@ -22,7 +22,10 @@ import { isValidHttpsUrl } from '../../utils/validation';
 const AdminDashboard = () => {
   useDocumentTitle('Admin Dashboard');
   const navigate = useNavigate();
-  const { currentUser, logout, isManageMode, toggleManageMode } = useAuth();
+  const { currentUser, logout, isManageMode, toggleManageMode, firebaseProjectId } = useAuth();
+  const isStagingEnv =
+    import.meta.env.MODE === 'staging' ||
+    (firebaseProjectId && firebaseProjectId.toLowerCase().includes('staging'));
   const { selectedLanguage } = useLanguage();
   const {
     getStats,
@@ -321,7 +324,18 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen py-10 bg-bg-secondary text-text-primary">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div
+        className={
+          isStagingEnv
+            ? 'text-center text-sm font-semibold py-2 px-4 bg-amber-500/15 text-amber-800 dark:text-amber-200 border-b border-amber-500/30'
+            : 'text-center text-sm font-semibold py-2 px-4 bg-danger/10 text-danger border-b border-danger/30'
+        }
+        role="status"
+      >
+        {isStagingEnv ? 'STAGING' : 'PRODUCTION'} — Firebase project: {firebaseProjectId || 'unknown'}
+        {isStagingEnv ? ' (safe for admin testing)' : ' — changes affect live users'}
+      </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
         <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
           <h2 className="text-3xl font-extrabold flex items-center text-text-primary">
             <LayoutDashboard className="w-8 h-8 mr-3 text-primary" />

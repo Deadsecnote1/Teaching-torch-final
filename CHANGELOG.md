@@ -73,6 +73,24 @@ This file records intentional changes made during the reliability and UX hardeni
 
 ---
 
+### P0 — Admin security (allowlist + rules)
+
+**Code**
+- `AuthContext` — `isAdmin`, `loginAsAdmin()`, manage mode gated on allowlist.
+- `adminAuth.js` — reads `admins/allowedList`.
+- `ProtectedRoute`, `Login`, `ModernNavbar`, `AdminDashboard` env banner.
+- `firestore.rules` — authenticated read on `admins/allowedList`.
+
+**Ops**
+- Staging admin UID on `tt-staging-5a60d`; production `teachingtorchlk+4dm1n` on `tt-v1-c2a11`.
+- Rules deployed to both projects.
+
+**Docs:** `docs/P0_ADMIN_SETUP.md`, `docs/ARCHITECTURE_OL_VS_AL.md`, `.env.example`.
+
+**Next:** Folder split `features/ol` vs `features/al` (see architecture doc).
+
+---
+
 ## Known follow-ups
 
 - [ ] Suspense fallback for lazy routes (reduce empty shell flash).

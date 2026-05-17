@@ -1,92 +1,173 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { initFirebase } from '../firebase';
+import { resolveIsAdmin } from '../utils/adminAuth';
 
 const AuthContext = createContext();
 
-export const useAuth = () => {
-    return useContext(AuthContext);
-};
+export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
-    const [currentUser, setCurrentUser] = React.useState(null);
-    const [loading, setLoading] = React.useState(true);
-    const [isManageMode, setIsManageMode] = React.useState(false);
-    const instancesRef = React.useRef({ auth: null, db: null, analytics: null });
-    const [isInitialized, setIsInitialized] = React.useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [adminCheckLoading, setAdminCheckLoading] = useState(false);
+  const [isManageMode, setIsManageMode] = useState(false);
+  const instancesRef = useRef({ auth: null, db: null, analytics: null });
+  const [isInitialized, setIsInitialized] = useState(false);
 
-    // Initialize Firebase in the background
-    React.useEffect(() => {
-        let unsubscribe = null;
-        
-        const initialize = async () => {
-            try {
-                const { auth, db, analytics } = await initFirebase();
-                const { onAuthStateChanged } = await import('firebase/auth');
-                
-                instancesRef.current = { auth, db, analytics };
-                setIsInitialized(true);
-                
-                unsubscribe = onAuthStateChanged(auth, (user) => {
-                    setCurrentUser(user);
-                    setLoading(false);
-                });
-            } catch (err) {
-                console.error("Firebase initialization failed:", err);
-                setLoading(false);
-            }
-        };
+  const refreshAdminStatus = useCallback(async (user = currentUser) => {
+    const { db } = instancesRef.current;
+    if (!user || !db) {
+      setIsAdmin(false);
+      setAdminCheckLoading(false);
+      return false;
+    }
 
-        initialize();
+    setAdminCheckLoading(true);
+    try {
+      const admin = await resolveIsAdmin(db, user.uid);
+      setIsAdmin(admin);
+      if (!admin) setIsManageMode(false);
+      return admin;
+    } finally {
+      setAdminCheckLoading(false);
+    }
+  }, [currentUser]);
 
-        return () => {
-            if (unsubscribe) unsubscribe();
-        };
-    }, []);
+  useEffect(() => {
+    let unsubscribe = null;
 
-    React.useEffect(() => {
-        if (!currentUser && isManageMode) {
+    const initialize = async () => {
+      try {
+        const { auth, db, analytics } = await initFirebase();
+        const { onAuthStateChanged } = await import('firebase/auth');
+
+        instancesRef.current = { auth, db, analytics };
+        setIsInitialized(true);
+
+        unsubscribe = onAuthStateChanged(auth, async (user) => {
+          setCurrentUser(user);
+          if (user) {
+            setAdminCheckLoading(true);
+            const admin = await resolveIsAdmin(db, user.uid);
+            setIsAdmin(admin);
+            if (!admin) setIsManageMode(false);
+            setAdminCheckLoading(false);
+          } else {
+            setIsAdmin(false);
             setIsManageMode(false);
-        }
-    }, [currentUser, isManageMode]);
+            setAdminCheckLoading(false);
+          }
+          setLoading(false);
+        });
+      } catch (err) {
+        console.error('Firebase initialization failed:', err);
+        setLoading(false);
+        setAdminCheckLoading(false);
+      }
+    };
 
-    const login = React.useCallback(async (email, password) => {
-        if (!instancesRef.current.auth) throw new Error("Auth not initialized");
-        const { signInWithEmailAndPassword } = await import('firebase/auth');
-        return signInWithEmailAndPassword(instancesRef.current.auth, email, password);
-    }, []);
+    initialize();
 
-    const logout = React.useCallback(async () => {
-        if (!instancesRef.current.auth) return;
-        const { signOut } = await import('firebase/auth');
-        return signOut(instancesRef.current.auth);
-    }, []);
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, []);
 
-    const setManageMode = React.useCallback((value) => {
-        setIsManageMode(value);
-    }, []);
+  useEffect(() => {
+    if (!currentUser && isManageMode) {
+      setIsManageMode(false);
+    }
+  }, [currentUser, isManageMode]);
 
-    const toggleManageMode = React.useCallback(() => {
-        setIsManageMode(prev => !prev);
-    }, []);
+  useEffect(() => {
+    if (!isAdmin && isManageMode) {
+      setIsManageMode(false);
+    }
+  }, [isAdmin, isManageMode]);
 
-    const value = React.useMemo(() => ({
-        currentUser,
-        isManageMode,
-        toggleManageMode,
-        setManageMode,
-        login,
-        logout,
-        auth: instancesRef.current.auth,
-        db: instancesRef.current.db,
-        analytics: instancesRef.current.analytics,
-        isInitialized
-    }), [currentUser, isManageMode, toggleManageMode, setManageMode, login, logout, isInitialized]);
+  const login = useCallback(async (email, password) => {
+    if (!instancesRef.current.auth) throw new Error('Auth not initialized');
+    const { signInWithEmailAndPassword } = await import('firebase/auth');
+    return signInWithEmailAndPassword(instancesRef.current.auth, email, password);
+  }, []);
 
-    return (
-        <AuthContext.Provider value={value}>
-            {children}
-        </AuthContext.Provider>
-    );
+  /** Sign in and verify allowlist; signs out if not an admin. */
+  const loginAsAdmin = useCallback(
+    async (email, password) => {
+      const { signOut } = await import('firebase/auth');
+      const credential = await login(email, password);
+      const admin = await resolveIsAdmin(instancesRef.current.db, credential.user.uid);
+      if (!admin) {
+        await signOut(instancesRef.current.auth);
+        setIsAdmin(false);
+        setIsManageMode(false);
+        const err = new Error('NOT_AUTHORIZED');
+        err.code = 'NOT_AUTHORIZED';
+        throw err;
+      }
+      setIsAdmin(true);
+      setIsManageMode(true);
+      return credential.user;
+    },
+    [login]
+  );
+
+  const logout = useCallback(async () => {
+    if (!instancesRef.current.auth) return;
+    const { signOut } = await import('firebase/auth');
+    setIsManageMode(false);
+    setIsAdmin(false);
+    return signOut(instancesRef.current.auth);
+  }, []);
+
+  const setManageMode = useCallback(
+    (value) => {
+      if (value && !isAdmin) return;
+      setIsManageMode(value);
+    },
+    [isAdmin]
+  );
+
+  const toggleManageMode = useCallback(() => {
+    if (!isAdmin) return;
+    setIsManageMode((prev) => !prev);
+  }, [isAdmin]);
+
+  const value = useMemo(
+    () => ({
+      currentUser,
+      isAdmin,
+      adminCheckLoading,
+      isManageMode,
+      toggleManageMode,
+      setManageMode,
+      login,
+      loginAsAdmin,
+      logout,
+      refreshAdminStatus,
+      auth: instancesRef.current.auth,
+      db: instancesRef.current.db,
+      analytics: instancesRef.current.analytics,
+      isInitialized,
+      firebaseProjectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || ''
+    }),
+    [
+      currentUser,
+      isAdmin,
+      adminCheckLoading,
+      isManageMode,
+      toggleManageMode,
+      setManageMode,
+      login,
+      loginAsAdmin,
+      logout,
+      refreshAdminStatus,
+      isInitialized
+    ]
+  );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export default AuthContext;

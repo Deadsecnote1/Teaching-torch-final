@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Shield, AlertTriangle, LogIn, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { Container, Section } from '../../components/ui/Layout';
@@ -12,7 +12,14 @@ const AdminLogin = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { login, setManageMode } = useAuth();
+  const location = useLocation();
+  const { loginAsAdmin } = useAuth();
+
+  useEffect(() => {
+    if (location.state?.reason === 'not_authorized') {
+      setError('This account is not authorized for admin access.');
+    }
+  }, [location.state?.reason]);
 
   const [loginAttempts, setLoginAttempts] = useState(parseInt(localStorage.getItem('login_attempts') || '0'));
   const [lockoutTime, setLockoutTime] = useState(parseInt(localStorage.getItem('lockout_time') || '0'));
@@ -30,18 +37,22 @@ const AdminLogin = () => {
     try {
       setError('');
       setLoading(true);
-      await login(email, password);
-      
-      // Clear attempts on success
+      await loginAsAdmin(email, password);
+
       setLoginAttempts(0);
       localStorage.removeItem('login_attempts');
       localStorage.removeItem('lockout_time');
-      
-      setManageMode(true);
+
       navigate('/admin');
     } catch (err) {
       console.error(err);
-      
+
+      if (err.code === 'NOT_AUTHORIZED') {
+        setError('This account is not on the admin allowlist. Contact the site owner.');
+        setLoading(false);
+        return;
+      }
+
       const newAttempts = loginAttempts + 1;
       setLoginAttempts(newAttempts);
       localStorage.setItem('login_attempts', newAttempts.toString());

@@ -59,9 +59,10 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
-    // Admins list: Only existing admins can see/edit the allowlist
-    match /admins/{document=**} {
-      allow read, write: if isAdmin();
+    // Admin allowlist: any signed-in user may read to self-check; only admins may edit
+    match /admins/allowedList {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
     }
 
     // === USER DATA ===

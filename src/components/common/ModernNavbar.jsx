@@ -15,7 +15,7 @@ export default function ModernNavbar() {
   
   const { theme, toggleTheme } = useTheme();
   const { grades, gradesLoading } = useData();
-  const { currentUser: user, logout, isManageMode, toggleManageMode } = useAuth();
+  const { currentUser: user, isAdmin, logout, isManageMode, toggleManageMode } = useAuth();
   const location = useLocation();
 
   const gradesDropdownRef = useRef(null);
@@ -165,8 +165,8 @@ export default function ModernNavbar() {
                 {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
               </Button>
 
-              {/* Admin Dropdown (Desktop & Mobile) */}
-              {user && (
+              {/* Admin Dropdown (allowlisted admins only) */}
+              {isAdmin && user && (
                 <div className="relative" ref={adminDropdownRef}>
                   <Button
                     variant="ghost"
