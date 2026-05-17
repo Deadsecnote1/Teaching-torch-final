@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import { Pencil, Trash2, BookOpen, Layers, ChevronRight, Settings, Plus, X } from 'lucide-react';
 import { getLucideIcon } from '../../utils/iconUtils';
-import { Container, Section, Grid } from '../../components/ui/Layout';
+import { Container, Section } from '../../components/ui/Layout';
 import { Card, CardContent } from '../../components/ui/Card';
 
 const ALStreamsPage = () => {
@@ -103,24 +103,24 @@ const ALStreamsPage = () => {
 
       {/* Content */}
       <Section className="flex-1 py-12">
-        <Grid cols={3} gap={8} className="max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
           {alStreams.map((stream) => {
             const streamSubjects = alSubjects.filter(sub => sub.streamId === stream.id);
             const isActive = activeStreamId === stream.id;
 
             return (
-              <div key={stream.id} className="col-span-1 sm:col-span-2 md:col-span-1 flex justify-center">
+              <div key={stream.id} className="flex justify-center w-full min-w-0">
                 <Card 
-                  className={`w-full max-w-sm transition-all duration-300 border-border overflow-hidden cursor-pointer ${isActive ? 'ring-2 ring-primary shadow-lg -translate-y-1' : 'hover:shadow-md hover:border-primary/50'}`}
+                  className={`w-full max-w-md transition-all duration-300 border-border overflow-hidden cursor-pointer ${isActive ? 'ring-2 ring-primary shadow-lg -translate-y-1' : 'hover:shadow-md hover:border-primary/50'}`}
                   onMouseEnter={() => setActiveStreamId(stream.id)}
                   onMouseLeave={() => setActiveStreamId(null)}
                   onClick={() => setActiveStreamId(isActive ? null : stream.id)}
                 >
-                  <CardContent className="p-8 flex flex-col items-center text-center relative z-10 h-full">
-                    <div className="w-20 h-20 rounded-2xl flex items-center justify-center mb-6 bg-bg-secondary border border-border shadow-sm transition-transform duration-300" style={{ color: stream.color || 'var(--primary)' }}>
+                  <CardContent className="p-6 sm:p-8 flex flex-col items-center text-center relative z-10 h-full min-w-0 w-full">
+                    <div className="w-20 h-20 shrink-0 rounded-2xl flex items-center justify-center mb-6 bg-bg-secondary border border-border shadow-sm transition-transform duration-300" style={{ color: stream.color || 'var(--primary)' }}>
                       {getLucideIcon(stream.icon, "w-12 h-12")}
                     </div>
-                    <h3 className="text-2xl font-bold text-text-primary text-center break-words text-balance leading-snug px-2 w-full">{stream.name}</h3>
+                    <h3 className="text-xl sm:text-2xl font-bold text-text-primary text-center leading-snug break-normal text-pretty w-full min-w-0">{stream.name}</h3>
                     <p className="text-text-muted mt-2 text-sm">{stream.description || 'Access specialized resources'}</p>
 
                     {isManageMode && (
@@ -183,13 +183,13 @@ const ALStreamsPage = () => {
           })}
 
           {alStreams.length === 0 && (
-            <div className="col-span-3 text-center text-text-muted py-16 bg-card rounded-2xl border border-border">
+            <div className="lg:col-span-2 text-center text-text-muted py-16 bg-card rounded-2xl border border-border">
               <Layers className="w-16 h-16 mx-auto mb-4 opacity-20" />
               <h4 className="text-xl font-bold text-text-primary mb-2">No Streams Available</h4>
               <p>Please contact the administrator to set up Advanced Level streams.</p>
             </div>
           )}
-        </Grid>
+        </div>
       </Section>
 
       {/* Tailwind Modals */}
